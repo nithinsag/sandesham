@@ -5,8 +5,13 @@ import * as md_auth from './middlewares/authenticate';
 import logger from 'morgan';
 import fastify from 'fastify';
 import fastifySwagger from 'fastify-swagger'
+//@ts-ignore
+import fastifyMongooseApi from 'fastify-mongoose-api'
+import fastifyFormBody from 'fastify-formbody'
 import cors from 'cors';
 import middie from 'middie'
+import { UserSchema } from './models'
+import mongoose from 'mongoose'
 
 export class Server {
 
@@ -19,12 +24,12 @@ export class Server {
 
     constructor(private port: number) {
         this.app = fastify();
-        
+
     }
 
     async start() {
 
-        await this.config(); 
+        await this.config();
         await this.api();
         try {
             await this.app.listen(this.port, '0.0.0.0')
@@ -51,6 +56,13 @@ export class Server {
     public async config() {
 
         await this.app.register(middie)
+        await this.app.register(fastifyFormBody)
+
+        const mongooseConnection = await mongoose.createConnection(process.env.MONGO_URI!, { useNewUrlParser: true, useUnifiedTopology: true });
+        mongooseConnection.model('User', UserSchema);
+
+        this.app.register(fastifyMongooseApi, { models: mongooseConnection.models, prefix: '/api/', setDefaults: true, methods: ['GET', 'POST'] })
+
         console.log("registered middie for handling middleware")
 
 
