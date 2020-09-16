@@ -58,7 +58,7 @@ export class Server {
         await this.app.register(middie)
         await this.app.register(fastifyFormBody)
 
-        const mongooseConnection = await mongoose.createConnection(process.env.MONGO_URI!, { useNewUrlParser: true, useUnifiedTopology: true });
+        const mongooseConnection = await mongoose.createConnection(process.env.MONGO_URI!, { useNewUrlParser: true,  useCreateIndex: true, useUnifiedTopology: true });
         mongooseConnection.model('User', UserSchema);
 
         this.app.register(fastifyMongooseApi, { models: mongooseConnection.models, prefix: '/api/', setDefaults: true, methods: ['GET', 'POST'] })
@@ -83,7 +83,7 @@ export class Server {
             routePrefix: '/documentation',
             swagger: {
                 info: {
-                    title: 'Test swagger',
+                    title: 'Vellarikapa',
                     description: 'testing the fastify swagger api',
                     version: '0.1.0'
                 },
