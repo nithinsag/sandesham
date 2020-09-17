@@ -10,7 +10,7 @@ import fastifyMongooseApi from 'fastify-mongoose-api'
 import fastifyFormBody from 'fastify-formbody'
 import cors from 'cors';
 import middie from 'middie'
-import { UserSchema } from './models'
+import { UserSchema, CommunitySchema, PostSchema } from './models'
 import mongoose from 'mongoose'
 
 export class Server {
@@ -60,6 +60,8 @@ export class Server {
 
         const mongooseConnection = await mongoose.createConnection(process.env.MONGO_URI!, { useNewUrlParser: true,  useCreateIndex: true, useUnifiedTopology: true });
         mongooseConnection.model('User', UserSchema);
+        mongooseConnection.model('Community', CommunitySchema);
+        mongooseConnection.model('Post', PostSchema);
 
         this.app.register(fastifyMongooseApi, { models: mongooseConnection.models, prefix: '/api/', setDefaults: true, methods: ['GET', 'POST'] })
 

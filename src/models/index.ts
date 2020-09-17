@@ -7,4 +7,16 @@ let UserSchema: Schema = new Schema({
   lastName: { type: String, required: true }
 });
 
-export {UserSchema}
+
+let CommunitySchema: Schema = new Schema({
+  name: { type: String, required: true, unique: true },
+  Description: { type: String, required: true },
+});
+
+let PostSchema: Schema = new Schema({
+  link: {type: String},
+  text: {type: String}
+})
+
+
+export {UserSchema, CommunitySchema, PostSchema}
