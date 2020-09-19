@@ -15,7 +15,8 @@ let UserSchema: Schema = new Schema({
 let CommunitySchema: Schema = new Schema({
   name: { type: String, required: true, unique: true },
   Description: { type: String, required: true },
-  moderators: [{type: Schema.Types.ObjectId, ref: 'User'}],
+  moderators: [{user_id: {type: Schema.Types.ObjectId, ref: 'User'}, name: String}],
+  owner: {user_id: {type: Schema.Types.ObjectId, ref: 'User'}, name: String},
   created_at: Date
 
 });
@@ -26,6 +27,7 @@ let PostSchema: Schema = new Schema({
   link: String,
   type: {type: String, enum: ["link", "text", "image", "video"]},
   Community: {type: Schema.Types.ObjectId, ref: 'Community'},
+  author: {user_id: {type: Schema.Types.ObjectId, ref: 'User'}, name: String},
   created_at: Date
 
 })
@@ -42,6 +44,7 @@ let CommentSchema: Schema = new Schema({
   slug: {type: String, required: true, unique: true},
   post: {type: Schema.Types.ObjectId, ref: 'Post'},
   parent: {type: Schema.Types.ObjectId, ref: 'Comment'},
+  author: {user_id: {type: Schema.Types.ObjectId, ref: 'User'}, name: String},
   created_at: Date
 })
 
