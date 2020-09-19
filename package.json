@@ -1,7 +1,7 @@
 {
-  "name": "fastify-typescript-docker-rest-api",
+  "name": "Sandesham",
   "version": "1.0.0",
-  "description": "Starter project for a fast, simple and clean RESTful API",
+  "description": "Backend Server for Sandesham",
   "main": "index.js",
   "scripts": {
     "cleanup": "rm -rf dist && rm -rf node_modules",
@@ -11,10 +11,9 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/miqrc/fastify-typescript-docker-rest-api.git"
+    "url": "git+https://github.com/diadara/sandesham"
   },
   "keywords": [
-    "fastify",
     "typescript",
     "docker",
     "nodejs",
@@ -22,21 +21,19 @@
     "rest",
     "api"
   ],
-  "author": "Miquel Ruiz <miqrch@gmail.com>",
+  "author": "Nithin Saji <nithin111@gmail.com>",
   "license": "MIT",
   "dependencies": {
+    "@types/method-override": "^0.0.31",
     "@types/mongoose": "^5.7.36",
     "bcrypt": "^3.0.6",
     "body-parser": "^1.19.0",
     "cors": "^2.8.5",
     "dotenv": "^8.2.0",
-    "fastify": "^3.4.1",
-    "fastify-express": "^0.1.0",
-    "fastify-formbody": "^5.0.0",
-    "fastify-mongoose-api": "^1.0.12",
-    "fastify-swagger": "^3.3.0",
+    "express": "^4.17.1",
+    "express-restify-mongoose": "^6.1.2",
     "jwt-simple": "^0.5.6",
-    "middie": "^5.1.0",
+    "method-override": "^3.0.0",
     "moment": "^2.24.0",
     "mongoose": "^5.10.5",
     "morgan": "^1.9.1",

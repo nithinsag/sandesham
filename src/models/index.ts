@@ -18,5 +18,8 @@ let PostSchema: Schema = new Schema({
   text: {type: String}
 })
 
+const User = mongoose.model('User', UserSchema);
+const Community = mongoose.model('Community', CommunitySchema);
+const Post = mongoose.model('Post', PostSchema);
 
-export {UserSchema, CommunitySchema, PostSchema}
+export {User, Community, Post}

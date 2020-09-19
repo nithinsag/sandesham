@@ -1,129 +1,55 @@
-import * as MainService from './controllers/main.service';
-import * as UserService from './controllers/user.service';
-import * as md_auth from './middlewares/authenticate';
+import express from "express";
+import bodyParser from "body-parser";
+import methodOverride from "method-override";
+import mongoose from "mongoose";
+import restify from "express-restify-mongoose";
 
-import logger from 'morgan';
-import fastify from 'fastify';
-import fastifySwagger from 'fastify-swagger'
-//@ts-ignore
-import fastifyMongooseApi from 'fastify-mongoose-api'
-import fastifyFormBody from 'fastify-formbody'
-import cors from 'cors';
-import middie from 'middie'
-import { UserSchema, CommunitySchema, PostSchema } from './models'
-import mongoose from 'mongoose'
+import { User, Community, Post } from "./models";
 
 export class Server {
+  public app: any;
+  public router: any;
 
-    public app: any;
+  // TODO
+  private opts = {
+    schema: {},
+  };
 
-    // TODO
-    private opts = {
-        schema: {}
-    };
+  constructor(private port: number) {
+    this.app = express();
+  }
 
-    constructor(private port: number) {
-        this.app = fastify();
-
+  async start() {
+    await this.config();
+    await this.api();
+    try {
+      await this.app.listen(this.port);
+      console.log(`server listening on ${this.port}`);
+    } catch (e) {
+      console.log(e);
     }
+  }
 
-    async start() {
+  public api() {
+    this.app.get("/", function (req: any, res: any) {
+      res.send("API is working!");
+    });
+  }
 
-        await this.config();
-        await this.api();
-        try {
-            await this.app.listen(this.port, '0.0.0.0')
-            console.log(`server listening on ${this.port}`);
-        }
-        catch (e) {
-            console.log(e)
-        }
-    }
+  public async config() {
+    let router = express.Router();
+    this.app.use(bodyParser.json());
+    this.app.use(methodOverride());
 
-    public api() {
-        this.app.get('/', function (req: any, res: any) {
-            res.send('API is working!');
-        });
+    await mongoose.connect(process.env.MONGO_URI!, {
+      useUnifiedTopology: true,
+      useNewUrlParser: true,
+    });
 
-        this.app.post('/register', this.opts, UserService.registerUser);
-        this.app.get('/public', MainService.getPublic);
-        this.app.get('/private', { preHandler: [md_auth.ensureAuth] }, MainService.getPrivate);
+    restify.serve(router, User);
+    restify.serve(router, Community);
+    restify.serve(router, Post);
 
-
-
-    }
-
-    public async config() {
-
-        await this.app.register(middie)
-        await this.app.register(fastifyFormBody)
-
-        const mongooseConnection = await mongoose.createConnection(process.env.MONGO_URI!, { useNewUrlParser: true,  useCreateIndex: true, useUnifiedTopology: true });
-        mongooseConnection.model('User', UserSchema);
-        mongooseConnection.model('Community', CommunitySchema);
-        mongooseConnection.model('Post', PostSchema);
-
-        this.app.register(fastifyMongooseApi, { models: mongooseConnection.models, prefix: '/api/', setDefaults: true, methods: ['GET', 'POST'] })
-
-        console.log("registered middie for handling middleware")
-
-
-        const options: cors.CorsOptions = {
-            allowedHeaders: ['Origin', 'X-Requested-With', 'Content-Type', 'Accept', 'X-Access-Token'],
-            credentials: true,
-            methods: 'GET,HEAD,OPTIONS,PUT,PATCH,POST,DELETE',
-            // origin: API_URL,
-            preflightContinue: false
-        };
-
-        this.app.use(cors(options));
-
-        this.app.use(logger('dev'));
-
-
-        this.app.register(fastifySwagger, {
-            routePrefix: '/documentation',
-            swagger: {
-                info: {
-                    title: 'Vellarikapa',
-                    description: 'testing the fastify swagger api',
-                    version: '0.1.0'
-                },
-                externalDocs: {
-                    url: 'https://swagger.io',
-                    description: 'Find more info here'
-                },
-                host: 'localhost',
-                schemes: ['http'],
-                consumes: ['application/json'],
-                produces: ['application/json'],
-                tags: [
-                    { name: 'user', description: 'User related end-points' },
-                    { name: 'code', description: 'Code related end-points' }
-                ],
-                definitions: {
-                    User: {
-                        type: 'object',
-                        required: ['id', 'email'],
-                        properties: {
-                            id: { type: 'string', format: 'uuid' },
-                            firstName: { type: 'string' },
-                            lastName: { type: 'string' },
-                            email: { type: 'string', format: 'email' }
-                        }
-                    }
-                },
-                securityDefinitions: {
-                    apiKey: {
-                        type: 'apiKey',
-                        name: 'apiKey',
-                        in: 'header'
-                    }
-                }
-            },
-            exposeRoute: true
-        })
-    }
-
+    this.app.use(router);
+  }
 }
-
