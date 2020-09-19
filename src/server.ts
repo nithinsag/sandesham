@@ -34,10 +34,15 @@ export class Server {
     this.app.get("/", function (req: any, res: any) {
       res.send("API is working!");
     });
+    let router = express.Router();
+    restify.serve(router, User);
+    restify.serve(router, Community);
+    restify.serve(router, Post);
+
+    this.app.use(router);
   }
 
   public async config() {
-    let router = express.Router();
     this.app.use(bodyParser.json());
     this.app.use(methodOverride());
 
@@ -45,11 +50,5 @@ export class Server {
       useUnifiedTopology: true,
       useNewUrlParser: true,
     });
-
-    restify.serve(router, User);
-    restify.serve(router, Community);
-    restify.serve(router, Post);
-
-    this.app.use(router);
   }
 }
