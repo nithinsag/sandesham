@@ -1,0 +1,12 @@
+{
+  "type": "service_account",
+  "project_id": "vellarikka-pattanam",
+  "private_key_id": "5b3f5e2eb2f72eb15b10e99d533adbcdb06857a9",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQDJo7I2y9LMR0yE\nrBKGsMQWF65VVXCpPmdt5p+Yq/KTVdbYX0DOWP3ungWAzC4eoF1yijzgJWD64aEa\nbyWvNhF+/6KtS8Zl8Bks87iGNVEWoRLo3vrpgHFE0e0aRRjyfypQ6udJXiWF7Gy0\n5jJ+2gaVcK8hKMWZMqTTopGnmfjNL6gC4tD15XVVWMfCOhm3Z7qIRJdBgDNFxo4f\n1fnIRLKj2I6vq7Tm1btZ7kCSdPlJNID0So8SIFD2AEIt7RzaOEuhOfwbdTwtMSl9\nowYtznRCZcirvRl/4vfo4giwKOhM1YoAbNlfV9iWdSA64k4cDEyefdu3ZsuYg3TK\nLH4+es67AgMBAAECggEAV6DVNS0U+gPORCYHkxNE1BkMgTc1U8ez6TX9i7rGG7OF\nP9j9b++Kw2VXHOce795fXgSnef2kjML7YWKGLQPBTMDJsKgqm2hheICeY2zORZhQ\ngHVO86UHFJJqiS0YL2KGQE4ln2PTyMS7ZU5ZCXm0vMMQyMdQQEibCwIubHjkgD59\nF30SRDtDVC6j7/dla18p07KW2P3vjCV5eUzlPYWglMBh8+QAbVXfNYiy0A3o5qZs\nZPzPBiju5KgYosffGyhbePasnr/McMjWazVDhaEjvzi2im1zCLc+8y3EWaJJWi2/\niUrVUdJQBzpxcjkzD8l6UY55je/lzDmaKoNo8dzE6QKBgQDr12buuu3LGOttqYX4\n1dFs8BJi8VpZ0x27dhYQqJDusI/hsT4c44zPfpgVw0OJk0f++G2KIXGoa/vM9O7b\n1vnAOnxIYio0uCw4DAh6dk0h2DeTfQyrfr9TRdEM6uNGEApbDsV9PTc3wr1kKavT\nxoIUgX2iAikhx4YReWdomfgrnQKBgQDa3+YKG/9ao6szTAG2mEpCULUNo7lxoW0Z\nG4pDQZlNcXbMUzwJof2++5jSi4WGEaFNDmCzMMUxIZuRrmC0mEletTfE184bIKkE\nNhN4REtVfE5aQirP8Ovq8NiO6GuMEVoDK3trOl9jDbT6ZWkpQio7CMLAnvIJc82O\nkR85vywwNwKBgQCbxceIEVG1Hv2JjjoeFGRiVuNeFNo/kDEIO8PxNtWbwmUWhjJn\ndGjyOESNw05dlTktkLsRTGu8+a30PydxbznBHSAv0x7beXZDgrcq4+6oVx7GPQdc\nUrhecTPWG2MISNn+MPCCeyd4nhjoCpoio/ARSUJI+rJeTGIiMpT5wxDnBQKBgEJG\nzDzBb5h9uQimelpVUR81my2PJ0deT0/sA/kLsyU9N3D1v1dXYyPiwcr3jq4jRomz\n0dpQ6VVQTPBXMlddSdJQ45tKkdGrGSL6UPj5DSrMolk4cghXdsjEt37GqFJYqr4M\n+6ljmqC+9M9hx+9DZtBLfdWgC8CK/XKvRRpSZkoPAoGBAKRr53obupfz7Hq6OsXI\n9DNzpxcVyVqgP53SA9HHPi51qnqKiFzA/Wj7PG84w6SYOvvJyX7x8joqzquJgC/o\nNR9y21Ns0JasxR6GRdklNN/TPaGTPXHHgU+pCuAxkZclkVVX2M9190Ix/8DUSrAR\niFwFRE8zKqSvg50niTliV0Np\n-----END PRIVATE KEY-----\n",
+  "client_email": "firebase-adminsdk-8e51g@vellarikka-pattanam.iam.gserviceaccount.com",
+  "client_id": "113995984415518521317",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/firebase-adminsdk-8e51g%40vellarikka-pattanam.iam.gserviceaccount.com"
+}

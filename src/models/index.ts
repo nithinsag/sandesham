@@ -3,8 +3,7 @@ import mongoose, { Schema, Document } from 'mongoose';
 
 let UserSchema: Schema = new Schema({
   email: { type: String},
-  firstName: { type: String, required: true },
-  lastName: { type: String, required: true },
+  name: { type: String, required: true },
   username: {type: String, required: true, unique: true},
   role: {type: String, enum: ["user", "admin"], default: "user"},
   picture: {type: String},
