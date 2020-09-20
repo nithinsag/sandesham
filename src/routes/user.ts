@@ -10,8 +10,6 @@ interface RouteObject {
   handler(req: Request, res: Response): any;
 }
 
-
-
 let serviceAccount = require("../../config/google-services.json");
 
 admin.initializeApp({
@@ -34,14 +32,18 @@ export async function validateToken(
 
 async function signUp(req, res) {
   const { token } = req.body;
-  console.log(req.body    )
+  console.log(req.body);
   const decodedToken = await validateToken(token);
   if (typeof decodedToken == "object") {
     const { name, picture, email, email_verified } = decodedToken;
     let user = new User({ name, email, picture, created_at: Date.now() });
-
-    await user.save();
-    res.json(user);
+    try {
+      await user.save();
+      res.json(user);
+    } catch (e) {
+      console.log(e)
+      res.boom(e);
+    }
   } else {
     res.boom.unauthorized("could not register user");
   }
