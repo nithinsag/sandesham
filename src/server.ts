@@ -4,7 +4,7 @@ import methodOverride from "method-override";
 import mongoose from "mongoose";
 import restify from "express-restify-mongoose";
 
-import { User, Community, Post } from "./models";
+import { User, Community, Post, Comment} from "./models";
 
 export class Server {
   public app: any;
@@ -35,9 +35,10 @@ export class Server {
       res.send("API is working!");
     });
     let router = express.Router();
-    restify.serve(router, User);
-    restify.serve(router, Community);
-    restify.serve(router, Post);
+    restify.serve(router, User, {name: 'user'});
+    restify.serve(router, Community, {name: 'community'});
+    restify.serve(router, Post, {name: 'post'});
+    restify.serve(router, Comment, {name: 'comment'});
 
     this.app.use(router);
   }

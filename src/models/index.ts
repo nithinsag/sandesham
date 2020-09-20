@@ -58,6 +58,8 @@ let CommentVoteSchema: Schema = new Schema({
 const User = mongoose.model('User', UserSchema);
 const Community = mongoose.model('Community', CommunitySchema);
 const Post = mongoose.model('Post', PostSchema);
+const PostVote = mongoose.model('PostVote', PostVoteSchema);
 const Comment = mongoose.model('Comment', CommentSchema);
+const CommentVote = mongoose.model('CommentVote', CommentVoteSchema);
 
-export {User, Community, Post, Comment}
+export {User, Community, Post, Comment, PostVote, CommentVote}
