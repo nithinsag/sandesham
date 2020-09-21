@@ -9,6 +9,20 @@ let UserSchema: Schema = new Schema({
   created_at: Date,
 });
 
+let CommunityMembership: Schema = new Schema({
+  user: {
+    name: String,
+    user: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+    },
+  },
+  community: {
+    name: String,
+    community: { type: Schema.Types.ObjectId, ref: "Community" },
+  },
+});
+
 let CommunitySchema: Schema = new Schema({
   name: { type: String, required: true, unique: true },
   Description: { type: String, required: true },
