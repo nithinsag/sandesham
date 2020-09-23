@@ -8,7 +8,7 @@ import { userRoutes } from "./routes/user";
 import { registerExtraRoutes } from "./helpers/roueUtils";
 import { passportMiddleware } from "./middlewares/authenticate";
 import { User, Community, Post, Comment } from "./models";
-import morgan from 'morgan'
+import morgan from "morgan";
 export class Server {
   public app: any;
   public router: any;
@@ -27,17 +27,6 @@ export class Server {
     await this.api();
     try {
       await this.app.listen(this.port);
-      // this.app._router.stack.forEach(function (middleware) {
-      //   if (middleware.route) {
-      //     // routes registered directly on the app
-      //     console.log(middleware.route);
-      //   } else if (middleware.name === "router") {
-      //     // router middleware
-      //     middleware.handle.stack.forEach(function (handler) {
-      //       console.log(handler.route);
-      //     });
-      //   }
-      // });
       console.log(`server listening on ${this.port}`);
     } catch (e) {
       console.log(e);
@@ -45,9 +34,13 @@ export class Server {
   }
 
   public api() {
-    this.app.get("/", function (req: any, res: any) {
-      res.send("API is working!");
-    });
+    this.app.get(
+      "/",
+      passportMiddleware.authenticate("jwt", { session: false }),
+      function (req: any, res: any) {
+        res.send("API is working!");
+      }
+    );
     let router = express.Router();
 
     const userUri = "/api/v1/user"; // building api url before restify to give higher priority
@@ -67,7 +60,7 @@ export class Server {
     this.app.use(bodyParser.json());
     this.app.use(methodOverride());
     this.app.use(boom()); // for error handling
-    this.app.use(morgan('combined')) // for logs
+    this.app.use(morgan("combined")); // for logs
 
     // this middleware will add req.user to routes requiring authentication
     this.app.use(passportMiddleware.initialize());

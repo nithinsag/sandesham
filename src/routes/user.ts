@@ -1,6 +1,6 @@
 import * as admin from "firebase-admin";
 import { User } from "../models";
-import jwt from 'jsonwebtoken'
+import jwt from "jsonwebtoken";
 
 interface DecodedToken extends admin.auth.DecodedIdToken {
   name?: string;
@@ -34,26 +34,36 @@ export async function validateToken(
 async function signUp(req, res) {
   const { token } = req.body;
   console.log(req.body);
-  const decodedToken = await validateToken(token);
+  var decodedToken;
+  if (process.env.DEPLOY_ENV == "production") {
+    decodedToken = await validateToken(token);
+  } else {
+    decodedToken = {
+      name: "Test User",
+      picture: "http://example.com/picure.jpg",
+      email: "user@example.com",
+      email_verified: true,
+    };
+  }
   if (typeof decodedToken == "object") {
     const { name, picture, email, email_verified } = decodedToken;
     let users, user;
-    users = User.find({ email: email });
+    users = await User.find({ email: email });
     if (users.length > 0) {
       user = users[0];
-    }
+    } else {
     user = new User({ name, email, picture, created_at: Date.now() });
+    }
     try {
       await user.save();
-      res.json(user);
+      //res.json(user);
     } catch (e) {
       console.log(e);
       return res.boom(e);
     }
 
-    const token =   jwt.sign({user: user}, process.env.TOKEN_SECRET)
-    res.json({token: token})
-
+    const token = jwt.sign({ user: user }, process.env.TOKEN_SECRET);
+    res.json({ token: token });
   } else {
     res.boom.unauthorized("could not register user");
   }
