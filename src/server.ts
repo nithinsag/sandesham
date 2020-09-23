@@ -49,6 +49,7 @@ export class Server {
 
     const communityUri = restify.serve(router, Community, {
       name: "community",
+      preMiddleware:  passportMiddleware.authenticate("jwt", { session: false })
     });
     const postUri = restify.serve(router, Post, { name: "post" });
     const commentUri = restify.serve(router, Comment, { name: "comment" });
