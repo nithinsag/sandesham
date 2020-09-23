@@ -130,4 +130,4 @@ buck-out/
 *.jsbundle
 
 .jest/
-
+.env
