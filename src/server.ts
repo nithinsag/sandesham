@@ -6,7 +6,7 @@ import restify from "express-restify-mongoose";
 import boom from "express-boom";
 import { userRoutes } from "./routes/user";
 import { registerExtraRoutes } from "./helpers/roueUtils";
-
+import { passportMiddleware } from "./middlewares/authenticate";
 import { User, Community, Post, Comment } from "./models";
 
 export class Server {
@@ -54,7 +54,6 @@ export class Server {
     registerExtraRoutes(router, userUri, userRoutes);
     restify.serve(router, User, { name: "user" });
 
-
     const communityUri = restify.serve(router, Community, {
       name: "community",
     });
@@ -69,6 +68,9 @@ export class Server {
     this.app.use(methodOverride());
     this.app.use(boom());
 
+    // this middleware will add req.user to routes requiring authentication
+    this.app.use(passportMiddleware.initialize());
+    // passport.authenticate('jwt', { session: false }) can be used to protect private routes
     await mongoose.connect(process.env.MONGO_URI!, {
       useUnifiedTopology: true,
       useNewUrlParser: true,

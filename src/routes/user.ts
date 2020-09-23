@@ -1,5 +1,6 @@
 import * as admin from "firebase-admin";
 import { User } from "../models";
+import jwt from 'jsonwebtoken'
 
 interface DecodedToken extends admin.auth.DecodedIdToken {
   name?: string;
@@ -36,14 +37,23 @@ async function signUp(req, res) {
   const decodedToken = await validateToken(token);
   if (typeof decodedToken == "object") {
     const { name, picture, email, email_verified } = decodedToken;
-    let user = new User({ name, email, picture, created_at: Date.now() });
+    let users, user;
+    users = User.find({ email: email });
+    if (users.length > 0) {
+      user = users[0];
+    }
+    user = new User({ name, email, picture, created_at: Date.now() });
     try {
       await user.save();
       res.json(user);
     } catch (e) {
-      console.log(e)
-      res.boom(e);
+      console.log(e);
+      return res.boom(e);
     }
+
+    const token =   jwt.sign({user: user}, process.env.TOKEN_SECRET)
+    res.json({token: token})
+
   } else {
     res.boom.unauthorized("could not register user");
   }
