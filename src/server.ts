@@ -8,7 +8,7 @@ import { userRoutes } from "./routes/user";
 import { registerExtraRoutes } from "./helpers/roueUtils";
 import { passportMiddleware } from "./middlewares/authenticate";
 import { User, Community, Post, Comment } from "./models";
-
+import morgan from 'morgan'
 export class Server {
   public app: any;
   public router: any;
@@ -66,7 +66,8 @@ export class Server {
   public async config() {
     this.app.use(bodyParser.json());
     this.app.use(methodOverride());
-    this.app.use(boom());
+    this.app.use(boom()); // for error handling
+    this.app.use(morgan('combined')) // for logs
 
     // this middleware will add req.user to routes requiring authentication
     this.app.use(passportMiddleware.initialize());
