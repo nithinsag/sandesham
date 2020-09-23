@@ -6,7 +6,42 @@ let UserSchema: Schema = new Schema({
   username: { type: String, unique: true },
   role: { type: String, enum: ["user", "admin"], default: "user" },
   picture: { type: String },
-  created_at: Date,
+  created_at: { type: Date, default: Date.now },
+  updated_at: { type: Date, default: Date.now },
+});
+
+let CommunitySchema: Schema = new Schema({
+  name: { type: String, required: true, unique: true },
+  description: { type: String, required: true },
+  visibility: { type: String, enum: ["private", "public", "restricted"], default: "public" },
+  status: { type: String, enum: ["enabled", "disabled"], default: "enabled" },
+  rules: { type: String },
+  icon: { type: String },
+  moderators: [
+    { user_id: { type: Schema.Types.ObjectId, ref: "User" }, name: String },
+  ],
+  owner: {
+    user_id: { type: Schema.Types.ObjectId, ref: "User" },
+    name: String,
+  },
+  created_at: { type: Date, default: Date.now },
+  updated_at: { type: Date, default: Date.now },
+});
+
+let PostSchema: Schema = new Schema({
+  slug: { type: String, required: true, unique: true },
+  title: { type: String, required: true },
+  description: { type: String, required: true },
+  status: { type: String, enum: ["enabled", "disabled"], default: "enabled" },
+  link: String,
+  type: { type: String, enum: ["link", "text", "image", "video"] },
+  community: { type: Schema.Types.ObjectId, ref: "Community" },
+  author: {
+    user_id: { type: Schema.Types.ObjectId, ref: "User" },
+    name: String,
+  },
+  created_at: { type: Date, default: Date.now },
+  updated_at: { type: Date, default: Date.now },
 });
 
 let CommunityMembership: Schema = new Schema({
@@ -21,38 +56,15 @@ let CommunityMembership: Schema = new Schema({
     name: String,
     community: { type: Schema.Types.ObjectId, ref: "Community" },
   },
-});
-
-let CommunitySchema: Schema = new Schema({
-  name: { type: String, required: true, unique: true },
-  Description: { type: String, required: true },
-  moderators: [
-    { user_id: { type: Schema.Types.ObjectId, ref: "User" }, name: String },
-  ],
-  owner: {
-    user_id: { type: Schema.Types.ObjectId, ref: "User" },
-    name: String,
-  },
-  created_at: Date,
-});
-
-let PostSchema: Schema = new Schema({
-  slug: { type: String, required: true, unique: true },
-  text: { type: String },
-  link: String,
-  type: { type: String, enum: ["link", "text", "image", "video"] },
-  Community: { type: Schema.Types.ObjectId, ref: "Community" },
-  author: {
-    user_id: { type: Schema.Types.ObjectId, ref: "User" },
-    name: String,
-  },
-  created_at: Date,
+  created_at: { type: Date, default: Date.now },
+  updated_at: { type: Date, default: Date.now },
 });
 
 let PostVoteSchema: Schema = new Schema({
   post: { type: Schema.Types.ObjectId, ref: "Post" },
   user: { type: Schema.Types.ObjectId, ref: "User" },
-  created_at: Date,
+  created_at: { type: Date, default: Date.now },
+  updated_at: { type: Date, default: Date.now },
 });
 
 // https://www.xuchao.org/docs/mongodb/use-cases/storing-comments.html#gsc.tab=0
@@ -65,13 +77,15 @@ let CommentSchema: Schema = new Schema({
     user_id: { type: Schema.Types.ObjectId, ref: "User" },
     name: String,
   },
-  created_at: Date,
+  created_at: { type: Date, default: Date.now },
+  updated_at: { type: Date, default: Date.now },
 });
 
 let CommentVoteSchema: Schema = new Schema({
   comment: { type: Schema.Types.ObjectId, ref: "Comment" },
   user: { type: Schema.Types.ObjectId, ref: "User" },
-  created_at: Date,
+  created_at: { type: Date, default: Date.now },
+  updated_at: { type: Date, default: Date.now },
 });
 
 const User = mongoose.model("User", UserSchema);
