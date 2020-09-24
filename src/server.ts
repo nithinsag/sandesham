@@ -9,6 +9,8 @@ import { registerExtraRoutes } from "./helpers/roueUtils";
 import { passportMiddleware } from "./middlewares/authenticate";
 import { User, Community, Post, Comment } from "./models";
 import morgan from "morgan";
+import { addCreateBy } from "./middlewares/mongoose/author";
+
 export class Server {
   public app: any;
   public router: any;
@@ -49,10 +51,18 @@ export class Server {
 
     const communityUri = restify.serve(router, Community, {
       name: "community",
-      preMiddleware:  passportMiddleware.authenticate("jwt", { session: false })
+      preMiddleware: passportMiddleware.authenticate("jwt", { session: false }),
+      preCreate: addCreatedBy,
     });
-    const postUri = restify.serve(router, Post, { name: "post" });
-    const commentUri = restify.serve(router, Comment, { name: "comment" });
+    const postUri = restify.serve(router, Post, {
+      name: "post",
+      preMiddleware: passportMiddleware.authenticate("jwt", { session: false }),
+      preCreate: addCreateBy,
+    });
+    const commentUri = restify.serve(router, Comment, {
+      name: "comment",
+      preMiddleware: passportMiddleware.authenticate("jwt", { session: false }),
+    });
 
     this.app.use(router);
   }
