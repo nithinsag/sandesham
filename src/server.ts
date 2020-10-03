@@ -10,7 +10,6 @@ import { passportMiddleware } from "./middlewares/authenticate";
 import { User, Community, Post, Comment } from "./models";
 import morgan from "morgan";
 import { addCreatedBy } from "./middlewares/mongoose/author";
-
 import multer from 'multer';
 
 export class Server {
