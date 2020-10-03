@@ -10,6 +10,7 @@ import { passportMiddleware } from "./middlewares/authenticate";
 import { User, Community, Post, Comment } from "./models";
 import morgan from "morgan";
 import { addCreatedBy } from "./middlewares/mongoose/author";
+import multer from 'multer';
 
 export class Server {
   public app: any;
@@ -45,6 +46,14 @@ export class Server {
     );
     let router = express.Router();
 
+    var upload = multer({ dest: 'uploads/' })
+
+    router.post('/profile', upload.single('avatar'), function (req, res, next) {
+      res.send("in profile");
+      // req.file is the `avatar` file
+      // req.body will hold the text fields, if there were any
+    })
+
     const userUri = "/api/v1/user"; // building api url before restify to give higher priority
     registerExtraRoutes(router, userUri, userRoutes);
     restify.serve(router, User, { name: "user" });
@@ -56,7 +65,7 @@ export class Server {
     });
     const postUri = restify.serve(router, Post, {
       name: "post",
-      preMiddleware: passportMiddleware.authenticate("jwt", { session: false }),
+     // preMiddleware: passportMiddleware.authenticate("jwt", { session: false }),
       preCreate: addCreatedBy,
     });
     const commentUri = restify.serve(router, Comment, {
