@@ -9,7 +9,7 @@ import { registerExtraRoutes } from "./helpers/roueUtils";
 import { passportMiddleware } from "./middlewares/authenticate";
 import { User, Community, Post, Comment } from "./models";
 import morgan from "morgan";
-import { addCreateBy } from "./middlewares/mongoose/author";
+import { addCreatedBy } from "./middlewares/mongoose/author";
 
 export class Server {
   public app: any;
@@ -57,7 +57,7 @@ export class Server {
     const postUri = restify.serve(router, Post, {
       name: "post",
       preMiddleware: passportMiddleware.authenticate("jwt", { session: false }),
-      preCreate: addCreateBy,
+      preCreate: addCreatedBy,
     });
     const commentUri = restify.serve(router, Comment, {
       name: "comment",
