@@ -11,10 +11,12 @@ import { User, Community, Post, Comment } from "./models";
 import morgan from "morgan";
 import { addCreatedBy } from "./middlewares/mongoose/author";
 import multer from 'multer';
+import {v2 as cloudinary} from "cloudinary"
 
 export class Server {
   public app: any;
   public router: any;
+  public cloudinary: any;
 
   // TODO
   private opts = {
@@ -46,10 +48,28 @@ export class Server {
     );
     let router = express.Router();
 
-    var upload = multer({ dest: 'uploads/' })
+    var upload = multer({ dest: 'uploads/' });
 
-    router.post('/profile', upload.single('avatar'), function (req, res, next) {
-      res.send("in profile");
+    router.post('/api/v1/media/:type/upload',upload.single('file'), function (req, res) {
+        var reqClone: any = req;
+
+        const path = reqClone.file.path
+        const uniqueFilename = new Date().toISOString()
+    
+        cloudinary.uploader.upload(
+          path,
+          { public_id: `${req.params.type}/${uniqueFilename}`, tags: `${req.params.type}` }, // directory and tags are optional
+          function(err, image) {
+            if (err) return res.send(err)
+            console.log('file uploaded to Cloudinary')
+            // remove file from server
+            const fs = require('fs')
+            fs.unlinkSync(path)
+            // return image details
+            res.json(image)
+          }
+        )
+
       // req.file is the `avatar` file
       // req.body will hold the text fields, if there were any
     })
@@ -77,6 +97,12 @@ export class Server {
   }
 
   public async config() {
+
+    this.cloudinary = cloudinary.config({
+      cloud_name: process.env.CLOUDINARY_NAME,
+      api_key: process.env.CLOUDINARY_API_KEY,
+      api_secret: process.env.CLOUDINARY_API_SECRET
+    })
     this.app.use(bodyParser.json());
     this.app.use(methodOverride());
     this.app.use(boom()); // for error handling
