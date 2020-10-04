@@ -6,7 +6,7 @@ import restify from "express-restify-mongoose";
 import boom from "express-boom";
 import { userRoutes } from "./routes/user";
 import { registerExtraRoutes } from "./helpers/roueUtils";
-import { passportMiddleware } from "./middlewares/authenticate";
+import { authenticateFromHeader } from "./middlewares/authenticate";
 import { User, Community, Post, Comment } from "./models";
 import morgan from "morgan";
 import { addCreatedBy } from "./middlewares/mongoose/author";
@@ -40,8 +40,7 @@ export class Server {
 
   public api() {
     this.app.get(
-      "/",
-      passportMiddleware.authenticate("jwt", { session: false }),
+      "/", authenticateFromHeader,  
       function (req: any, res: any) {
         res.send("API is working!");
       }
@@ -63,8 +62,8 @@ export class Server {
             if (err) return res.send(err)
             console.log('file uploaded to Cloudinary')
             // remove file from server
-            const fs = require('fs')
-            fs.unlinkSync(path)
+            // const fs = require('fs')
+            // fs.unlinkSync(path)
             // return image details
             res.json(image)
           }
@@ -80,7 +79,6 @@ export class Server {
 
     const communityUri = restify.serve(router, Community, {
       name: "community",
-      preMiddleware: passportMiddleware.authenticate("jwt", { session: false }),
       preCreate: addCreatedBy,
     });
     const postUri = restify.serve(router, Post, {
@@ -90,7 +88,6 @@ export class Server {
     });
     const commentUri = restify.serve(router, Comment, {
       name: "comment",
-      preMiddleware: passportMiddleware.authenticate("jwt", { session: false }),
     });
 
     this.app.use(router);
@@ -108,8 +105,6 @@ export class Server {
     this.app.use(boom()); // for error handling
     this.app.use(morgan("combined")); // for logs
 
-    // this middleware will add req.user to routes requiring authentication
-    this.app.use(passportMiddleware.initialize());
     // passport.authenticate('jwt', { session: false }) can be used to protect private routes
     await mongoose.connect(process.env.MONGO_URI!, {
       useUnifiedTopology: true,

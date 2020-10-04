@@ -1,39 +1,18 @@
 import * as admin from "firebase-admin";
 import { User } from "../models";
-import jwt from "jsonwebtoken";
+import {validateToken}  from '../modules/firebase'
+import {extractTokenFromAuthHeader}  from '../helpers/roueUtils'
 
-interface DecodedToken extends admin.auth.DecodedIdToken {
-  name?: string;
-}
+
 interface RouteObject {
   path: string;
   method: string;
   handler(req: Request, res: Response): any;
 }
 
-let serviceAccount = require("../../config/google-services.json");
-
-admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount),
-  databaseURL: "https://vellarikka-pattanam.firebaseio.com",
-});
-
-export async function validateToken(
-  idToken: any
-): Promise<DecodedToken | boolean> {
-  try {
-    let decodedToken: DecodedToken = await admin.auth().verifyIdToken(idToken);
-    return decodedToken;
-  } catch (err) {
-    console.log(err);
-    return false;
-  }
-  // ...
-}
-
 async function signUp(req, res) {
-  const { token } = req.body;
-  console.log(req.body);
+  let token = extractTokenFromAuthHeader(req);
+ 
   var decodedToken;
   if (process.env.DEPLOY_ENV == "production") {
     decodedToken = await validateToken(token);
@@ -52,7 +31,7 @@ async function signUp(req, res) {
     if (users.length > 0) {
       user = users[0];
     } else {
-    user = new User({ name, email, picture, created_at: Date.now() });
+      user = new User({ name, email, picture, created_at: Date.now() });
     }
     try {
       await user.save();
@@ -61,15 +40,12 @@ async function signUp(req, res) {
       console.log(e);
       return res.boom(e);
     }
-
-    const token = jwt.sign({ user: user }, process.env.TOKEN_SECRET);
-    res.json({ token: token });
+    res.json(user);
   } else {
     res.boom.unauthorized("could not register user");
   }
 }
 
-async function registerNewUser(idToken: any) {}
 
 export const userRoutes: [RouteObject] = [
   {
