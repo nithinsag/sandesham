@@ -12,7 +12,6 @@ interface RouteObject {
 
 async function signUp(req, res) {
   let token = extractTokenFromAuthHeader(req);
- 
   var decodedToken;
   if (process.env.DEPLOY_ENV == "production") {
     decodedToken = await validateToken(token);
@@ -26,12 +25,13 @@ async function signUp(req, res) {
   }
   if (typeof decodedToken == "object") {
     const { name, picture, email, email_verified } = decodedToken;
+    const displayname = req.body.displayname;
     let users, user;
     users = await User.find({ email: email });
     if (users.length > 0) {
       user = users[0];
     } else {
-      user = new User({ name, email, picture, created_at: Date.now() });
+      user = new User({ name, email, picture, created_at: Date.now(), displayname });
     }
     try {
       await user.save();
