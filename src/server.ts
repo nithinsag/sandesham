@@ -83,7 +83,7 @@ export class Server {
     });
     const postUri = restify.serve(router, Post, {
       name: "post",
-     // preMiddleware: passportMiddleware.authenticate("jwt", { session: false }),
+    //  preMiddleware: passportMiddleware.authenticate("jwt", { session: false }),
       preCreate: addCreatedBy,
     });
     const commentUri = restify.serve(router, Comment, {

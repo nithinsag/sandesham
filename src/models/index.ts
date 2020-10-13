@@ -29,12 +29,12 @@ let CommunitySchema: Schema = new Schema({
 });
 
 let PostSchema: Schema = new Schema({
-  slug: { type: String, required: true, unique: true },
+  // slug: { type: String, required: true, unique: true },
   title: { type: String, required: true },
-  description: { type: String, required: true },
+  description: { type: String },
   status: { type: String, enum: ["enabled", "disabled"], default: "enabled" },
   link: String,
-  type: { type: String, enum: ["link", "text", "image", "video"] },
+  type: { type: String, enum: ["link", "text", "image", "video", "gif"], required: true },
   community: { type: Schema.Types.ObjectId, ref: "Community" },
   author: {
     user_id: { type: Schema.Types.ObjectId, ref: "User" },
