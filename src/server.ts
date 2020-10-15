@@ -49,7 +49,7 @@ export class Server {
 
     var upload = multer({ dest: 'uploads/' });
 
-    router.post('/api/v1/media/:type/upload',upload.single('file'), function (req, res) {
+    router.post('/api/v1/media/:type/upload', authenticateFromHeader,  upload.single('file'), function (req, res) {
         var reqClone: any = req;
 
         const path = reqClone.file.path
