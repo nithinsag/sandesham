@@ -10,8 +10,8 @@ import { authenticateFromHeader } from "./middlewares/authenticate";
 import { User, Community, Post, Comment } from "./models";
 import morgan from "morgan";
 import { addCreatedBy } from "./middlewares/mongoose/author";
-import multer from 'multer';
-import {v2 as cloudinary} from "cloudinary"
+import multer from "multer";
+import { v2 as cloudinary } from "cloudinary";
 
 export class Server {
   public app: any;
@@ -39,39 +39,44 @@ export class Server {
   }
 
   public api() {
-    this.app.get(
-      "/", authenticateFromHeader,  
-      function (req: any, res: any) {
-        res.send("API is working!");
-      }
-    );
+    this.app.get("/", authenticateFromHeader, function (req: any, res: any) {
+      res.send("API is working!");
+    });
     let router = express.Router();
 
-    var upload = multer({ dest: 'uploads/' });
+    var upload = multer({ dest: "uploads/" });
 
-    router.post('/api/v1/media/:type/upload', authenticateFromHeader,  upload.single('file'), function (req, res) {
+    router.post(
+      "/api/v1/media/:type/upload",
+      authenticateFromHeader,
+      upload.single("file"),
+      function (req, res) {
         var reqClone: any = req;
 
-        const path = reqClone.file.path
-        const uniqueFilename = new Date().toISOString()
-    
+        const path = reqClone.file.path;
+        const uniqueFilename = new Date().toISOString();
+
         cloudinary.uploader.upload(
           path,
-          { public_id: `${req.params.type}/${uniqueFilename}`, tags: `${req.params.type}` }, // directory and tags are optional
-          function(err, image) {
-            if (err) return res.send(err)
-            console.log('file uploaded to Cloudinary')
+          {
+            public_id: `${req.params.type}/${uniqueFilename}`,
+            tags: `${req.params.type}`,
+          }, // directory and tags are optional
+          function (err, image) {
+            if (err) return res.send(err);
+            console.log("file uploaded to Cloudinary");
             // remove file from server
             // const fs = require('fs')
             // fs.unlinkSync(path)
             // return image details
-            res.json(image)
+            res.json(image);
           }
-        )
+        );
 
-      // req.file is the `avatar` file
-      // req.body will hold the text fields, if there were any
-    })
+        // req.file is the `avatar` file
+        // req.body will hold the text fields, if there were any
+      }
+    );
 
     const userUri = "/api/v1/user"; // building api url before restify to give higher priority
     registerExtraRoutes(router, userUri, userRoutes);
@@ -81,11 +86,13 @@ export class Server {
       name: "community",
       preCreate: addCreatedBy,
     });
+
     const postUri = restify.serve(router, Post, {
       name: "post",
-     // preMiddleware: passportMiddleware.authenticate("jwt", { session: false }),
+      preMiddleware: authenticateFromHeader,
       preCreate: addCreatedBy,
     });
+    
     const commentUri = restify.serve(router, Comment, {
       name: "comment",
     });
@@ -94,12 +101,11 @@ export class Server {
   }
 
   public async config() {
-
     this.cloudinary = cloudinary.config({
       cloud_name: process.env.CLOUDINARY_NAME,
       api_key: process.env.CLOUDINARY_API_KEY,
-      api_secret: process.env.CLOUDINARY_API_SECRET
-    })
+      api_secret: process.env.CLOUDINARY_API_SECRET,
+    });
     this.app.use(bodyParser.json());
     this.app.use(methodOverride());
     this.app.use(boom()); // for error handling

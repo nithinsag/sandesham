@@ -1,6 +1,9 @@
 export function addCreatedBy(req, res, next) {
   if (req.user) {
-    req.body.created_by = req.user._id;
+    req.body.author = { user_id: req.user._id, name: req.user.name };
+  } else {
+    res.boom.unauthorized("Unauthenticated user");
+    return
   }
   next();
 }
