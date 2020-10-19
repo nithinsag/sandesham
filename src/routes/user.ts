@@ -29,9 +29,12 @@ async function signUp(req, res) {
     let users, user;
     users = await User.find({ email: email });
     if (users.length > 0) {
-      user = users[0];
+      user = users[0]; 
+      console.log('user in signup exist', user);
     } else {
-      user = new User({ name, email, picture, created_at: Date.now() });
+      const username = req.body.username;
+      user = new User({ name, email, picture, created_at: Date.now(), username });
+      console.log('user in signup not exist ', user);
     }
     try {
       await user.save();

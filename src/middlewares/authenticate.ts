@@ -32,7 +32,9 @@ export function authenticateFromHeader(req, res, next) {
     if (typeof decodedToken == "object") {
       const { name, picture, email, email_verified } = decodedToken;
       let users, user;
+     
       users = await User.find({ email: email });
+      console.log(decodedToken);
       if (users.length > 0) {
         req.user = users[0];
       }
@@ -47,10 +49,11 @@ export function authenticateFromHeader(req, res, next) {
           updated_at: "2020-09-23T17:51:45.122Z",
           __v: 0,
         };
+        console.log("setting test req.user")
       }
     }
+    console.log('Authenticated user - ', req.user);
 
-    console.log("setting test req.user")
     return next();
   }
   authMiddleware(req, res, next);
