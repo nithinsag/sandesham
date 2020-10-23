@@ -2,6 +2,9 @@ import * as admin from "firebase-admin";
 import { User } from "../models";
 import {validateToken}  from '../modules/firebase'
 import {extractTokenFromAuthHeader}  from '../helpers/roueUtils'
+import { Router } from "express";
+import { registerExtraRoutes } from "../helpers/roueUtils";
+import restify from "express-restify-mongoose";
 
 
 interface RouteObject {
@@ -57,3 +60,10 @@ export const userRoutes: [RouteObject] = [
     handler: signUp,
   },
 ];
+
+export function registerRoutes(router: Router) {
+  const userUri = "/api/v1/user"; // building api url before restify to give higher priority
+  // TODO: remove unnecessary function
+  registerExtraRoutes(router, userUri, userRoutes);
+  restify.serve(router, User, { name: "user" });
+}
