@@ -6,6 +6,7 @@
   "scripts": {
     "cleanup": "rm -rf dist && rm -rf node_modules",
     "test": "jest",
+    "testwatch": "jest --watch",
     "start": "tsc && node dist/index",
     "dev": "nodemon --watch 'src/**/*.ts' --ignore 'src/**/*.spec.ts' --exec node --inspect=0.0.0.0:9229 -r ts-node/register ./src/index.ts"
   },
@@ -46,18 +47,19 @@
     "tsc": "^1.20150623.0"
   },
   "devDependencies": {
-    "@types/method-override": "^0.0.31",
-    "@types/mongoose": "^5.7.36",
     "@types/bcrypt": "^3.0.0",
     "@types/body-parser": "^1.17.0",
     "@types/cors": "^2.8.5",
     "@types/jest": "^24.0.12",
+    "@types/method-override": "^0.0.31",
+    "@types/mongoose": "^5.7.36",
     "@types/morgan": "^1.7.35",
     "@types/node": "^12.0.0",
     "@types/request": "^2.48.1",
     "@types/request-promise-native": "^1.0.16",
     "jest": "^24.8.0",
     "nodemon": "^1.19.0",
+    "supertest": "^5.0.0",
     "ts-jest": "^24.0.2",
     "ts-node": "^8.10.2",
     "tslint": "^5.16.0",
