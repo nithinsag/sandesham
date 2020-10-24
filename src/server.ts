@@ -19,9 +19,14 @@ export class Server {
   }
 
   async start() {
-    await this.config();
-    await this.api();
     try {
+      await this.config();
+      await this.api();
+      await mongoose.connect(process.env.MONGO_URI!, {
+        useUnifiedTopology: true,
+        useNewUrlParser: true,
+      });
+
       await this.app.listen(this.port);
       console.log(`server listening on ${this.port}`);
     } catch (e) {
@@ -45,9 +50,5 @@ export class Server {
     this.app.use(morgan("combined")); // for logs
 
     // passport.authenticate('jwt', { session: false }) can be used to protect private routes
-    await mongoose.connect(process.env.MONGO_URI!, {
-      useUnifiedTopology: true,
-      useNewUrlParser: true,
-    });
   }
 }
