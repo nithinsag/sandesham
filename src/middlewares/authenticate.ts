@@ -14,7 +14,7 @@ export function authenticateFromHeader(req, res, next) {
     let token = extractTokenFromAuthHeader(req);
 
     if (isNull(token)) {
-      return res.boom.unauthorized("invalid token");
+      return next();
     }
     var decodedToken;
 

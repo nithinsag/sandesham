@@ -26,5 +26,7 @@ export function registerRoutes(router: Router) {
 
   const commentUri = restify.serve(router, Comment, {
     name: "comment",
+    preMiddleware: authenticateFromHeader,
+    preCreate: addCreatedBy,
   });
 }

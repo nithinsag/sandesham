@@ -70,7 +70,6 @@ let PostVoteSchema: Schema = new Schema({
 // https://www.xuchao.org/docs/mongodb/use-cases/storing-comments.html#gsc.tab=0
 let CommentSchema: Schema = new Schema({
   text: { type: String },
-  slug: { type: String, required: true, unique: true },
   post: { type: Schema.Types.ObjectId, ref: "Post" },
   parent: { type: Schema.Types.ObjectId, ref: "Comment" },
   author: {
