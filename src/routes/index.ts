@@ -7,26 +7,18 @@ import { User, Community, Post, Comment } from "../models";
 import restify from "express-restify-mongoose";
 import {registerRoutes as registerUploadRoutes} from './upload'
 import { registerRoutes as registerUserRoutes } from "./user";
+import {registerRoutes as registerPostRoutes} from "./post"
 
 export function registerRoutes(router: Router) {
   registerUploadRoutes(router)
   registerUserRoutes(router)
-
+  registerPostRoutes(router)
 
   const communityUri = restify.serve(router, Community, {
     name: "community",
-    preCreate: addCreatedBy,
-  });
-
-  const postUri = restify.serve(router, Post, {
-    name: "post",
     preMiddleware: authenticateFromHeader,
     preCreate: addCreatedBy,
   });
 
-  const commentUri = restify.serve(router, Comment, {
-    name: "comment",
-    preMiddleware: authenticateFromHeader,
-    preCreate: addCreatedBy,
-  });
+
 }

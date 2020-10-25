@@ -8,3 +8,10 @@ interface RouteObject {
   method: string;
   handler(req: Request, res: Response): any;
 }
+declare global {
+  namespace Express {
+    interface Request {
+      user: any;
+    }
+  }
+}
