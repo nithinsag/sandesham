@@ -68,7 +68,6 @@ let CommunityMembership: Schema = new Schema({
   updated_at: { type: Date, default: Date.now },
 });
 
-
 // https://www.xuchao.org/docs/mongodb/use-cases/storing-comments.html#gsc.tab=0
 let CommentSchema: Schema = new Schema({
   text: { type: String },
@@ -102,8 +101,8 @@ let CommentSchema: Schema = new Schema({
 const User = mongoose.model("User", UserSchema);
 const Community = mongoose.model("Community", CommunitySchema);
 const Post = mongoose.model("Post", PostSchema);
-const PostVote = mongoose.model("PostVote", PostVoteSchema);
 const Comment = mongoose.model("Comment", CommentSchema);
-const CommentVote = mongoose.model("CommentVote", CommentVoteSchema);
+// const CommentVote = mongoose.model("CommentVote", CommentVoteSchema);
+// const PostVote = mongoose.model("PostVote", PostVoteSchema);
 
-export { User, Community, Post, Comment, PostVote, CommentVote };
+export { User, Community, Post, Comment};
