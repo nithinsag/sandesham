@@ -45,7 +45,8 @@
     "multer": "^1.4.2",
     "request": "^2.88.0",
     "request-promise-native": "^1.0.7",
-    "tsc": "^1.20150623.0"
+    "tsc": "^1.20150623.0",
+    "winston": "^3.3.3"
   },
   "devDependencies": {
     "@types/bcrypt": "^3.0.0",
