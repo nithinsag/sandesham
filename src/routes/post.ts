@@ -5,6 +5,7 @@ import { authenticateFromHeader } from "../middlewares/authenticate";
 import { Post, Comment } from "../models";
 import restify from "express-restify-mongoose";
 import { logger } from "../helpers/logger";
+import { Types as MongooseTypes } from "mongoose";
 export function registerRoutes(router: Router) {
   const postUri = restify.serve(router, Post, {
     name: "post",
@@ -123,6 +124,26 @@ export function registerRoutes(router: Router) {
       }
     }
   );
+
+  router.get(`${postUri}/:id/graphlookupcomments`, async (req, res) => {
+    const post_id = req.params.id;
+    logger.info(`creating comment tree for ${post_id}`);
+
+    let posts = await Post.aggregate([
+      { $match: { _id: MongooseTypes.ObjectId(post_id) } },
+      {
+        $graphLookup: {
+          from: "comments",
+          startWith: "$_id",
+          connectFromField: "_id",
+          connectToField: "parent",
+          as: "replies",
+        },
+      },
+    ]);
+    // let post = await Post.findOne({ _id: post_id });
+    res.json(posts);
+  });
 
   const commentUri = restify.serve(router, Comment, {
     name: "comment",
