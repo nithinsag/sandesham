@@ -154,9 +154,53 @@ export function registerRoutes(router: Router) {
   router.post(
     `${commentUri}/:id/upvote`,
     authenticateFromHeader,
-    (req, res) => {
+    async (req, res) => {
+      logger.info("inside upvote");
       if (req.user) {
-        res.json({ status: "upvoted" });
+        const user_id = req.user._id;
+
+        let comment = await Comment.updateOne(
+          { _id: req.params.id },
+          [
+            {
+              $set: {
+                voteCount: {
+                  $cond: [
+                    { $in: [user_id, "$upvotes"] },
+                    "$voteCount",
+                    { $add: ["$voteCount", 1] },
+                  ],
+                },
+              },
+            },
+            {
+              $set: {
+                upvotes: {
+                  $cond: [
+                    { $in: [user_id, "$upvotes"] },
+                    "$upvotes",
+                    { $setUnion: ["$upvotes", [user_id]] },
+                  ],
+                },
+              },
+            },
+            {
+              $set: {
+                downvotes: {
+                  $cond: [
+                    { $in: [user_id, "$downvotes"] },
+                    { $setDifference: ["$downvotes", [user_id]] },
+                    "$downvotes",
+                  ],
+                },
+              },
+            },
+          ],
+
+          { new: true }
+        );
+
+        return res.json(comment);
       } else {
         res.boom.unauthorized("User needs to be authenticated to vote!");
       }
@@ -164,14 +208,59 @@ export function registerRoutes(router: Router) {
   );
 
   router.post(
-    `${commentUri}/:id/downvote`,
+    `${postUri}/:id/downvote`,
     authenticateFromHeader,
-    (req, res) => {
+    async (req, res) => {
+      logger.info("inside downvote");
       if (req.user) {
-        res.json({ status: "downvoted" });
+        const user_id = req.user._id;
+
+        let comment = await Comment.updateOne(
+          { _id: req.params.id },
+          [
+            {
+              $set: {
+                voteCount: {
+                  $cond: [
+                    { $in: [user_id, "$downvotes"] },
+                    "$voteCount",
+                    { $add: ["$voteCount", -1] },
+                  ],
+                },
+              },
+            },
+            {
+              $set: {
+                upvotes: {
+                  $cond: [
+                    { $in: [user_id, "$upvotes"] },
+                    { $setDifference: ["$upvotes", [user_id]] },
+                    "$upvotes",
+                  ],
+                },
+              },
+            },
+            {
+              $set: {
+                downvotes: {
+                  $cond: [
+                    { $in: [user_id, "$downvotes"] },
+                    "$downvotes",
+                    { $setUnion: ["$downvotes", [user_id]] },
+                  ],
+                },
+              },
+            },
+          ],
+
+          { new: true }
+        );
+
+        return res.json(comment);
       } else {
         res.boom.unauthorized("User needs to be authenticated to vote!");
       }
     }
   );
+
 }
