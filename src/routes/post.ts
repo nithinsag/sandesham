@@ -6,6 +6,7 @@ import { Post, Comment } from "../models";
 import restify from "express-restify-mongoose";
 import { logger } from "../helpers/logger";
 import { Types as MongooseTypes } from "mongoose";
+
 export function registerRoutes(router: Router) {
   const postUri = restify.serve(router, Post, {
     name: "post",
@@ -208,7 +209,7 @@ export function registerRoutes(router: Router) {
   );
 
   router.post(
-    `${postUri}/:id/downvote`,
+    `${commentUri}/:id/downvote`,
     authenticateFromHeader,
     async (req, res) => {
       logger.info("inside downvote");
