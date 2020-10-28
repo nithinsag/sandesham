@@ -6,13 +6,24 @@ import { Post, Comment } from "../models";
 import restify from "express-restify-mongoose";
 import { logger } from "../helpers/logger";
 import { Types as MongooseTypes } from "mongoose";
-import { groupBy } from "lodash";
+import { groupBy, includes, isArray } from "lodash";
 
 export function registerRoutes(router: Router) {
+  function addCurrentUserVote(req, res, next) {
+    if (!req.user) return next();
+    let result = req.erm.result;
+    const statusCode = req.erm.statusCode; // 200
+    if (!isArray(result)) {
+      result = [result];
+    }
+    result.forEach((post) => (post.userVote = getUserVote(post, req.user)));
+    return next();
+  }
   const postUri = restify.serve(router, Post, {
     name: "post",
     preMiddleware: authenticateFromHeader,
     preCreate: addCreatedBy,
+    postRead: addCurrentUserVote,
   });
 
   router.post(
@@ -147,52 +158,64 @@ export function registerRoutes(router: Router) {
     res.json(posts);
   });
 
-  router.get(`${postUri}/:id/comments`, async (req, res) => {
-    const post_id = req.params.id;
-    let max_depth = 4;
-
-    if (req.params.depth) {
-      max_depth = parseInt(req.params.depth);
-    }
-    logger.debug(`creating comment tree for ${post_id}`);
-
-    // TODO: can be optimized for memory by doing more db calls
-    // can be optimized later
-    let comments: any[] = await Comment.find({
-      post: post_id,
-      level: { $lte: 4 },
-    });
-    let commentMap = {};
-    let replies: any[] = [];
-    comments.forEach((comment) => {
-      commentMap[comment._id] = comment;
-      if (comment.level === 0) replies.push(comment.toObject());
-    });
-    let parentMap = groupBy(comments, "parent");
-
-    function fillRepliesTillDepth(comment, depth) {
-      logger.debug(`filling comment for ${comment._id}`);
-      if (comment.depth > depth) {
-        return;
+  router.get(
+    `${postUri}/:id/comments`,
+    authenticateFromHeader,
+    async (req, res) => {
+      const post_id = req.params.id;
+      let max_depth = 4;
+      if (req.params.depth) {
+        max_depth = parseInt(req.params.depth);
       }
+      logger.debug(`creating comment tree for ${post_id}`);
+
+      // TODO: can be optimized for memory by doing more db calls
+      // can be optimized later
+      let comments: any[] = await Comment.find({
+        post: post_id,
+        level: { $lte: 4 },
+      }).lean();
+      let commentMap = {};
       let replies: any[] = [];
-      if (parentMap[comment._id]) {
-        parentMap[comment._id].forEach((comment) => {
-          logger.debug(`adding reply ${comment._id}`);
-          let commentObject = comment.toObject();
-          fillRepliesTillDepth(commentObject, depth);
+      comments.forEach((comment) => {
+        commentMap[comment._id] = comment;
+        if (comment.level === 0) {
+          let commentObject = comment;
+          if (req.user) {
+            commentObject.userVote = getUserVote(commentObject, req.user);
+          }
           replies.push(commentObject);
-        });
+        }
+      });
+      let parentMap = groupBy(comments, "parent");
 
-        logger.debug(`replies  for ${comment._id} ${replies.length}`);
-        comment.replies = replies;
+      function fillRepliesTillDepth(comment, depth) {
+        logger.debug(`filling comment for ${comment._id}`);
+        if (comment.depth > depth) {
+          return;
+        }
+        let replies: any[] = [];
+        if (parentMap[comment._id]) {
+          parentMap[comment._id].forEach((comment) => {
+            logger.debug(`adding reply ${comment._id}`);
+            let commentObject = comment;
+            if (req.user) {
+              commentObject.userVote = getUserVote(commentObject, req.user);
+            }
+            fillRepliesTillDepth(commentObject, depth);
+            replies.push(commentObject);
+          });
+
+          logger.debug(`replies  for ${comment._id} ${replies.length}`);
+          comment.replies = replies;
+        }
       }
+
+      replies.forEach((reply) => fillRepliesTillDepth(reply, max_depth));
+
+      return res.json(replies);
     }
-
-    replies.forEach((reply) => fillRepliesTillDepth(reply, max_depth));
-
-    return res.json(replies);
-  });
+  );
 
   function addCommentLevel(req, res, next) {
     async function wrapper() {
@@ -225,6 +248,7 @@ export function registerRoutes(router: Router) {
       { _id: req.parentPost._id },
       { $inc: { commentCount: 1 } }
     );
+      next();
   }
   const commentUri = restify.serve(router, Comment, {
     name: "comment",
@@ -344,4 +368,12 @@ export function registerRoutes(router: Router) {
       }
     }
   );
+
+  function getUserVote(document, user) {
+
+    if (includes(document.upvotes, user._id)) return 1;
+    if (includes(document.downvotes, user._id)) return -1;
+    logger.info("no vote yet!");
+    return 0;
+  }
 }
