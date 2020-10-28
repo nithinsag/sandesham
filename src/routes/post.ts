@@ -154,7 +154,7 @@ export function registerRoutes(router: Router) {
     if (req.params.depth) {
       max_depth = parseInt(req.params.depth);
     }
-    logger.info(`creating comment tree for ${post_id}`);
+    logger.debug(`creating comment tree for ${post_id}`);
 
     // TODO: can be optimized for memory by doing more db calls
     // can be optimized later
@@ -171,20 +171,20 @@ export function registerRoutes(router: Router) {
     let parentMap = groupBy(comments, "parent");
 
     function fillRepliesTillDepth(comment, depth) {
-      logger.info(`filling comment for ${comment._id}`);
+      logger.debug(`filling comment for ${comment._id}`);
       if (comment.depth > depth) {
         return;
       }
       let replies: any[] = [];
       if (parentMap[comment._id]) {
         parentMap[comment._id].forEach((comment) => {
-          logger.info(`adding reply ${comment._id}`);
+          logger.debug(`adding reply ${comment._id}`);
           let commentObject = comment.toObject();
           fillRepliesTillDepth(commentObject, depth);
           replies.push(commentObject);
         });
 
-        logger.info(`replies  for ${comment._id} ${replies.length}`);
+        logger.debug(`replies  for ${comment._id} ${replies.length}`);
         comment.replies = replies;
       }
     }
@@ -194,10 +194,43 @@ export function registerRoutes(router: Router) {
     return res.json(replies);
   });
 
+  function addCommentLevel(req, res, next) {
+    async function wrapper() {
+      let parent = req.body.parent;
+      let post = req.body.post;
+      let parentPost = await Post.findOne({ _id: post });
+      let parentComment;
+      if (!parentPost) {
+        return res.boom.badRequest("Invalid parent post");
+      }
+      if (parent) {
+        parentComment = await Comment.findOne({ _id: parent });
+        if (!parentComment) {
+          return res.boom.badRequest("Invalid parent comment");
+        }
+        req.body.level = parentComment.level + 1;
+      } else {
+        req.body.level = 0;
+      }
+      req.parentComment = parentComment;
+      req.parentPost = parentPost;
+
+      next();
+    }
+    wrapper();
+  }
+
+  async function updatePostCommentCount(req, res, next) {
+    await Post.findOneAndUpdate(
+      { _id: req.parentPost._id },
+      { $inc: { commentCount: 1 } }
+    );
+  }
   const commentUri = restify.serve(router, Comment, {
     name: "comment",
     preMiddleware: authenticateFromHeader,
-    preCreate: addCreatedBy,
+    preCreate: [addCreatedBy, addCommentLevel],
+    postCreate: [updatePostCommentCount],
   });
 
   router.post(
