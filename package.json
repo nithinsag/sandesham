@@ -38,6 +38,7 @@
     "graphql": "^15.3.0",
     "graphql-compose": "^7.21.1",
     "graphql-compose-mongoose": "^8.0.3",
+    "lodash": "^4.17.20",
     "method-override": "^3.0.0",
     "moment": "^2.24.0",
     "mongoose": "^5.10.5",

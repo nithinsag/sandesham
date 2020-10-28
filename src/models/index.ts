@@ -80,6 +80,7 @@ let CommentSchema: Schema = new Schema({
   voteCount: { type: Schema.Types.Number, default: 0 },
   upvotes: [Schema.Types.ObjectId],
   downvotes: [Schema.Types.ObjectId],
+  level: Schema.Types.Number,
   created_at: { type: Date, default: Date.now },
   updated_at: { type: Date, default: Date.now },
 });
@@ -105,4 +106,4 @@ const Comment = mongoose.model("Comment", CommentSchema);
 // const CommentVote = mongoose.model("CommentVote", CommentVoteSchema);
 // const PostVote = mongoose.model("PostVote", PostVoteSchema);
 
-export { User, Community, Post, Comment};
+export { User, Community, Post, Comment };

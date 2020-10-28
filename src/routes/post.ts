@@ -6,6 +6,7 @@ import { Post, Comment } from "../models";
 import restify from "express-restify-mongoose";
 import { logger } from "../helpers/logger";
 import { Types as MongooseTypes } from "mongoose";
+import { groupBy } from "lodash";
 
 export function registerRoutes(router: Router) {
   const postUri = restify.serve(router, Post, {
@@ -146,6 +147,52 @@ export function registerRoutes(router: Router) {
     res.json(posts);
   });
 
+  router.get(`${postUri}/:id/comments`, async (req, res) => {
+    const post_id = req.params.id;
+    let max_depth = 4;
+
+    if (req.params.depth) {
+      max_depth = parseInt(req.params.depth);
+    }
+    logger.info(`creating comment tree for ${post_id}`);
+
+    // TODO: can be optimized for memory by doing more db calls
+    // can be optimized later
+    let comments: any[] = await Comment.find({
+      post: post_id,
+           level: { $lte: 4 },
+    });
+    let commentMap = {};
+    let replies: any[] = [];
+    comments.forEach((comment) => {
+      commentMap[comment._id] = comment.toObject();
+      if (comment.level === 0) replies.push(comment.toObject());
+    });
+    let parentMap = groupBy(comments, "parent");
+
+    function fillRepliesTillDepth(comment, depth) {
+      logger.info(`filling comment for ${comment._id}`);
+      if (comment.depth > depth) {
+        return;
+      }
+      if (parentMap[comment._id]) {
+        let replies = parentMap[comment._id].map((comment) => {
+          logger.info(`adding reply ${comment._id}`)
+          fillRepliesTillDepth(comment, depth);
+          return comment;
+        });
+
+        logger.info(`replies ${replies.length}`)
+        comment.replies = replies;
+      }
+      logger.info(comment)
+    }
+
+    replies.forEach((reply) => fillRepliesTillDepth(reply, max_depth));
+
+    return res.json(replies);
+  });
+
   const commentUri = restify.serve(router, Comment, {
     name: "comment",
     preMiddleware: authenticateFromHeader,
@@ -263,5 +310,4 @@ export function registerRoutes(router: Router) {
       }
     }
   );
-
 }
