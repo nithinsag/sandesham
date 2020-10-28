@@ -160,12 +160,12 @@ export function registerRoutes(router: Router) {
     // can be optimized later
     let comments: any[] = await Comment.find({
       post: post_id,
-           level: { $lte: 4 },
+      level: { $lte: 4 },
     });
     let commentMap = {};
     let replies: any[] = [];
     comments.forEach((comment) => {
-      commentMap[comment._id] = comment.toObject();
+      commentMap[comment._id] = comment;
       if (comment.level === 0) replies.push(comment.toObject());
     });
     let parentMap = groupBy(comments, "parent");
@@ -175,17 +175,18 @@ export function registerRoutes(router: Router) {
       if (comment.depth > depth) {
         return;
       }
+      let replies: any[] = [];
       if (parentMap[comment._id]) {
-        let replies = parentMap[comment._id].map((comment) => {
-          logger.info(`adding reply ${comment._id}`)
-          fillRepliesTillDepth(comment, depth);
-          return comment;
+        parentMap[comment._id].forEach((comment) => {
+          logger.info(`adding reply ${comment._id}`);
+          let commentObject = comment.toObject();
+          fillRepliesTillDepth(commentObject, depth);
+          replies.push(commentObject);
         });
 
-        logger.info(`replies ${replies.length}`)
+        logger.info(`replies  for ${comment._id} ${replies.length}`);
         comment.replies = replies;
       }
-      logger.info(comment)
     }
 
     replies.forEach((reply) => fillRepliesTillDepth(reply, max_depth));
