@@ -5,7 +5,10 @@ import { authenticateFromHeader } from "../middlewares/authenticate";
 
 export  function registerRoutes(router: Router) {
 
-    var upload = multer({ dest: "uploads/" });
+  var upload = multer({
+    dest: "uploads/",
+    limits: { fieldSize: 25 * 1024 * 1024 }
+  });
 
     router.post(
       "/api/v1/media/:type/upload",
