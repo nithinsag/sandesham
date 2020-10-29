@@ -102,7 +102,7 @@ export function registerRoutes(router: Router) {
         const user_id = req.user._id;
 
         await Post.updateOne({ _id: req.params.id }, getupvoteQuery(user_id));
-        let post: any = await Post.findOne({ _id: req.params.id });
+        let post: any = await Post.findOne({ _id: req.params.id }).lean();
         post.userVote = getUserVote(post, req.user);
         return res.json(post);
       } else {
@@ -124,7 +124,8 @@ export function registerRoutes(router: Router) {
           getdownVoteQuery(user_id)
         );
         logger.info(status);
-        let post = await Post.findOne({ _id: req.params.id });
+        let post: any = await Post.findOne({ _id: req.params.id }).lean();
+        post.uservote = getUserVote(post, req.user);
         return res.json(post);
       } else {
         res.boom.unauthorized("User needs to be authenticated to vote!");
@@ -263,7 +264,8 @@ export function registerRoutes(router: Router) {
           getupvoteQuery(user_id)
         );
         logger.info(status);
-        let comment = await Comment.findOne({ _id: req.params.id });
+        let comment: any = await Comment.findOne({ _id: req.params.id }).lean();
+        comment.userVote = getUserVote(comment, req.user);
         return res.json(comment);
       } else {
         res.boom.unauthorized("User needs to be authenticated to vote!");
@@ -279,11 +281,13 @@ export function registerRoutes(router: Router) {
       if (req.user) {
         const user_id = req.user._id;
 
-        let comment = await Comment.updateOne(
+        let status = await Comment.updateOne(
           { _id: req.params.id },
           getdownVoteQuery(user_id)
         );
-
+        logger.info(status);
+        let comment: any = await Comment.findOne({ _id: req.params.id }).lean();
+        comment.userVote = getUserVote(comment, req.user);
         return res.json(comment);
       } else {
         res.boom.unauthorized("User needs to be authenticated to vote!");
