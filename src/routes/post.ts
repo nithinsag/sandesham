@@ -26,6 +26,73 @@ export function registerRoutes(router: Router) {
     postRead: addCurrentUserVote,
   });
 
+  let getupvoteQuery = (user_id) => [
+    {
+      $set: {
+        voteCount: {
+          $cond: [
+            // checking if already voteup, then do nothing, else inc votecount
+            { $not: { $in: [user_id, "$upvotes"] } },
+            { $add: ["$voteCount", 1] },
+            "$voteCount",
+          ],
+        },
+      },
+    },
+    {
+      $set: {
+        upvotes: {
+          $cond: [
+            { $in: [user_id, "$upvotes"] },
+            "$upvotes",
+            { $setUnion: ["$upvotes", [user_id]] },
+          ],
+        },
+      },
+    },
+    {
+      $set: {
+        downvotes: {
+          $cond: [
+            { $in: [user_id, "$downvotes"] },
+            { $setDifference: ["$downvotes", [user_id]] },
+            "$downvotes",
+          ],
+        },
+      },
+    },
+  ];
+  let getdownVoteQuery = (user_id) => [
+    {
+      $set: {
+        voteCount: {
+          $cond: [
+            { $not: { $in: [user_id, "$downvotes"] } },
+            { $add: ["$voteCount", -1] },
+            "$voteCount",
+          ],
+        },
+      },
+    },
+    {
+      $set: {
+        downvotes: {
+          $cond: [
+            { $in: [user_id, "$upvotes"] },
+            "$downvotes",
+            { $setUnion: ["$downvotes", [user_id]] },
+          ],
+        },
+        upvotes: {
+          $cond: [
+            { $in: [user_id, "$upvotes"] },
+            { $setDifference: ["$upvotes", [user_id]] },
+            "$upvotes",
+          ],
+        },
+      },
+    },
+  ];
   router.post(
     `${postUri}/:id/upvote`,
     authenticateFromHeader,
@@ -34,47 +101,9 @@ export function registerRoutes(router: Router) {
       if (req.user) {
         const user_id = req.user._id;
 
-        let post = await Post.updateOne(
-          { _id: req.params.id },
-          [
-            {
-              $set: {
-                voteCount: {
-                  $cond: [
-                    { $in: [user_id, "$upvotes"] },
-                    "$voteCount",
-                    { $add: ["$voteCount", 1] },
-                  ],
-                },
-              },
-            },
-            {
-              $set: {
-                upvotes: {
-                  $cond: [
-                    { $in: [user_id, "$upvotes"] },
-                    "$upvotes",
-                    { $setUnion: ["$upvotes", [user_id]] },
-                  ],
-                },
-              },
-            },
-            {
-              $set: {
-                downvotes: {
-                  $cond: [
-                    { $in: [user_id, "$downvotes"] },
-                    { $setDifference: ["$downvotes", [user_id]] },
-                    "$downvotes",
-                  ],
-                },
-              },
-            },
-          ],
-
-          { new: true }
-        );
-
+        await Post.updateOne({ _id: req.params.id }, getupvoteQuery(user_id));
+        let post: any = await Post.findOne({ _id: req.params.id });
+        post.userVote = getUserVote(post, req.user);
         return res.json(post);
       } else {
         res.boom.unauthorized("User needs to be authenticated to vote!");
@@ -90,47 +119,12 @@ export function registerRoutes(router: Router) {
       if (req.user) {
         const user_id = req.user._id;
 
-        let post = await Post.updateOne(
+        let status = await Post.updateOne(
           { _id: req.params.id },
-          [
-            {
-              $set: {
-                voteCount: {
-                  $cond: [
-                    { $in: [user_id, "$downvotes"] },
-                    "$voteCount",
-                    { $add: ["$voteCount", -1] },
-                  ],
-                },
-              },
-            },
-            {
-              $set: {
-                upvotes: {
-                  $cond: [
-                    { $in: [user_id, "$upvotes"] },
-                    { $setDifference: ["$upvotes", [user_id]] },
-                    "$upvotes",
-                  ],
-                },
-              },
-            },
-            {
-              $set: {
-                downvotes: {
-                  $cond: [
-                    { $in: [user_id, "$downvotes"] },
-                    "$downvotes",
-                    { $setUnion: ["$downvotes", [user_id]] },
-                  ],
-                },
-              },
-            },
-          ],
-
-          { new: true }
+          getdownVoteQuery(user_id)
         );
-
+        logger.info(status);
+        let post = await Post.findOne({ _id: req.params.id });
         return res.json(post);
       } else {
         res.boom.unauthorized("User needs to be authenticated to vote!");
@@ -248,7 +242,7 @@ export function registerRoutes(router: Router) {
       { _id: req.parentPost._id },
       { $inc: { commentCount: 1 } }
     );
-      next();
+    next();
   }
   const commentUri = restify.serve(router, Comment, {
     name: "comment",
@@ -264,48 +258,12 @@ export function registerRoutes(router: Router) {
       logger.info("inside upvote");
       if (req.user) {
         const user_id = req.user._id;
-
-        let comment = await Comment.updateOne(
+        let status = await Comment.updateOne(
           { _id: req.params.id },
-          [
-            {
-              $set: {
-                voteCount: {
-                  $cond: [
-                    { $in: [user_id, "$upvotes"] },
-                    "$voteCount",
-                    { $add: ["$voteCount", 1] },
-                  ],
-                },
-              },
-            },
-            {
-              $set: {
-                upvotes: {
-                  $cond: [
-                    { $in: [user_id, "$upvotes"] },
-                    "$upvotes",
-                    { $setUnion: ["$upvotes", [user_id]] },
-                  ],
-                },
-              },
-            },
-            {
-              $set: {
-                downvotes: {
-                  $cond: [
-                    { $in: [user_id, "$downvotes"] },
-                    { $setDifference: ["$downvotes", [user_id]] },
-                    "$downvotes",
-                  ],
-                },
-              },
-            },
-          ],
-
-          { new: true }
+          getupvoteQuery(user_id)
         );
-
+        logger.info(status);
+        let comment = await Comment.findOne({ _id: req.params.id });
         return res.json(comment);
       } else {
         res.boom.unauthorized("User needs to be authenticated to vote!");
@@ -323,43 +281,7 @@ export function registerRoutes(router: Router) {
 
         let comment = await Comment.updateOne(
           { _id: req.params.id },
-          [
-            {
-              $set: {
-                voteCount: {
-                  $cond: [
-                    { $in: [user_id, "$downvotes"] },
-                    "$voteCount",
-                    { $add: ["$voteCount", -1] },
-                  ],
-                },
-              },
-            },
-            {
-              $set: {
-                upvotes: {
-                  $cond: [
-                    { $in: [user_id, "$upvotes"] },
-                    { $setDifference: ["$upvotes", [user_id]] },
-                    "$upvotes",
-                  ],
-                },
-              },
-            },
-            {
-              $set: {
-                downvotes: {
-                  $cond: [
-                    { $in: [user_id, "$downvotes"] },
-                    "$downvotes",
-                    { $setUnion: ["$downvotes", [user_id]] },
-                  ],
-                },
-              },
-            },
-          ],
-
-          { new: true }
+          getdownVoteQuery(user_id)
         );
 
         return res.json(comment);
@@ -370,7 +292,6 @@ export function registerRoutes(router: Router) {
   );
 
   function getUserVote(document, user) {
-
     if (includes(document.upvotes, user._id)) return 1;
     if (includes(document.downvotes, user._id)) return -1;
     logger.info("no vote yet!");
