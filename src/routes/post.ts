@@ -26,82 +26,83 @@ export function registerRoutes(router: Router) {
     postRead: addCurrentUserVote,
   });
 
-  let getupvoteQuery = (user_id) => [
-    {
+    let getVoteQuery = (user_id, type: number) => {
+    const voteCountQuery = {
       $set: {
         voteCount: {
-          $cond: [
-            // checking if already voteup, then do nothing, else inc votecount
-            { $not: { $in: [user_id, "$upvotes"] } },
-            { $add: ["$voteCount", 1] },
-            "$voteCount",
-          ],
+          // checking if already voteup, then do nothing, else inc votecount
+          $subtract: [{ $size: "$upvotes" }, { $size: "$downvotes" }],
         },
       },
-    },
-    {
-      $set: {
-        upvotes: {
-          $cond: [
-            { $in: [user_id, "$upvotes"] },
-            "$upvotes",
-            { $setUnion: ["$upvotes", [user_id]] },
-          ],
+    };
+
+    const voteQueries = {
+      // upvote
+      // Increase vote count if already not in upvote
+      1: [
+        {
+          $set: {
+            upvotes: {
+              $setUnion: ["$upvotes", [user_id]],
+            },
+            downvotes: {
+              $setDifference: ["$downvotes", [user_id]],
+            },
+          },
         },
-      },
-    },
-    {
-      $set: {
-        downvotes: {
-          $cond: [
-            { $in: [user_id, "$downvotes"] },
-            { $setDifference: ["$downvotes", [user_id]] },
-            "$downvotes",
-          ],
+        voteCountQuery,
+      ],
+      // downvote
+      2: [
+        {
+          $set: {
+            downvotes: {
+              $setUnion: ["$downvotes", [user_id]],
+            },
+            upvotes: {
+              $setDifference: ["$upvotes", [user_id]],
+            },
+          },
         },
-      },
-    },
-  ];
-  let getdownVoteQuery = (user_id) => [
-    {
-      $set: {
-        voteCount: {
-          $cond: [
-            { $not: { $in: [user_id, "$downvotes"] } },
-            { $add: ["$voteCount", -1] },
-            "$voteCount",
-          ],
+        voteCountQuery,
+      ],
+      // cancel, remove vote from array
+      0: [
+        {
+          $set: {
+            upvotes: {
+              $setDiffernce: ["$upvotes", [user_id]],
+            },
+            downvotes: {
+              $setDifference: ["$downvotes", [user_id]],
+            },
+          },
         },
-      },
-    },
-    {
-      $set: {
-        downvotes: {
-          $cond: [
-            { $in: [user_id, "$upvotes"] },
-            "$downvotes",
-            { $setUnion: ["$downvotes", [user_id]] },
-          ],
-        },
-        upvotes: {
-          $cond: [
-            { $in: [user_id, "$upvotes"] },
-            { $setDifference: ["$upvotes", [user_id]] },
-            "$upvotes",
-          ],
-        },
-      },
-    },
-  ];
+        voteCountQuery,
+      ],
+    };
+
+    return voteQueries[type];
+  };
+
   router.post(
-    `${postUri}/:id/upvote`,
+    `${postUri}/:id/vote/:type`,
     authenticateFromHeader,
     async (req, res) => {
-      logger.info("inside upvote");
+      logger.info(`inside vote post with ${req.params.type}`);
+      const validVotes = [1, 0, 2];
+      let type: number = parseInt(req.params.type);
+      if (!includes(validVotes, type)) {
+        return res.boom.badRequest("invalid vote type");
+      }
+
       if (req.user) {
         const user_id = req.user._id;
 
-        await Post.updateOne({ _id: req.params.id }, getupvoteQuery(user_id));
+        await Post.updateOne(
+          { _id: req.params.id },
+          getVoteQuery(user_id, type)
+        );
         let post: any = await Post.findOne({ _id: req.params.id }).lean();
         post.userVote = getUserVote(post, req.user);
         return res.json(post);
@@ -110,48 +111,6 @@ export function registerRoutes(router: Router) {
       }
     }
   );
-
-  router.post(
-    `${postUri}/:id/downvote`,
-    authenticateFromHeader,
-    async (req, res) => {
-      logger.info("inside downvote");
-      if (req.user) {
-        const user_id = req.user._id;
-
-        let status = await Post.updateOne(
-          { _id: req.params.id },
-          getdownVoteQuery(user_id)
-        );
-        logger.info(status);
-        let post: any = await Post.findOne({ _id: req.params.id }).lean();
-        post.uservote = getUserVote(post, req.user);
-        return res.json(post);
-      } else {
-        res.boom.unauthorized("User needs to be authenticated to vote!");
-      }
-    }
-  );
-
-  router.get(`${postUri}/:id/graphlookupcomments`, async (req, res) => {
-    const post_id = req.params.id;
-    logger.info(`creating comment tree for ${post_id}`);
-
-    let posts = await Post.aggregate([
-      { $match: { _id: MongooseTypes.ObjectId(post_id) } },
-      {
-        $graphLookup: {
-          from: "comments",
-          startWith: "$_id",
-          connectFromField: "_id",
-          connectToField: "parent",
-          as: "replies",
-        },
-      },
-    ]);
-    // let post = await Post.findOne({ _id: post_id });
-    res.json(posts);
-  });
 
   router.get(
     `${postUri}/:id/comments`,
@@ -253,37 +212,16 @@ export function registerRoutes(router: Router) {
   });
 
   router.post(
-    `${commentUri}/:id/upvote`,
+    `${commentUri}/:id/vote/:type`,
     authenticateFromHeader,
     async (req, res) => {
-      logger.info("inside upvote");
+      logger.info(`inside comment vote ${req.params.type} `);
+      let type: number = parseInt(req.params.type);
       if (req.user) {
         const user_id = req.user._id;
         let status = await Comment.updateOne(
           { _id: req.params.id },
-          getupvoteQuery(user_id)
-        );
-        logger.info(status);
-        let comment: any = await Comment.findOne({ _id: req.params.id }).lean();
-        comment.userVote = getUserVote(comment, req.user);
-        return res.json(comment);
-      } else {
-        res.boom.unauthorized("User needs to be authenticated to vote!");
-      }
-    }
-  );
-
-  router.post(
-    `${commentUri}/:id/downvote`,
-    authenticateFromHeader,
-    async (req, res) => {
-      logger.info("inside downvote");
-      if (req.user) {
-        const user_id = req.user._id;
-
-        let status = await Comment.updateOne(
-          { _id: req.params.id },
-          getdownVoteQuery(user_id)
+          getVoteQuery(user_id, type)
         );
         logger.info(status);
         let comment: any = await Comment.findOne({ _id: req.params.id }).lean();
