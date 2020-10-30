@@ -26,7 +26,7 @@ export function registerRoutes(router: Router) {
     postRead: addCurrentUserVote,
   });
 
-    let getVoteQuery = (user_id, type: number) => {
+  let getVoteQuery = (user_id, type: number) => {
     const voteCountQuery = {
       $set: {
         voteCount: {
@@ -104,6 +104,7 @@ export function registerRoutes(router: Router) {
           getVoteQuery(user_id, type)
         );
         let post: any = await Post.findOne({ _id: req.params.id }).lean();
+        // using lean to convert to pure js object that we can manipulate
         post.userVote = getUserVote(post, req.user);
         return res.json(post);
       } else {
