@@ -7,7 +7,30 @@ import restify from "express-restify-mongoose";
 import { logger } from "../helpers/logger";
 import { Types as MongooseTypes } from "mongoose";
 import { groupBy, includes, isArray } from "lodash";
+import { getOGData } from '../helpers/openGraphScrapper'
 
+
+async function addOGData(req, res, next) {
+  let post = req.erm.result;
+   next();
+  // returning early as we don't want to block return
+  // TODO: use a queue for this
+  try {
+    if (post.type == "link") {
+      let result = await getOGData(post)
+      logger.info(result)
+      if (result.success) {
+        logger.info("updating post with og data")
+        let p = await Post.findOneAndUpdate({ _id: post._id }, { $set: {ogData: result }}, {new: true});
+        console.log(p)
+      }
+    }
+  }
+  catch (e) {
+    console.log(e);
+  }
+
+}
 export function registerRoutes(router: Router) {
   function addCurrentUserVote(req, res, next) {
     if (!req.user) return next();
@@ -23,6 +46,7 @@ export function registerRoutes(router: Router) {
     name: "post",
     preMiddleware: authenticateFromHeader,
     preCreate: addCreatedBy,
+    postCreate: addOGData,
     postRead: addCurrentUserVote,
   });
 

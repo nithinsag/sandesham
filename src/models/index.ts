@@ -38,6 +38,7 @@ let PostSchema: Schema = new Schema({
   description: { type: String },
   status: { type: String, enum: ["enabled", "disabled"], default: "enabled" },
   link: String,
+  ogData: Schema.Types.Mixed,
   type: { type: String, enum: ["link", "text", "image", "video", "gif"] },
   community: { type: Schema.Types.ObjectId, ref: "Community" },
   author: {
