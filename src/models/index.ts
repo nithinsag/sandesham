@@ -5,6 +5,8 @@ let UserSchema: Schema = new Schema({
   name: { type: String, required: true },
   username: { type: String, unique: true },
   role: { type: String, enum: ["user", "admin"], default: "user" },
+  postKarma: {type: Schema.Types.Number, default:0},
+  commentKarma: {type: Schema.Types.Number, default:0},
   picture: { type: String },
   created_at: { type: Date, default: Date.now },
   updated_at: { type: Date, default: Date.now },

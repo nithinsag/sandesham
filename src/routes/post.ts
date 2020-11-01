@@ -2,7 +2,7 @@ import { Router } from "express";
 import { addCreatedBy } from "../middlewares/mongoose/author";
 
 import { authenticateFromHeader } from "../middlewares/authenticate";
-import { Post, Comment } from "../models";
+import { Post, Comment, User } from "../models";
 import restify from "express-restify-mongoose";
 import { logger } from "../helpers/logger";
 import { Types as MongooseTypes } from "mongoose";
@@ -108,7 +108,12 @@ export function registerRoutes(router: Router) {
 
     return voteQueries[type];
   };
-
+  async function updatePostKarma(user, increment){
+    return User.findOneAndUpdate({_id: user._id}, {$inc: {postKarma: increment}})
+  }
+  async function updateCommentKarma(user, increment){
+    return User.findOneAndUpdate({_id: user._id}, {$inc: {commentKarma: increment}})
+  }
   router.post(
     `${postUri}/:id/vote/:type`,
     authenticateFromHeader,
@@ -122,14 +127,18 @@ export function registerRoutes(router: Router) {
 
       if (req.user) {
         const user_id = req.user._id;
+        let preUpdate = await Post.findOne({_id: req.params.id}).lean();
+        const preUservote =  getUserVote(preUpdate, req.user);
 
-        await Post.updateOne(
+        let status = await Post.updateOne(
           { _id: req.params.id },
           getVoteQuery(user_id, type)
         );
         let post: any = await Post.findOne({ _id: req.params.id }).lean();
         // using lean to convert to pure js object that we can manipulate
         post.userVote = getUserVote(post, req.user);
+        let scoreDelta = post.userVote - preUservote;
+        updatePostKarma(req.user, scoreDelta);
         return res.json(post);
       } else {
         res.boom.unauthorized("User needs to be authenticated to vote!");
@@ -244,6 +253,7 @@ export function registerRoutes(router: Router) {
       let type: number = parseInt(req.params.type);
       if (req.user) {
         const user_id = req.user._id;
+        let preUpdate = await Comment.findOne({_id: req.params.id}).lean();
         let status = await Comment.updateOne(
           { _id: req.params.id },
           getVoteQuery(user_id, type)
@@ -251,6 +261,8 @@ export function registerRoutes(router: Router) {
         logger.info(status);
         let comment: any = await Comment.findOne({ _id: req.params.id }).lean();
         comment.userVote = getUserVote(comment, req.user);
+        let scoreDelta = comment.userVote -  getUserVote(preUpdate, req.user);
+        updateCommentKarma(req.user, scoreDelta); // not waiting for complete
         return res.json(comment);
       } else {
         res.boom.unauthorized("User needs to be authenticated to vote!");
