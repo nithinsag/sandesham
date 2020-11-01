@@ -95,7 +95,7 @@ export function registerRoutes(router: Router) {
         {
           $set: {
             upvotes: {
-              $setDiffernce: ["$upvotes", [user_id]],
+              $setDifference: ["$upvotes", [user_id]],
             },
             downvotes: {
               $setDifference: ["$downvotes", [user_id]],

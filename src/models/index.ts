@@ -89,6 +89,20 @@ let CommentSchema: Schema = new Schema({
   updated_at: { type: Date, default: Date.now },
 });
 
+let MessageSchema: Schema = new Schema({
+  text: { type: String },
+  from: {
+    user_id: { type: Schema.Types.ObjectId, ref: "User" },
+    name: String,
+  },
+  to: {
+    user_id: { type: Schema.Types.ObjectId, ref: "User" },
+    name: String,
+  },
+  read: {type: Schema.Types.Boolean, default: false},
+  created_at: { type: Date, default: Date.now },
+});
+
 // TODO: Refactor when more users
 // let CommentVoteSchema: Schema = new Schema({
 //   comment: { type: Schema.Types.ObjectId, ref: "Comment" },
@@ -107,7 +121,8 @@ const User = mongoose.model("User", UserSchema);
 const Community = mongoose.model("Community", CommunitySchema);
 const Post = mongoose.model("Post", PostSchema);
 const Comment = mongoose.model("Comment", CommentSchema);
+const Message = mongoose.model("Message", MessageSchema);
 // const CommentVote = mongoose.model("CommentVote", CommentVoteSchema);
 // const PostVote = mongoose.model("PostVote", PostVoteSchema);
 
-export { User, Community, Post, Comment };
+export { User, Community, Post, Comment, Message };
