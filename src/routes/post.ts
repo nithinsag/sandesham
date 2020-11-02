@@ -7,7 +7,7 @@ import restify from "express-restify-mongoose";
 import { logger } from "../helpers/logger";
 import { Types as MongooseTypes } from "mongoose";
 import { groupBy, includes, isArray } from "lodash";
-import { getOGData } from '../helpers/openGraphScrapper'
+import { getOGData } from '../helpers/openGraphScraper'
 
 
 async function addOGData(req, res, next) {
@@ -17,7 +17,7 @@ async function addOGData(req, res, next) {
   // TODO: use a queue for this
   try {
     if (post.type == "link") {
-      let result = await getOGData(post)
+      let result = await getOGData(post.link)
       logger.info(result)
       if (result.success) {
         logger.info("updating post with og data")
