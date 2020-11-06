@@ -271,6 +271,8 @@ export function registerRoutes(router: Router) {
   );
 
   function getUserVote(document, user) {
+    console.log(document.upvotes[0], typeof document.upvotes[0])
+    console.log(user._id, typeof user._id)
     if (includes(document.upvotes, user._id.toString())) return 1;
     if (includes(document.downvotes, user._id.toString())) return -1;
     logger.info("no vote yet!");
