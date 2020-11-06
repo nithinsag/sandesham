@@ -271,8 +271,8 @@ export function registerRoutes(router: Router) {
   );
 
   function getUserVote(document, user) {
-    if (includes(document.upvotes, user._id)) return 1;
-    if (includes(document.downvotes, user._id)) return -1;
+    if (includes(document.upvotes, user._id.toString())) return 1;
+    if (includes(document.downvotes, user._id.toString())) return -1;
     logger.info("no vote yet!");
     return 0;
   }
