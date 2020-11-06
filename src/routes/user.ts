@@ -17,15 +17,15 @@ async function signUp(req, res) {
   let token = extractTokenFromAuthHeader(req);
  
   var decodedToken;
-  if (process.env.DEPLOY_ENV == "production") {
-    decodedToken = await validateToken(token);
-  } else {
+  if (process.env.DEPLOY_ENV == "TEST") {
     decodedToken = {
       name: "Test User",
       picture: "http://example.com/picure.jpg",
       email: "user@example.com",
       email_verified: true,
     };
+  } else {
+    decodedToken = await validateToken(token);
   }
   if (typeof decodedToken == "object") {
     const { name, picture, email, email_verified } = decodedToken;

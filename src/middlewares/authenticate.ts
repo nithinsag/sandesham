@@ -18,15 +18,15 @@ export function authenticateFromHeader(req, res, next) {
     }
     var decodedToken;
 
-    if (process.env.DEPLOY_ENV == "production") {
-      decodedToken = await validateToken(token);
-    } else {
+    if (process.env.DEPLOY_ENV == "TEST") {
       decodedToken = {
         name: "Test User",
         picture: "http://example.com/picure.jpg",
         email: "user@example.com",
         email_verified: true,
       };
+    } else {
+      decodedToken = await validateToken(token);
     }
 
     if (typeof decodedToken == "object") {
@@ -38,7 +38,7 @@ export function authenticateFromHeader(req, res, next) {
       if (users.length > 0) {
         req.user = users[0];
       }
-      if (process.env.DEPLOY_ENV !== "production") {
+      if (process.env.DEPLOY_ENV == "TEST") {
         req.user = {
           _id: "5f6b8b31129348b5dcd5386b",
           role: "user",
