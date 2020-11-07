@@ -6,8 +6,9 @@ import { Post, Comment, User } from "../models";
 import restify from "express-restify-mongoose";
 import { logger } from "../helpers/logger";
 import { Types as MongooseTypes } from "mongoose";
-import { groupBy, includes, isArray } from "lodash";
+import { groupBy, includes, isArray, map } from "lodash";
 import { getOGData } from '../helpers/openGraphScraper'
+
 
 
 async function addOGData(req, res, next) {
@@ -270,12 +271,18 @@ export function registerRoutes(router: Router) {
     }
   );
 
+  function ObjectIdToString(objectId){
+    if (typeof objectId === 'object')
+    return objectId.toString()
+    return objectId
+  }
+
   function getUserVote(document, user) {
-    console.log(document.upvotes[0], typeof document.upvotes[0])
-    console.log(user._id, typeof user._id)
-    if (includes(document.upvotes, user._id.toString())) return 1;
-    if (includes(document.downvotes, user._id.toString())) return -1;
-    logger.info("no vote yet!");
-    return 0;
+    let user_id = user._id.toString()
+    let userVote = 0
+    if (includes(map(document.upvotes, ObjectIdToString), user_id)) userVote = 1;
+    if (includes(map(document.downvotes, ObjectIdToString), user_id)) userVote = -1;
+    logger.info("no vote yet!" +  userVote);
+    return userVote;
   }
 }
