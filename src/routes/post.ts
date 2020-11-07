@@ -60,6 +60,7 @@ export function registerRoutes(router: Router) {
         },
       },
     };
+    if(type == -1) type = 2;
 
     const voteQueries = {
       // upvote
@@ -120,7 +121,7 @@ export function registerRoutes(router: Router) {
     authenticateFromHeader,
     async (req, res) => {
       logger.info(`inside vote post with ${req.params.type}`);
-      const validVotes = [1, 0, 2];
+      const validVotes = [1, 0, -1];
       let type: number = parseInt(req.params.type);
       if (!includes(validVotes, type)) {
         return res.boom.badRequest("invalid vote type");
