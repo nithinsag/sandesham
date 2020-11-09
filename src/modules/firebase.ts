@@ -31,12 +31,9 @@ export async function sendNotification(user: any, title: string, body: string, d
     },
     data: data
   }
-  const deviceToken = user.deviceToken;
-  try {
-    let response = await admin.messaging().sendToDevice(deviceToken, payload)
-    console.log(response)
+  const deviceToken = user.pushMessageToken;
+  if (deviceToken) {
+    return admin.messaging().sendToDevice(deviceToken, payload)
   }
-  catch (e) {
-    console.log(e)
-  }
+  throw Error("Device token does not exist")
 }
