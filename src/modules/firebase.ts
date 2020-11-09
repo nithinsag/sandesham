@@ -3,8 +3,8 @@ import * as admin from "firebase-admin";
 let serviceAccount = require("../../config/google-services.json");
 
 interface DecodedToken extends admin.auth.DecodedIdToken {
-    name?: string;
-  }
+  name?: string;
+}
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
   databaseURL: "https://vellarikka-pattanam.firebaseio.com",
@@ -21,4 +21,22 @@ export async function validateToken(
     return false;
   }
   // ...
+}
+
+export async function sendNotification(user: any, title: string, body: string, data: any) {
+
+  const payload = {
+    notification: {
+      title: 'this is title', body: 'this is body'
+    },
+    data: data
+  }
+  const deviceToken = user.deviceToken;
+  try {
+    let response = await admin.messaging().sendToDevice(deviceToken, payload)
+    console.log(response)
+  }
+  catch (e) {
+    console.log(e)
+  }
 }
