@@ -6,7 +6,7 @@ import { Post, Comment, User } from "../models";
 import restify from "express-restify-mongoose";
 import { logger } from "../helpers/logger";
 import { Types as MongooseTypes } from "mongoose";
-import { groupBy, includes, isArray, map } from "lodash";
+import { groupBy, includes, isArray, map, sortBy } from "lodash";
 import { getOGData } from '../helpers/openGraphScraper'
 
 
@@ -197,10 +197,12 @@ export function registerRoutes(router: Router) {
           });
 
           logger.debug(`replies  for ${comment._id} ${replies.length}`);
+          replies = sortBy(replies, ['voteCount']);
           comment.replies = replies;
         }
       }
 
+      replies = sortBy(replies, ['voteCount']);
       replies.forEach((reply) => fillRepliesTillDepth(reply, max_depth));
 
       return res.json(replies);
