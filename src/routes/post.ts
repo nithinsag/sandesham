@@ -7,30 +7,30 @@ import restify from "express-restify-mongoose";
 import { logger } from "../helpers/logger";
 import { Types as MongooseTypes } from "mongoose";
 import { groupBy, includes, isArray, map, sortBy } from "lodash";
-import { getOGData } from '../helpers/openGraphScraper'
-
-
+import { getOGData } from "../helpers/openGraphScraper";
 
 async function addOGData(req, res, next) {
   let post = req.erm.result;
-   next();
+  next();
   // returning early as we don't want to block return
   // TODO: use a queue for this
   try {
     if (post.type == "link") {
-      let result = await getOGData(post.link)
-      logger.info(result)
+      let result = await getOGData(post.link);
+      logger.info(result);
       if (result.success) {
-        logger.info("updating post with og data")
-        let p = await Post.findOneAndUpdate({ _id: post._id }, { $set: {ogData: result }}, {new: true});
-        console.log(p)
+        logger.info("updating post with og data");
+        let p = await Post.findOneAndUpdate(
+          { _id: post._id },
+          { $set: { ogData: result } },
+          { new: true }
+        );
+        console.log(p);
       }
     }
-  }
-  catch (e) {
+  } catch (e) {
     console.log(e);
   }
-
 }
 export function registerRoutes(router: Router) {
   function addCurrentUserVote(req, res, next) {
@@ -43,13 +43,6 @@ export function registerRoutes(router: Router) {
     result.forEach((post) => (post.userVote = getUserVote(post, req.user)));
     return next();
   }
-  const postUri = restify.serve(router, Post, {
-    name: "post",
-    preMiddleware: authenticateFromHeader,
-    preCreate: addCreatedBy,
-    postCreate: addOGData,
-    postRead: addCurrentUserVote,
-  });
 
   let getVoteQuery = (user_id, type: number) => {
     const voteCountQuery = {
@@ -60,7 +53,7 @@ export function registerRoutes(router: Router) {
         },
       },
     };
-    if(type == -1) type = 2;
+    if (type == -1) type = 2; // -1 is downvote index :2 TODO: better abstraction
 
     const voteQueries = {
       // upvote
@@ -110,12 +103,59 @@ export function registerRoutes(router: Router) {
 
     return voteQueries[type];
   };
-  async function updatePostKarma(user, increment){
-    return User.findOneAndUpdate({_id: user._id}, {$inc: {postKarma: increment}})
+  async function updatePostKarma(user, increment) {
+    return User.findOneAndUpdate(
+      { _id: user._id },
+      { $inc: { postKarma: increment } }
+    );
   }
-  async function updateCommentKarma(user, increment){
-    return User.findOneAndUpdate({_id: user._id}, {$inc: {commentKarma: increment}})
+  async function updateCommentKarma(user, increment) {
+    return User.findOneAndUpdate(
+      { _id: user._id },
+      { $inc: { commentKarma: increment } }
+    );
   }
+
+  router.get(`/api/v1/post/popular`, async (req, res) => {
+    // TODO: find a way no not hardcode the route
+    logger.info(`inside popular feed route`);
+    const limit = 10;
+    let page = parseInt(req.params.page) || 1; // first page as default
+    let posts = await Post.aggregate([
+      // {$match:{whatever is needed here}}
+      {
+        $addFields: {
+          score: {
+            $sum: [
+              { $log: [{ $max: [{ $abs: "$voteCount" }, 1] }, 10] },
+              { $divide: [{ $toLong: "$created_at" }, 45000000] },
+            ],
+          },
+        },
+      },
+      {
+        $sort: {
+          score: 1,
+        },
+      },
+      {
+        $facet: {
+          metadata: [{ $count: "total" }, { $addFields: { page: page } }],
+          data: [{ $skip: (page - 1) * limit }, { $limit: limit }],
+        },
+      },
+    ]);
+
+    res.json(posts);
+  });
+
+  const postUri = restify.serve(router, Post, {
+    name: "post",
+    preMiddleware: authenticateFromHeader,
+    preCreate: addCreatedBy,
+    postCreate: addOGData,
+    postRead: addCurrentUserVote,
+  });
   router.post(
     `${postUri}/:id/vote/:type`,
     authenticateFromHeader,
@@ -129,8 +169,8 @@ export function registerRoutes(router: Router) {
 
       if (req.user) {
         const user_id = req.user._id;
-        let preUpdate = await Post.findOne({_id: req.params.id}).lean();
-        const preUservote =  getUserVote(preUpdate, req.user);
+        let preUpdate = await Post.findOne({ _id: req.params.id }).lean();
+        const preUservote = getUserVote(preUpdate, req.user);
 
         let status = await Post.updateOne(
           { _id: req.params.id },
@@ -147,7 +187,6 @@ export function registerRoutes(router: Router) {
       }
     }
   );
-
   router.get(
     `${postUri}/:id/comments`,
     authenticateFromHeader,
@@ -197,12 +236,12 @@ export function registerRoutes(router: Router) {
           });
 
           logger.debug(`replies  for ${comment._id} ${replies.length}`);
-          replies = sortBy(replies, ['voteCount']);
+          replies = sortBy(replies, ["voteCount"]);
           comment.replies = replies;
         }
       }
 
-      replies = sortBy(replies, ['voteCount']);
+      replies = sortBy(replies, ["voteCount"]);
       replies.forEach((reply) => fillRepliesTillDepth(reply, max_depth));
 
       return res.json(replies);
@@ -257,7 +296,7 @@ export function registerRoutes(router: Router) {
       let type: number = parseInt(req.params.type);
       if (req.user) {
         const user_id = req.user._id;
-        let preUpdate = await Comment.findOne({_id: req.params.id}).lean();
+        let preUpdate = await Comment.findOne({ _id: req.params.id }).lean();
         let status = await Comment.updateOne(
           { _id: req.params.id },
           getVoteQuery(user_id, type)
@@ -265,7 +304,7 @@ export function registerRoutes(router: Router) {
         logger.info(status);
         let comment: any = await Comment.findOne({ _id: req.params.id }).lean();
         comment.userVote = getUserVote(comment, req.user);
-        let scoreDelta = comment.userVote -  getUserVote(preUpdate, req.user);
+        let scoreDelta = comment.userVote - getUserVote(preUpdate, req.user);
         updateCommentKarma(req.user, scoreDelta); // not waiting for complete
         return res.json(comment);
       } else {
@@ -274,18 +313,19 @@ export function registerRoutes(router: Router) {
     }
   );
 
-  function ObjectIdToString(objectId){
-    if (typeof objectId === 'object')
-    return objectId.toString()
-    return objectId
+  function ObjectIdToString(objectId) {
+    if (typeof objectId === "object") return objectId.toString();
+    return objectId;
   }
 
   function getUserVote(document, user) {
-    let user_id = user._id.toString()
-    let userVote = 0
-    if (includes(map(document.upvotes, ObjectIdToString), user_id)) userVote = 1;
-    if (includes(map(document.downvotes, ObjectIdToString), user_id)) userVote = -1;
-    logger.info("no vote yet!" +  userVote);
+    let user_id = user._id.toString();
+    let userVote = 0;
+    if (includes(map(document.upvotes, ObjectIdToString), user_id))
+      userVote = 1;
+    if (includes(map(document.downvotes, ObjectIdToString), user_id))
+      userVote = -1;
+    logger.info("no vote yet!" + userVote);
     return userVote;
   }
 }
