@@ -126,9 +126,15 @@ export function registerRoutes(router: Router) {
       {
         $addFields: {
           score: {
+            // https://medium.com/hacking-and-gonzo/how-reddit-ranking-algorithms-work-ef111e33d0d9
             $sum: [
               { $log: [{ $max: [{ $abs: "$voteCount" }, 1] }, 10] },
-              { $divide: [{ $toLong: "$created_at" }, 45000000] },
+              {
+                $divide: [
+                  { $sum: [{ $toLong: "$created_at" }, -1613054140757] },
+                  45000000,
+                ],
+              },
             ],
           },
         },
