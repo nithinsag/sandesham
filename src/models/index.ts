@@ -25,10 +25,10 @@ let CommunitySchema: Schema = new Schema({
   rules: { type: String },
   icon: { type: String },
   moderators: [
-    { user_id: { type: Schema.Types.ObjectId, ref: "User" }, name: String },
+    { _id: { type: Schema.Types.ObjectId, ref: "User" }, name: String },
   ],
   owner: {
-    user_id: { type: Schema.Types.ObjectId, ref: "User" },
+    _id: { type: Schema.Types.ObjectId, ref: "User" },
     name: String,
   },
   created_at: { type: Date, default: Date.now },
@@ -45,7 +45,7 @@ let PostSchema: Schema = new Schema({
   type: { type: String, enum: ["link", "text", "image", "video", "gif"] },
   community: { type: Schema.Types.ObjectId, ref: "Community" },
   author: {
-    user_id: { type: Schema.Types.ObjectId, ref: "User" },
+    _id: { type: Schema.Types.ObjectId, ref: "User" },
     name: String,
   },
   voteCount: { type: Schema.Types.Number, default: 0 },
@@ -79,7 +79,7 @@ let CommentSchema: Schema = new Schema({
   post: { type: Schema.Types.ObjectId, ref: "Post" },
   parent: { type: Schema.Types.ObjectId, ref: "Comment" },
   author: {
-    user_id: { type: Schema.Types.ObjectId, ref: "User" },
+    _id: { type: Schema.Types.ObjectId, ref: "User" },
     name: String,
   },
   voteCount: { type: Schema.Types.Number, default: 0 },
@@ -93,11 +93,11 @@ let CommentSchema: Schema = new Schema({
 let MessageSchema: Schema = new Schema({
   text: { type: String },
   from: {
-    user_id: { type: Schema.Types.ObjectId, ref: "User" },
+    _id: { type: Schema.Types.ObjectId, ref: "User" },
     name: String,
   },
   to: {
-    user_id: { type: Schema.Types.ObjectId, ref: "User" },
+    _id: { type: Schema.Types.ObjectId, ref: "User" },
     name: String,
   },
   read: {type: Schema.Types.Boolean, default: false},

@@ -14,11 +14,11 @@ export function registerRoutes(router) {
         let message = await Message.create({
           text: req.body.text,
           from: {
-            user_id: req.user._id,
+            _id: req.user._id,
             name: req.user.name
           },
           to: {
-            user_id: recipient._id,
+            _id: recipient._id,
             name: recipient.name
           }
         })
@@ -42,13 +42,13 @@ export function registerRoutes(router) {
     let messages;
     if (onlyUnread) {
       messages = await Message.find(
-        { 'to.user_id': req.user._id, read: false },
+        { 'to._id': req.user._id, read: false },
       )
     } else {
       messages = await Message.find({
         $or: [
-          { 'from.user_id': req.user._id },
-          { 'to.user_id': req.user._id },
+          { 'from._id': req.user._id },
+          { 'to._id': req.user._id },
         ]
       })
     }
@@ -57,7 +57,7 @@ export function registerRoutes(router) {
 
   router.post(`${API_BASE_URL}:id/markRead`, authenticateFromHeader, async (req, res) => {
     if (!req.user) return res.boom.unauthorized('User needs to be authenticated to get messages')
-    let message: any = await Message.findOne({ _id: req.params.id, 'to.user_id': req.user._id })
+    let message: any = await Message.findOne({ _id: req.params.id, 'to._id': req.user._id })
     if (!message) return res.boom.badRequest('Invalid message');
     message.read = true;
     return res.json(await message.save());
