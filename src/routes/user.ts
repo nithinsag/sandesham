@@ -35,8 +35,8 @@ async function signUp(req, res) {
       user = users[0]; 
       console.log('user in signup exist', user);
     } else {
-      const displayName = req.body.displayName;
-      user = new User({ name, email, picture, created_at: Date.now(), displayName });
+      const displayname = req.body.displayname;
+      user = new User({ name, email, picture, created_at: Date.now(), displayname });
       console.log('user in signup not exist ', user);
     }
     try {
