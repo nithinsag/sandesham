@@ -7,6 +7,8 @@ import morgan from "morgan";
 import { registerRoutes } from "./routes";
 export class Server {
   public app: any;
+  private server: any;
+  public db: any;
   public router: any;
   public cloudinary: any;
 
@@ -22,13 +24,14 @@ export class Server {
     try {
       await this.config();
       await this.api();
-      await mongoose.connect(process.env.MONGO_URI!, {
+      let connection = await mongoose.connect(process.env.MONGO_URI!, {
         useUnifiedTopology: true,
         useNewUrlParser: true,
-        autoIndex: true
+        autoIndex: true,
       });
 
-      await this.app.listen(this.port);
+      this.server = await this.app.listen(this.port);
+      this.db = connection.connection.db;
       console.log(`server listening on ${this.port}`);
     } catch (e) {
       console.log(e);
@@ -44,6 +47,10 @@ export class Server {
     this.app.use(router);
   }
 
+  public stop() {
+    this.server.close();
+    mongoose.connection.close();
+  }
   public async config() {
     this.app.use(bodyParser.json());
     this.app.use(methodOverride());

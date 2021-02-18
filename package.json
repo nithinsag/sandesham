@@ -15,6 +15,9 @@
     "type": "git",
     "url": "git+https://github.com/diadara/sandesham"
   },
+  "jest": {
+    "testEnvironment": "node"
+  },
   "keywords": [
     "typescript",
     "docker",
@@ -26,6 +29,8 @@
   "author": "Nithin Saji <nithin111@gmail.com>",
   "license": "MIT",
   "dependencies": {
+    "@types/chai": "^4.2.15",
+    "@types/mocha": "^8.2.1",
     "bcrypt": "^3.0.6",
     "body-parser": "^1.19.0",
     "chai": "^4.3.0",
