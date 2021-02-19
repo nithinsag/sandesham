@@ -16,7 +16,8 @@
     "url": "git+https://github.com/diadara/sandesham"
   },
   "jest": {
-    "testEnvironment": "node"
+    "testEnvironment": "node",
+    "testPathIgnorePatterns": ["dist"]
   },
   "keywords": [
     "typescript",
