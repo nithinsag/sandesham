@@ -23,7 +23,11 @@ export function registerRoutes(router: Router) {
     // TODO: find a way no not hardcode the route
     logger.info(`inside popular feed route`);
     const limit = 10;
-    let page = parseInt(req.params.page) || 1; // first page as default
+    let page = 1; // first page as default
+
+    if (req.query && req.query.page) {
+      page = parseInt((req.query as any).page);
+    }
     let posts = await Post.aggregate([
       // {$match:{whatever is needed here}}
       {
