@@ -18,6 +18,10 @@ export function authenticateFromHeader(req, res, next) {
     }
     var decodedToken;
     try {
+      /**
+       * For testing api using postman set DEPLOY_ENV environment variable as test and set the email as the bearer token.
+       * This will decode the user to the email
+       */
       if (process.env.DEPLOY_ENV == "TEST" && token) {
         decodedToken = {
           name: "Test User",
@@ -47,7 +51,10 @@ export function authenticateFromHeader(req, res, next) {
       if (users.length > 0) {
         req.user = users[0];
       } else {
-        console.log("user not found, treatnig as anonymous. Signup first to fix");
+        console.log(
+          "user not found, treating as anonymous. Signup first to fix"
+        );
+        req.is_anonymous = true;
       }
     } else if (decodedToken.provider_id == "anonymous") {
       req.is_anonymous = true;
