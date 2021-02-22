@@ -19,6 +19,9 @@ import {
 } from "./helpers";
 
 export function registerRoutes(router: Router) {
+  /**
+   * Route for getting popular post with pagination
+   */
   router.get(`/api/v1/post/popular`, async (req, res) => {
     // TODO: find a way no not hardcode the route
     logger.info(`inside popular feed route`);
@@ -59,6 +62,35 @@ export function registerRoutes(router: Router) {
       },
     ]);
 
+    res.json(posts);
+  });
+
+  /**
+   * Route for getting newest posts
+   */
+  router.get(`/api/v1/post/new`, async (req, res) => {
+    // TODO: find a way no not hardcode the route
+    logger.info(`inside popular feed route`);
+    const limit = 10;
+    let page = 1; // first page as default
+
+    if (req.query && req.query.page) {
+      page = parseInt((req.query as any).page);
+    }
+    let posts = await Post.aggregate([
+      // {$match:{whatever is needed here}}
+      {
+        $sort: {
+          created_at: 1,
+        },
+      },
+      {
+        $facet: {
+          metadata: [{ $count: "total" }, { $addFields: { page: page } }],
+          data: [{ $skip: (page - 1) * limit }, { $limit: limit }],
+        },
+      },
+    ]);
     res.json(posts);
   });
 
