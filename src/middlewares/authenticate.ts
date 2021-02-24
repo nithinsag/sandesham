@@ -13,7 +13,7 @@ export function authenticateFromHeader(req, res, next) {
   // authorization middleware.
   async function authMiddleware(req, res, next) {
     let token = extractTokenFromAuthHeader(req);
-    logger.info("token", token);
+    logger.info("token: " +  token);
     if (token === null) {
       return next();
     }
@@ -63,7 +63,7 @@ export function authenticateFromHeader(req, res, next) {
       req.is_anonymous = true;
       logger.info("Anonymous User");
     }
-    logger.info("Authenticated user - ", req.user);
+    logger.info("Authenticated user - " + JSON.stringify(req.user));
     logger.info(decodedToken);
 
     return next();

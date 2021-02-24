@@ -45,15 +45,15 @@ async function signUp(req, res) {
         created_at: Date.now(),
         displayname,
       });
-      console.log("user in signup not exist ", user);
+      logger.debug("user in signup not exist " + JSON.stringify(user));
     }
     try {
       logger.info("creating new user");
       await user.save();
       //res.json(user);
     } catch (e) {
-      console.log("failed to create user")
-      console.log(e);
+      logger.debug("failed to create user")
+      logger.debug(e);
       return res.boom(e);
     }
     res.json(user);

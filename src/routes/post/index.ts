@@ -138,7 +138,7 @@ export function registerRoutes(router: Router) {
   );
 
   router.post(
-    `${postUri}/:id/vote/report`,
+    `${postUri}/:id/report`,
     authenticateFromHeader,
     async (req, res) => {
       if (req.user) {

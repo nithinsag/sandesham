@@ -3,7 +3,8 @@ dotenv.config();
 import { Server } from "../src/server";
 let supertest = require("supertest");
 let request;
-let token = "testuser@gmail.com";
+let token1 = "testuser1@gmail.com";
+let token2 = "testuser2@gmail.com";
 let server;
 
 const sample_post = {
@@ -21,19 +22,20 @@ beforeAll(async () => {
   try {
     await server.start();
     server.db.dropDatabase();
-    console.log("started server");
     request = supertest(server.app);
   } catch (e) {
     console.log(e);
-    console.log("failed to start server");
   }
 
-  let { body } = await request
+  await request
     .post("/api/v1/user/signup")
-    .set("Authorization", "Bearer " + token)
-    .send({ displayname: "testuser" });
+    .set("Authorization", "Bearer " + token1)
+    .send({ displayname: "testuser 1" });
 
-  console.log(body);
+  await request
+    .post("/api/v1/user/signup")
+    .set("Authorization", "Bearer " + token2)
+    .send({ displayname: "testuser 2" });
 });
 
 beforeEach(() => {
@@ -47,6 +49,7 @@ afterAll(async () => {
 const SERVER_PORT = 1338;
 
 describe("Post routes", () => {
+  let post1;
   process.env.DEPLOY_ENV = "TEST";
 
   test("gets the root endpoint", async () => {
@@ -68,8 +71,23 @@ describe("Post routes", () => {
     let response = await request
       .post("/api/v1/post")
       .send(sample_post)
-      .set("Authorization", "Bearer " + token);
+      .set("Authorization", "Bearer " + token1);
     expect(response.status).toBe(201);
-    console.log(response.body);
+    post1 = response.body;
+  });
+
+  test("signed up user can upvote ", async () => {
+    let response = await request
+      .post(`/api/v1/post/${post1._id}/vote/1`)
+      .set("Authorization", "Bearer " + token2);
+    expect(response.status).toBe(200);
+  });
+
+  test("signed up user can report ", async () => {
+    let response = await request
+      .post(`/api/v1/post/${post1._id}/report`)
+      .send({ reason: "explicit content" })
+      .set("Authorization", "Bearer " + token2);
+    expect(response.status).toBe(200);
   });
 });
