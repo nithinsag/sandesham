@@ -162,7 +162,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\"displayName\":\"diadara\"}",
+							"raw": "{\"displayname\":\"diadara\"}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -208,10 +208,20 @@
 				{
 					"name": "delete user",
 					"request": {
-						"method": "GET",
+						"method": "DELETE",
 						"header": [],
 						"url": {
-							"raw": ""
+							"raw": "http://{{host}}/api/v1/user/6033ab014ed16ccc38625680",
+							"protocol": "http",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"user",
+								"6033ab014ed16ccc38625680"
+							]
 						}
 					},
 					"response": []
