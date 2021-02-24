@@ -6,8 +6,8 @@ let UserSchema: Schema = new Schema({
   pushMessageToken: String,
   displayname: { type: String, unique: true },
   role: { type: String, enum: ["user", "admin"], default: "user" },
-  postKarma: {type: Schema.Types.Number, default:0},
-  commentKarma: {type: Schema.Types.Number, default:0},
+  postKarma: { type: Schema.Types.Number, default: 0 },
+  commentKarma: { type: Schema.Types.Number, default: 0 },
   picture: { type: String },
   created_at: { type: Date, default: Date.now },
   updated_at: { type: Date, default: Date.now },
@@ -46,7 +46,7 @@ let PostSchema: Schema = new Schema({
   community: { type: Schema.Types.ObjectId, ref: "Community" },
   author: {
     _id: { type: Schema.Types.ObjectId, ref: "User" },
-    name: String,
+    displayname: String,
   },
   voteCount: { type: Schema.Types.Number, default: 0 },
   commentCount: { type: Schema.Types.Number, default: 0 },
@@ -100,7 +100,7 @@ let MessageSchema: Schema = new Schema({
     _id: { type: Schema.Types.ObjectId, ref: "User" },
     name: String,
   },
-  read: {type: Schema.Types.Boolean, default: false},
+  read: { type: Schema.Types.Boolean, default: false },
   created_at: { type: Date, default: Date.now },
 });
 
