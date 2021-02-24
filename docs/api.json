@@ -162,7 +162,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\"displayname\":\"diadara\"}",
+							"raw": "{\"displayname\":\"Test User\"}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -370,7 +370,7 @@
 							}
 						],
 						"url": {
-							"raw": "http://{{host}}/api/v1/post/5f99557556873692ab4b6cd1",
+							"raw": "http://{{host}}/api/v1/post/5f9c05661e30884e33390693",
 							"protocol": "http",
 							"host": [
 								"{{host}}"
@@ -379,7 +379,7 @@
 								"api",
 								"v1",
 								"post",
-								"5f99557556873692ab4b6cd1"
+								"5f9c05661e30884e33390693"
 							],
 							"query": [
 								{
@@ -562,6 +562,60 @@
 								"post",
 								"5f99557556873692ab4b6cd1",
 								"comments"
+							],
+							"query": [
+								{
+									"key": "Authorization",
+									"value": "Bearer eyJhbGciOiJSUzI1NiIsImtpZCI6IjIzNzA1ZmNmY2NjMTg4Njg2ZjhhZjkyYWJiZjAxYzRmMjZiZDVlODMiLCJ0eXAiOiJKV1QifQ.eyJuYW1lIjoiQXJqdW4gUyBXYXJyaWVyIiwicGljdHVyZSI6Imh0dHBzOi8vbGgzLmdvb2dsZXVzZXJjb250ZW50LmNvbS9hLS9BT2gxNEdneUlnUnNEblJ3UHdtVnpIQ0VPd2oyN2Z2bFg2SWZXOGhrbWFZRXN3PXM5Ni1jIiwiaXNzIjoiaHR0cHM6Ly9zZWN1cmV0b2tlbi5nb29nbGUuY29tL3ZlbGxhcmlra2EtcGF0dGFuYW0iLCJhdWQiOiJ2ZWxsYXJpa2thLXBhdHRhbmFtIiwiYXV0aF90aW1lIjoxNjAyNjcyNjg3LCJ1c2VyX2lkIjoiVjJ0UHhrdnFTTWcwODEyMHFlb1pzNmVrYlUwMyIsInN1YiI6IlYydFB4a3ZxU01nMDgxMjBxZW9aczZla2JVMDMiLCJpYXQiOjE2MDI3NDI5MTgsImV4cCI6MTYwMjc0NjUxOCwiZW1haWwiOiJhcmp1bnN3YXJyaWVyQGdtYWlsLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJmaXJlYmFzZSI6eyJpZGVudGl0aWVzIjp7Imdvb2dsZS5jb20iOlsiMTEzOTkxODE5NDEzMzkyOTIxOTg5Il0sImVtYWlsIjpbImFyanVuc3dhcnJpZXJAZ21haWwuY29tIl19LCJzaWduX2luX3Byb3ZpZGVyIjoiZ29vZ2xlLmNvbSJ9fQ.JJDmiWPjx_XRcVwp0KzdN8wdfvj7XL2uFYurJ2dsQ_IEPOxeif2P3HDuy5y61GCGSix616drNYOGHvCJcOnk02RnDY6PIBKZStgiwN52Ox_4zQGm78qXDYtIeZSmoe6lIPKGNnGy25VhqPAqIu3V5KeQPFbF_csnDg5EsoGVF2ZU-NNGb90cN8jRWz6TiahT4AW5gI8S9pkLTKamU3R9t1IgkpYdfCFytWyh-HaGpxFa9oJSKyKkdPEYzHCUxPdtyCPz1NOP7OrFd-n8fL74x3slmzzX8-pGwVYAe007ao-GyrT5Ch-GwWL2pBMBkpCt9DtVX6e_vGXXM8Tgw99j4A",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "report",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"type": "text",
+								"value": "Bearer eyJhbGciOiJSUzI1NiIsImtpZCI6IjBlM2FlZWUyYjVjMDhjMGMyODFhNGZmN2RjMmRmOGIyMzgyOGQ1YzYiLCJ0eXAiOiJKV1QifQ.eyJuYW1lIjoiQXJqdW4gUyBXYXJyaWVyIiwicGljdHVyZSI6Imh0dHBzOi8vbGgzLmdvb2dsZXVzZXJjb250ZW50LmNvbS9hLS9BT2gxNEdneUlnUnNEblJ3UHdtVnpIQ0VPd2oyN2Z2bFg2SWZXOGhrbWFZRXN3PXM5Ni1jIiwiaXNzIjoiaHR0cHM6Ly9zZWN1cmV0b2tlbi5nb29nbGUuY29tL3ZlbGxhcmlra2EtcGF0dGFuYW0iLCJhdWQiOiJ2ZWxsYXJpa2thLXBhdHRhbmFtIiwiYXV0aF90aW1lIjoxNjAyODM4ODk4LCJ1c2VyX2lkIjoiVjJ0UHhrdnFTTWcwODEyMHFlb1pzNmVrYlUwMyIsInN1YiI6IlYydFB4a3ZxU01nMDgxMjBxZW9aczZla2JVMDMiLCJpYXQiOjE2MDI4NDMyNzQsImV4cCI6MTYwMjg0Njg3NCwiZW1haWwiOiJhcmp1bnN3YXJyaWVyQGdtYWlsLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJmaXJlYmFzZSI6eyJpZGVudGl0aWVzIjp7Imdvb2dsZS5jb20iOlsiMTEzOTkxODE5NDEzMzkyOTIxOTg5Il0sImVtYWlsIjpbImFyanVuc3dhcnJpZXJAZ21haWwuY29tIl19LCJzaWduX2luX3Byb3ZpZGVyIjoiZ29vZ2xlLmNvbSJ9fQ.edYqiBs5cz19bTcIDTvIH6343Ni1NNxTgNiBlFXGJmnVUac9c4LKBX7D29EPnsVD36oFkvi0CWVOJD4dk-mYh0kU24wAqgThCzJq6Qk9FjuaVMYAYyqFuLAyMPmaDz50JTmrjo8XocJ19g77lU-K6pSKU8npVpRaxqnF2Mu64jCsr7rv2GTTQGNW1YJ49tqXTORX5dzGQykCjSPnDhmI7DFH0XO_CzzdMJIo9AvgN5M7Tsm8rnnJCClNCctGi9GdrF0NLGT_s89c4UZg5EWD5GKS-40RNOu_gNmcWXUjOV7bNht_6xSvjCIDmj4Cwz2F-JyDGySV8DLqAIKsf3u9ZQ"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"reason\": \"adult content\"}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{host}}/api/v1/post/6036a3135a9f1e2ee36b5fb6/report",
+							"protocol": "http",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"post",
+								"6036a3135a9f1e2ee36b5fb6",
+								"report"
 							],
 							"query": [
 								{
