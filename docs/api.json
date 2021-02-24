@@ -147,7 +147,7 @@
 							"bearer": [
 								{
 									"key": "token",
-									"value": "eyJhbGciOiJSUzI1NiIsImtpZCI6ImQxOTI5ZmY0NWM2MDllYzRjNDhlYmVmMGZiMTM5MmMzOTEzMmQ5YTEiLCJ0eXAiOiJKV1QifQ.eyJuYW1lIjoiTml0aGluIFNhamkiLCJwaWN0dXJlIjoiaHR0cHM6Ly9saDMuZ29vZ2xldXNlcmNvbnRlbnQuY29tL2EtL0FPaDE0R2c4UVNiTUxNQ3Z1czgwUllldHVHeVo5T0lZRzdlX1J3ZzdyT1JScnc9czk2LWMiLCJpc3MiOiJodHRwczovL3NlY3VyZXRva2VuLmdvb2dsZS5jb20vdmVsbGFyaWtrYS1wYXR0YW5hbSIsImF1ZCI6InZlbGxhcmlra2EtcGF0dGFuYW0iLCJhdXRoX3RpbWUiOjE2MDA3NzI2ODIsInVzZXJfaWQiOiJpZmV3WlVJWW1tY1RLM0tPRUxRd0cweHc1TGQyIiwic3ViIjoiaWZld1pVSVltbWNUSzNLT0VMUXdHMHh3NUxkMiIsImlhdCI6MTYwNDY4NTgzNiwiZXhwIjoxNjA0Njg5NDM2LCJlbWFpbCI6Im5pdGhpbjExMUBnbWFpbC5jb20iLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwiZmlyZWJhc2UiOnsiaWRlbnRpdGllcyI6eyJnb29nbGUuY29tIjpbIjEwMjc3NDMwNDMwNjg2MjA1NjU5MiJdLCJlbWFpbCI6WyJuaXRoaW4xMTFAZ21haWwuY29tIl19LCJzaWduX2luX3Byb3ZpZGVyIjoiZ29vZ2xlLmNvbSJ9fQ.kntZkExZBfRo5XUCb2v39nZW6bZEYg5m-xFXJWiaiGbW48EXakvWWa38W65NufjXvbaVQcHkFroWfR765iEXbv13eyfiCPjifp6_TeGslbygaNRcft3qkuNiProYVDv1nZdlPmQF3UbUujm1bMeNAa5SEusRLKKQF2YalJubE9_-F63Puf6FhH2pZ4S6Gk0Mla7Sg2SOkhHnEt0yRCwFrIJciah1Q9Z2YD94GplkJNWzlbQgyMHOhZSSvtwu_M3UhXnDJVMQwWTz7ohM5kekernJkEeWaJT51-VDLlB_Q3c457GktKbnc6N6Bf09P1fm-la8zy1tMqbYOwDWerm64A",
+									"value": "{{token}}",
 									"type": "string"
 								}
 							]
@@ -162,7 +162,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\"username\":\"lonecruise2\"}",
+							"raw": "{\"displayName\":\"diadara\"}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -268,7 +268,7 @@
 							"query": [
 								{
 									"key": "Authorization",
-									"value": "Bearer eyJhbGciOiJSUzI1NiIsImtpZCI6IjIzNzA1ZmNmY2NjMTg4Njg2ZjhhZjkyYWJiZjAxYzRmMjZiZDVlODMiLCJ0eXAiOiJKV1QifQ.eyJuYW1lIjoiQXJqdW4gUyBXYXJyaWVyIiwicGljdHVyZSI6Imh0dHBzOi8vbGgzLmdvb2dsZXVzZXJjb250ZW50LmNvbS9hLS9BT2gxNEdneUlnUnNEblJ3UHdtVnpIQ0VPd2oyN2Z2bFg2SWZXOGhrbWFZRXN3PXM5Ni1jIiwiaXNzIjoiaHR0cHM6Ly9zZWN1cmV0b2tlbi5nb29nbGUuY29tL3ZlbGxhcmlra2EtcGF0dGFuYW0iLCJhdWQiOiJ2ZWxsYXJpa2thLXBhdHRhbmFtIiwiYXV0aF90aW1lIjoxNjAyNjcyNjg3LCJ1c2VyX2lkIjoiVjJ0UHhrdnFTTWcwODEyMHFlb1pzNmVrYlUwMyIsInN1YiI6IlYydFB4a3ZxU01nMDgxMjBxZW9aczZla2JVMDMiLCJpYXQiOjE2MDI3NDI5MTgsImV4cCI6MTYwMjc0NjUxOCwiZW1haWwiOiJhcmp1bnN3YXJyaWVyQGdtYWlsLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJmaXJlYmFzZSI6eyJpZGVudGl0aWVzIjp7Imdvb2dsZS5jb20iOlsiMTEzOTkxODE5NDEzMzkyOTIxOTg5Il0sImVtYWlsIjpbImFyanVuc3dhcnJpZXJAZ21haWwuY29tIl19LCJzaWduX2luX3Byb3ZpZGVyIjoiZ29vZ2xlLmNvbSJ9fQ.JJDmiWPjx_XRcVwp0KzdN8wdfvj7XL2uFYurJ2dsQ_IEPOxeif2P3HDuy5y61GCGSix616drNYOGHvCJcOnk02RnDY6PIBKZStgiwN52Ox_4zQGm78qXDYtIeZSmoe6lIPKGNnGy25VhqPAqIu3V5KeQPFbF_csnDg5EsoGVF2ZU-NNGb90cN8jRWz6TiahT4AW5gI8S9pkLTKamU3R9t1IgkpYdfCFytWyh-HaGpxFa9oJSKyKkdPEYzHCUxPdtyCPz1NOP7OrFd-n8fL74x3slmzzX8-pGwVYAe007ao-GyrT5Ch-GwWL2pBMBkpCt9DtVX6e_vGXXM8Tgw99j4A",
+									"value": "Bearer {{token}}",
 									"disabled": true
 								}
 							]
@@ -288,7 +288,7 @@
 							}
 						],
 						"url": {
-							"raw": "http://{{host}}/api/v1/post/",
+							"raw": "http://{{host}}/api/v1/post/popular?page=2",
 							"protocol": "http",
 							"host": [
 								"{{host}}"
@@ -297,7 +297,45 @@
 								"api",
 								"v1",
 								"post",
-								""
+								"popular"
+							],
+							"query": [
+								{
+									"key": "Authorization",
+									"value": "Bearer eyJhbGciOiJSUzI1NiIsImtpZCI6IjIzNzA1ZmNmY2NjMTg4Njg2ZjhhZjkyYWJiZjAxYzRmMjZiZDVlODMiLCJ0eXAiOiJKV1QifQ.eyJuYW1lIjoiQXJqdW4gUyBXYXJyaWVyIiwicGljdHVyZSI6Imh0dHBzOi8vbGgzLmdvb2dsZXVzZXJjb250ZW50LmNvbS9hLS9BT2gxNEdneUlnUnNEblJ3UHdtVnpIQ0VPd2oyN2Z2bFg2SWZXOGhrbWFZRXN3PXM5Ni1jIiwiaXNzIjoiaHR0cHM6Ly9zZWN1cmV0b2tlbi5nb29nbGUuY29tL3ZlbGxhcmlra2EtcGF0dGFuYW0iLCJhdWQiOiJ2ZWxsYXJpa2thLXBhdHRhbmFtIiwiYXV0aF90aW1lIjoxNjAyNjcyNjg3LCJ1c2VyX2lkIjoiVjJ0UHhrdnFTTWcwODEyMHFlb1pzNmVrYlUwMyIsInN1YiI6IlYydFB4a3ZxU01nMDgxMjBxZW9aczZla2JVMDMiLCJpYXQiOjE2MDI3NDI5MTgsImV4cCI6MTYwMjc0NjUxOCwiZW1haWwiOiJhcmp1bnN3YXJyaWVyQGdtYWlsLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJmaXJlYmFzZSI6eyJpZGVudGl0aWVzIjp7Imdvb2dsZS5jb20iOlsiMTEzOTkxODE5NDEzMzkyOTIxOTg5Il0sImVtYWlsIjpbImFyanVuc3dhcnJpZXJAZ21haWwuY29tIl19LCJzaWduX2luX3Byb3ZpZGVyIjoiZ29vZ2xlLmNvbSJ9fQ.JJDmiWPjx_XRcVwp0KzdN8wdfvj7XL2uFYurJ2dsQ_IEPOxeif2P3HDuy5y61GCGSix616drNYOGHvCJcOnk02RnDY6PIBKZStgiwN52Ox_4zQGm78qXDYtIeZSmoe6lIPKGNnGy25VhqPAqIu3V5KeQPFbF_csnDg5EsoGVF2ZU-NNGb90cN8jRWz6TiahT4AW5gI8S9pkLTKamU3R9t1IgkpYdfCFytWyh-HaGpxFa9oJSKyKkdPEYzHCUxPdtyCPz1NOP7OrFd-n8fL74x3slmzzX8-pGwVYAe007ao-GyrT5Ch-GwWL2pBMBkpCt9DtVX6e_vGXXM8Tgw99j4A",
+									"disabled": true
+								},
+								{
+									"key": "page",
+									"value": "2"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get newest post",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"type": "text",
+								"value": "Bearer eyJhbGciOiJSUzI1NiIsImtpZCI6IjBlM2FlZWUyYjVjMDhjMGMyODFhNGZmN2RjMmRmOGIyMzgyOGQ1YzYiLCJ0eXAiOiJKV1QifQ.eyJuYW1lIjoiQXJqdW4gUyBXYXJyaWVyIiwicGljdHVyZSI6Imh0dHBzOi8vbGgzLmdvb2dsZXVzZXJjb250ZW50LmNvbS9hLS9BT2gxNEdneUlnUnNEblJ3UHdtVnpIQ0VPd2oyN2Z2bFg2SWZXOGhrbWFZRXN3PXM5Ni1jIiwiaXNzIjoiaHR0cHM6Ly9zZWN1cmV0b2tlbi5nb29nbGUuY29tL3ZlbGxhcmlra2EtcGF0dGFuYW0iLCJhdWQiOiJ2ZWxsYXJpa2thLXBhdHRhbmFtIiwiYXV0aF90aW1lIjoxNjAyODM4ODk4LCJ1c2VyX2lkIjoiVjJ0UHhrdnFTTWcwODEyMHFlb1pzNmVrYlUwMyIsInN1YiI6IlYydFB4a3ZxU01nMDgxMjBxZW9aczZla2JVMDMiLCJpYXQiOjE2MDI4NDMyNzQsImV4cCI6MTYwMjg0Njg3NCwiZW1haWwiOiJhcmp1bnN3YXJyaWVyQGdtYWlsLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJmaXJlYmFzZSI6eyJpZGVudGl0aWVzIjp7Imdvb2dsZS5jb20iOlsiMTEzOTkxODE5NDEzMzkyOTIxOTg5Il0sImVtYWlsIjpbImFyanVuc3dhcnJpZXJAZ21haWwuY29tIl19LCJzaWduX2luX3Byb3ZpZGVyIjoiZ29vZ2xlLmNvbSJ9fQ.edYqiBs5cz19bTcIDTvIH6343Ni1NNxTgNiBlFXGJmnVUac9c4LKBX7D29EPnsVD36oFkvi0CWVOJD4dk-mYh0kU24wAqgThCzJq6Qk9FjuaVMYAYyqFuLAyMPmaDz50JTmrjo8XocJ19g77lU-K6pSKU8npVpRaxqnF2Mu64jCsr7rv2GTTQGNW1YJ49tqXTORX5dzGQykCjSPnDhmI7DFH0XO_CzzdMJIo9AvgN5M7Tsm8rnnJCClNCctGi9GdrF0NLGT_s89c4UZg5EWD5GKS-40RNOu_gNmcWXUjOV7bNht_6xSvjCIDmj4Cwz2F-JyDGySV8DLqAIKsf3u9ZQ"
+							}
+						],
+						"url": {
+							"raw": "http://{{host}}/api/v1/post/new",
+							"protocol": "http",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"post",
+								"new"
 							],
 							"query": [
 								{
@@ -460,7 +498,7 @@
 							"bearer": [
 								{
 									"key": "token",
-									"value": "sfgsdfgsdfg",
+									"value": "{{token}}",
 									"type": "string"
 								}
 							]
