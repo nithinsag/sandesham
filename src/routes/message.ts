@@ -15,11 +15,11 @@ export function registerRoutes(router) {
           text: req.body.text,
           from: {
             _id: req.user._id,
-            name: req.user.name
+            displayname: req.user.displayname
           },
           to: {
             _id: recipient._id,
-            name: recipient.name
+            displayname: recipient.displayname
           }
         })
 

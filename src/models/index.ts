@@ -25,11 +25,11 @@ let CommunitySchema: Schema = new Schema({
   rules: { type: String },
   icon: { type: String },
   moderators: [
-    { _id: { type: Schema.Types.ObjectId, ref: "User" }, name: String },
+    { _id: { type: Schema.Types.ObjectId, ref: "User" }, displayname: String },
   ],
   owner: {
     _id: { type: Schema.Types.ObjectId, ref: "User" },
-    name: String,
+    displayname: String,
   },
   created_at: { type: Date, default: Date.now },
   updated_at: { type: Date, default: Date.now },
@@ -80,7 +80,7 @@ let CommentSchema: Schema = new Schema({
   parent: { type: Schema.Types.ObjectId, ref: "Comment" },
   author: {
     _id: { type: Schema.Types.ObjectId, ref: "User" },
-    name: String,
+    displayname: String,
   },
   voteCount: { type: Schema.Types.Number, default: 0 },
   upvotes: [Schema.Types.ObjectId],
@@ -94,11 +94,11 @@ let MessageSchema: Schema = new Schema({
   text: { type: String },
   from: {
     _id: { type: Schema.Types.ObjectId, ref: "User" },
-    name: String,
+    displayname: String,
   },
   to: {
     _id: { type: Schema.Types.ObjectId, ref: "User" },
-    name: String,
+    displayname: String,
   },
   read: { type: Schema.Types.Boolean, default: false },
   created_at: { type: Date, default: Date.now },
