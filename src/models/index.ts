@@ -52,6 +52,7 @@ let PostSchema: Schema = new Schema({
   commentCount: { type: Schema.Types.Number, default: 0 },
   upvotes: [Schema.Types.ObjectId],
   downvotes: [Schema.Types.ObjectId],
+  reports: [{_id: Schema.Types.ObjectId, reason: String}],
   created_at: { type: Date, default: Date.now },
   updated_at: { type: Date, default: Date.now },
 });
