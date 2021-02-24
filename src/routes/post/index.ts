@@ -56,7 +56,10 @@ export function registerRoutes(router: Router) {
       },
       {
         $facet: {
-          metadata: [{ $count: "total" }, { $addFields: { page: page } }],
+          metadata: [
+            { $count: "total" },
+            { $addFields: { page: page, limit: limit } },
+          ],
           data: [{ $skip: (page - 1) * limit }, { $limit: limit }],
         },
       },
