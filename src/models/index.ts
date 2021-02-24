@@ -2,7 +2,7 @@ import mongoose, { Schema, Document } from "mongoose";
 
 let UserSchema: Schema = new Schema({
   email: { type: String, required: true },
-  name: { type: String, required: true },
+  name: { type: String },
   pushMessageToken: String,
   displayname: { type: String, unique: true },
   role: { type: String, enum: ["user", "admin"], default: "user" },
