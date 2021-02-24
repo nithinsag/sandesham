@@ -1,9 +1,10 @@
 export function addCreatedBy(req, res, next) {
   if (req.user) {
-    req.body.author = { _id: req.user._id, name: req.user.name };
+    // TODO: when user changes displayname, update all displayname fields asynchronously
+    req.body.author = { _id: req.user._id, name: req.user.displayname };
   } else {
     res.boom.unauthorized("Unauthenticated user");
-    return
+    return;
   }
   next();
 }
