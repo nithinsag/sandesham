@@ -3,6 +3,7 @@ import { User } from "../models";
 import { validateToken } from "../modules/firebase";
 import { isNull } from "util";
 import { auth } from "firebase-admin";
+import { logger } from "../helpers/logger";
 
 export function authenticateFromHeader(req, res, next) {
   // wrapping execution in authMiddleware async function because
@@ -12,7 +13,7 @@ export function authenticateFromHeader(req, res, next) {
   // authorization middleware.
   async function authMiddleware(req, res, next) {
     let token = extractTokenFromAuthHeader(req);
-
+    logger.info("token", token);
     if (token === null) {
       return next();
     }
@@ -23,6 +24,7 @@ export function authenticateFromHeader(req, res, next) {
        * This will decode the user to the email
        */
       if (process.env.DEPLOY_ENV == "TEST" && token) {
+        logger.info("using test token decoding");
         decodedToken = {
           name: "Test User",
           picture: "http://example.com/picure.jpg",
@@ -31,10 +33,10 @@ export function authenticateFromHeader(req, res, next) {
         };
       } else {
         decodedToken = await validateToken(token);
-        console.log("token validated", decodedToken);
+        logger.info("token validated" + JSON.stringify(decodedToken));
       }
     } catch (e) {
-      console.log("Could not authenticate");
+      logger.info("Could not authenticate");
       return next();
     }
 
@@ -46,22 +48,23 @@ export function authenticateFromHeader(req, res, next) {
       let users, user;
 
       users = await User.find({ email: email });
-      console.log(decodedToken);
+      logger.info(users)
+      logger.info(decodedToken);
 
       if (users.length > 0) {
         req.user = users[0];
       } else {
-        console.log(
+        logger.info(
           "user not found, treating as anonymous. Signup first to fix"
         );
         req.is_anonymous = true;
       }
     } else if (decodedToken.provider_id == "anonymous") {
       req.is_anonymous = true;
-      console.log("Anonymous User");
+      logger.info("Anonymous User");
     }
-    console.log("Authenticated user - ", req.user);
-    console.log(decodedToken);
+    logger.info("Authenticated user - ", req.user);
+    logger.info(decodedToken);
 
     return next();
   }
