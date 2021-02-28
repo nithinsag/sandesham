@@ -249,7 +249,6 @@ export function registerRoutes(router: Router) {
           { _id: req.params.id },
           getVoteQuery(user_id, type)
         );
-        logger.info(status);
         let comment: any = await Comment.findOne({ _id: req.params.id }).lean();
         comment.userVote = getUserVote(comment, req.user);
         let scoreDelta = comment.userVote - getUserVote(preUpdate, req.user);
