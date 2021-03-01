@@ -90,4 +90,30 @@ describe("Post routes", () => {
       .set("Authorization", "Bearer " + token2);
     expect(response.status).toBe(200);
   });
+
+  test("signed up user can vote and downvote ", async () => {
+    let response = await request
+      .post(`/api/v1/post/${post1._id}/report`)
+      .send({ reason: "explicit content" })
+      .set("Authorization", "Bearer " + token2);
+    expect(response.status).toBe(200);
+  });
+
+  test("should be able to fetch popular feed", async () => {
+    let response = await request.get(`/api/v1/post/popular`);
+    console.log(JSON.stringify(response.body.data));
+    expect(response.status).toBe(200);
+    expect(response.body.data).toHaveLength(1);
+  });
+
+  test("should be able to fetch popular feed with pagination", async () => {
+    let response = await request.get(`/api/v1/post/popular?limit=1`);
+    expect(response.status).toBe(200);
+    expect(response.body.data).toHaveLength(1);
+    response = await request.get(`/api/v1/post/popular?limit=1&page=2`);
+    expect(response.status).toBe(200);
+    expect(response.body.data).toHaveLength(0)
+  });
+
+  
 });

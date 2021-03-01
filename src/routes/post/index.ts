@@ -26,12 +26,18 @@ export function registerRoutes(router: Router) {
   router.get(`/api/v1/post/popular`, async (req, res) => {
     // TODO: find a way no not hardcode the route
     logger.info(`inside popular feed route`);
-    const limit = 10;
+    let limit = 10;
     let page = 1; // first page as default
 
     if (req.query && req.query.page) {
       page = parseInt((req.query as any).page);
     }
+    if (req.query && req.query.limit) {
+      if (parseInt((req.query as any).limit) < 100) {
+        limit = parseInt((req.query as any).limit);
+      }
+    }
+
     let posts = await Post.aggregate([
       // {$match:{whatever is needed here}}
       {
@@ -42,7 +48,7 @@ export function registerRoutes(router: Router) {
               { $log: [{ $max: [{ $abs: "$voteCount" }, 1] }, 10] },
               {
                 $divide: [
-                  { $sum: [{ $toLong: "$created_at" }, -1613054140757] },
+                  { $sum: [{ $toLong: "$created_at" }, -1613054140757] }, // to make log votes and time factor in the same
                   45000000,
                 ],
               },
@@ -66,7 +72,7 @@ export function registerRoutes(router: Router) {
       },
     ]);
 
-    res.json(posts);
+    res.json(posts[0]);
   });
 
   /**
