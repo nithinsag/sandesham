@@ -41,6 +41,20 @@ export function registerRoutes(router: Router) {
     let posts = await Post.aggregate([
       // {$match:{whatever is needed here}}
       {
+        $lookup: {
+          from: "communities",
+          localField: "community",
+          foreignField: "_id",
+          as: "community",
+        },
+      },
+      {
+        $set: {
+          community: { $arrayElemAt: ["$community", 0] },
+        },
+      },
+
+      {
         $addFields: {
           score: {
             // https://medium.com/hacking-and-gonzo/how-reddit-ranking-algorithms-work-ef111e33d0d9
@@ -73,6 +87,7 @@ export function registerRoutes(router: Router) {
     ]);
 
     res.json(posts[0]);
+    // res.json(posts);
   });
 
   /**

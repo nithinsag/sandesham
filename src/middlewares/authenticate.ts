@@ -14,6 +14,7 @@ export function authenticateFromHeader(req, res, next) {
   async function authMiddleware(req, res, next) {
     let token = extractTokenFromAuthHeader(req);
     logger.info("token: " +  token);
+    logger.info("deploy env: " +  process.env.DEPLOY_ENV);
     if (token === null) {
       return next();
     }
@@ -23,6 +24,8 @@ export function authenticateFromHeader(req, res, next) {
        * For testing api using postman set DEPLOY_ENV environment variable as test and set the email as the bearer token.
        * This will decode the user to the email
        */
+
+       console.log
       if (process.env.DEPLOY_ENV == "TEST" && token) {
         logger.info("using test token decoding");
         decodedToken = {
