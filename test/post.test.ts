@@ -5,10 +5,18 @@ let supertest = require("supertest");
 let request;
 let token1 = "testuser1@gmail.com";
 let token2 = "testuser2@gmail.com";
+let token3 = "testuser3@gmail.com";
 let server;
 
-const sample_post = {
-  title: "sdfasdfadasdfgdfg  asdfasd asdf",
+const sample_post_1 = {
+  title: "Test Post 1",
+  type: "text",
+  slug: "sadaasdfvsadf",
+  description: "discription for first post",
+};
+
+const sample_post_2 = {
+  title: "Test Post 1",
   type: "text",
   slug: "sadaasdfvsadf",
   description: "discription for first post",
@@ -36,6 +44,10 @@ beforeAll(async () => {
     .post("/api/v1/user/signup")
     .set("Authorization", "Bearer " + token2)
     .send({ displayname: "testuser 2" });
+  await request
+    .post("/api/v1/user/signup")
+    .set("Authorization", "Bearer " + token2)
+    .send({ displayname: "testuser 3" });
 });
 
 beforeEach(() => {
@@ -49,7 +61,7 @@ afterAll(async () => {
 const SERVER_PORT = 1338;
 
 describe("Post routes", () => {
-  let post1;
+  let post1, post2;
   process.env.DEPLOY_ENV = "TEST";
 
   test("gets the root endpoint", async () => {
@@ -70,10 +82,17 @@ describe("Post routes", () => {
   test("signed up user can create posts ", async () => {
     let response = await request
       .post("/api/v1/post")
-      .send(sample_post)
+      .send(sample_post_1)
       .set("Authorization", "Bearer " + token1);
     expect(response.status).toBe(201);
     post1 = response.body;
+
+    response = await request
+      .post("/api/v1/post")
+      .send(sample_post_2)
+      .set("Authorization", "Bearer " + token2);
+    expect(response.status).toBe(201);
+    post2 = response.body;
   });
 
   test("signed up user can upvote ", async () => {
@@ -91,7 +110,7 @@ describe("Post routes", () => {
     expect(response.status).toBe(200);
   });
 
-  test("signed up user can vote and downvote ", async () => {
+  test("signed up user can report", async () => {
     let response = await request
       .post(`/api/v1/post/${post1._id}/report`)
       .send({ reason: "explicit content" })
@@ -103,17 +122,60 @@ describe("Post routes", () => {
     let response = await request.get(`/api/v1/post/popular`);
     console.log(JSON.stringify(response.body.data));
     expect(response.status).toBe(200);
-    expect(response.body.data).toHaveLength(1);
+    expect(response.body.data).toHaveLength(2);
   });
 
-  test("should be able to fetch popular feed with pagination", async () => {
-    let response = await request.get(`/api/v1/post/popular?limit=1`);
+  test("should be able to fetch popular feed with pagination for anonymous user", async () => {
+    let response = await request.get(`/api/v1/post/popular?limit=1&page=1`);
     expect(response.status).toBe(200);
     expect(response.body.data).toHaveLength(1);
-    response = await request.get(`/api/v1/post/popular?limit=1&page=2`);
-    expect(response.status).toBe(200);
-    expect(response.body.data).toHaveLength(0)
+    expect(response.body.data[0].userVote).toBe(0);
   });
 
-  
+  test("signed up user can upvote", async () => {
+    let response = await request
+      .post(`/api/v1/post/${post1._id}/vote/1`)
+      .set("Authorization", "Bearer " + token2);
+    expect(response.status).toBe(200);
+  });
+
+  test("upvoted post to be shown in feed and sort to be working", async () => {
+    let response = await request.get(`/api/v1/post/popular?limit=1&page=1`);
+    expect(response.status).toBe(200);
+    expect(response.body.data).toHaveLength(1);
+    expect(response.body.data[0]._id).toBe(post1._id);
+    expect(response.body.data[0].userVote).toBe(0);
+  });
+
+  test("upvoted post to be shown in feed and sort to be working with upvotes showing", async () => {
+    let response = await request
+      .get(`/api/v1/post/popular?limit=1&page=1`)
+      .set("Authorization", "Bearer " + token2);
+
+    expect(response.status).toBe(200);
+    expect(response.body.data).toHaveLength(1);
+    expect(response.body.data[0]._id).toBe(post1._id);
+    expect(response.body.data[0].userVote).toBe(1);
+  });
+
+  test("signed up user can downvote", async () => {
+    let response = await request
+      .post(`/api/v1/post/${post2._id}/vote/-1`)
+      .set("Authorization", "Bearer " + token1);
+    expect(response.status).toBe(200);
+  });
+  test("down voted post to be shown in feed and sort to be working with upvotes showing", async () => {
+    let response = await request
+      .get(`/api/v1/post/popular`)
+      .set("Authorization", "Bearer " + token1);
+
+    expect(response.status).toBe(200);
+    expect(response.body.data).toHaveLength(2);
+
+    expect(response.body.data[0]._id).toBe(post1._id);
+    expect(response.body.data[0].userVote).toBe(0);
+
+    expect(response.body.data[1]._id).toBe(post2._id);
+    expect(response.body.data[1].userVote).toBe(-1);
+  });
 });

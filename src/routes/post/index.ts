@@ -23,72 +23,110 @@ export function registerRoutes(router: Router) {
   /**
    * Route for getting popular post with pagination
    */
-  router.get(`/api/v1/post/popular`, async (req, res) => {
-    // TODO: find a way no not hardcode the route
-    logger.info(`inside popular feed route`);
-    let limit = 10;
-    let page = 1; // first page as default
+  router.get(
+    `/api/v1/post/popular`,
+    authenticateFromHeader,
+    async (req, res) => {
+      // TODO: find a way no not hardcode the route
+      logger.info(`inside popular feed route`);
+      let limit = 10;
+      let page = 1; // first page as default
 
-    if (req.query && req.query.page) {
-      page = parseInt((req.query as any).page);
-    }
-    if (req.query && req.query.limit) {
-      if (parseInt((req.query as any).limit) < 100) {
-        limit = parseInt((req.query as any).limit);
+      if (req.query && req.query.page) {
+        page = parseInt((req.query as any).page);
       }
-    }
+      if (req.query && req.query.limit) {
+        if (parseInt((req.query as any).limit) < 100) {
+          limit = parseInt((req.query as any).limit);
+        }
+      }
 
-    let posts = await Post.aggregate([
-      // {$match:{whatever is needed here}}
-      {
-        $lookup: {
-          from: "communities",
-          localField: "community",
-          foreignField: "_id",
-          as: "community",
-        },
-      },
-      {
-        $set: {
-          community: { $arrayElemAt: ["$community", 0] },
-        },
-      },
+      let user_id = "";
+      logger.info("checking if authorised " + req.is_anonymous);
+      if (!req.is_anonymous) {
+        user_id = req.user._id;
+      }
 
-      {
-        $addFields: {
-          score: {
-            // https://medium.com/hacking-and-gonzo/how-reddit-ranking-algorithms-work-ef111e33d0d9
-            $sum: [
-              { $log: [{ $max: [{ $abs: "$voteCount" }, 1] }, 10] },
-              {
-                $divide: [
-                  { $sum: [{ $toLong: "$created_at" }, -1613054140757] }, // to make log votes and time factor in the same
-                  45000000,
-                ],
-              },
-            ],
+      let aggregateQuery = [
+        // {$match:{whatever is needed here}}
+        {
+          $lookup: {
+            from: "communities",
+            localField: "community",
+            foreignField: "_id",
+            as: "community",
           },
         },
-      },
-      {
-        $sort: {
-          score: 1,
+        {
+          $set: {
+            community: { $arrayElemAt: ["$community", 0] },
+          },
         },
-      },
-      {
-        $facet: {
-          metadata: [
-            { $count: "total" },
-            { $addFields: { page: page, limit: limit } },
-          ],
-          data: [{ $skip: (page - 1) * limit }, { $limit: limit }],
-        },
-      },
-    ]);
 
-    res.json(posts[0]);
-    // res.json(posts);
-  });
+        {
+          $addFields: {
+            score: {
+              // https://medium.com/hacking-and-gonzo/how-reddit-ranking-algorithms-work-ef111e33d0d9
+              $sum: [
+                { $log: [{ $max: [{ $abs: "$voteCount" }, 1] }, 10] },
+                {
+                  $divide: [
+                    { $sum: [{ $toLong: "$created_at" }, -1613054140757] }, // to make log votes and time factor in the same
+                    45000000,
+                  ],
+                },
+              ],
+            },
+            userVote: {
+              $subtract: [
+                {
+                  $size: {
+                    $filter: {
+                      input: "$upvotes",
+                      as: "upvote",
+                      cond: { $eq: ["$$upvote", user_id] },
+                    },
+                  },
+                },
+                {
+                  $size: {
+                    $filter: {
+                      input: "$downvotes",
+                      as: "downvote",
+                      cond: { $eq: ["$$downvote", user_id] },
+                    },
+                  },
+                },
+              ],
+            },
+          },
+        },
+        {
+          $sort: {
+            score: 1,
+          },
+        },
+        {
+          $facet: {
+            metadata: [
+              { $count: "total" },
+              { $addFields: { page: page, limit: limit } },
+            ],
+            data: [{ $skip: (page - 1) * limit }, { $limit: limit }],
+          },
+        },
+      ];
+
+      let posts = await Post.aggregate(aggregateQuery);
+      if (req.user) {
+        posts[0].data.forEach(
+          (post) => (post.userVote = getUserVote(post, req.user))
+        );
+      }
+      res.json(posts[0]);
+      // res.json(posts);
+    }
+  );
 
   /**
    * Route for getting newest posts

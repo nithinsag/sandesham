@@ -13,9 +13,11 @@ export function authenticateFromHeader(req, res, next) {
   // authorization middleware.
   async function authMiddleware(req, res, next) {
     let token = extractTokenFromAuthHeader(req);
-    logger.info("token: " +  token);
-    logger.info("deploy env: " +  process.env.DEPLOY_ENV);
+    logger.info("token: " + token);
+    logger.info("deploy env: " + process.env.DEPLOY_ENV);
     if (token === null) {
+  
+      req.is_anonymous = true;
       return next();
     }
     var decodedToken;
@@ -25,7 +27,6 @@ export function authenticateFromHeader(req, res, next) {
        * This will decode the user to the email
        */
 
-       console.log
       if (process.env.DEPLOY_ENV == "TEST" && token) {
         logger.info("using test token decoding");
         decodedToken = {
@@ -51,7 +52,7 @@ export function authenticateFromHeader(req, res, next) {
       let users, user;
 
       users = await User.find({ email: email });
-      logger.info(users)
+      logger.info(users);
       logger.info(decodedToken);
 
       if (users.length > 0) {
@@ -62,7 +63,9 @@ export function authenticateFromHeader(req, res, next) {
         );
         req.is_anonymous = true;
       }
-    } else if (decodedToken.provider_id == "anonymous") {
+    } else {
+      // treat as anonymous
+      // } else if (decodedToken.provider_id == "anonymous") {
       req.is_anonymous = true;
       logger.info("Anonymous User");
     }

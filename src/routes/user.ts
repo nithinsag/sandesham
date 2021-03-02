@@ -17,7 +17,7 @@ async function signUp(req, res) {
   let token = extractTokenFromAuthHeader(req);
 
   var decodedToken;
-  if (process.env.DEPLOY_ENV == "TEST") {
+  if (process.env.DEPLOY_ENV == "TEST" && token) {
     // If deploy env is test, then send email
     // directly as the authorization header, token validation will be skipped
     decodedToken = {
