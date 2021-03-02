@@ -120,7 +120,6 @@ describe("Post routes", () => {
 
   test("should be able to fetch popular feed", async () => {
     let response = await request.get(`/api/v1/post/popular`);
-    console.log(JSON.stringify(response.body.data));
     expect(response.status).toBe(200);
     expect(response.body.data).toHaveLength(2);
   });

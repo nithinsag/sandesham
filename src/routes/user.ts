@@ -35,7 +35,7 @@ async function signUp(req, res) {
     users = await User.find({ email: email });
     if (users.length > 0) {
       user = users[0];
-      console.log("user in signup exist", user);
+      logger.info("user in signup exist: " + JSON.stringify(user));
     } else {
       const displayname = req.body.displayname;
       user = new User({
@@ -52,7 +52,7 @@ async function signUp(req, res) {
       await user.save();
       //res.json(user);
     } catch (e) {
-      logger.debug("failed to create user")
+      logger.debug("failed to create user");
       logger.debug(e);
       return res.boom(e);
     }
