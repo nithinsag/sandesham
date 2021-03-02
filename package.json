@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "cleanup": "rm -rf dist && rm -rf node_modules",
-    "test": "jest",
+    "test": "jest -i",
     "testwatch": "jest --watch",
     "start": "tsc && node dist/index",
     "syncindex": "ts-node src/updateIndices.ts",
@@ -17,7 +17,9 @@
   },
   "jest": {
     "testEnvironment": "node",
-    "testPathIgnorePatterns": ["dist"]
+    "testPathIgnorePatterns": [
+      "dist"
+    ]
   },
   "keywords": [
     "typescript",
@@ -44,6 +46,7 @@
     "graphql": "^15.3.0",
     "graphql-compose": "^7.21.1",
     "graphql-compose-mongoose": "^8.0.3",
+    "joi": "^17.4.0",
     "lodash": "^4.17.20",
     "method-override": "^3.0.0",
     "mocha": "^8.3.0",

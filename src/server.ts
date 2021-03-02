@@ -32,7 +32,6 @@ export class Server {
 
       this.server = await this.app.listen(this.port);
       this.db = connection.connection.db;
-      console.log(`server listening on ${this.port}`);
     } catch (e) {
       console.log(e);
     }

@@ -1,21 +1,10 @@
 import { Router } from "express";
-
-export function registerExtraRoutes(
-  router: Router,
-  baserUri: string,
-  routes: [any]
-) {
-  routes.forEach((route) => {
-    if (route.method == "GET") {
-      router.get(`${baserUri}/${route.path}`, route.handler);
-    }
-    if (route.method == "POST") {
-
-      router.post(`${baserUri}/${route.path}`, route.handler);
-    }
-  });
+interface RouteObject {
+  path: string;
+  method: string;
+  handler(req: Request, res: Response): any;
+  middlewares: any[];
 }
-
 
 export function extractTokenFromAuthHeader(req) {
   if (
