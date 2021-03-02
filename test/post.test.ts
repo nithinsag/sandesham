@@ -102,7 +102,7 @@ describe("Post routes", () => {
     expect(response.status).toBe(200);
   });
 
-  test("signed up user can report ", async () => {
+  test("signed up user1 can report ", async () => {
     let response = await request
       .post(`/api/v1/post/${post1._id}/report`)
       .send({ reason: "explicit content" })
@@ -110,7 +110,7 @@ describe("Post routes", () => {
     expect(response.status).toBe(200);
   });
 
-  test("signed up user can report", async () => {
+  test("signed up user2 can report", async () => {
     let response = await request
       .post(`/api/v1/post/${post1._id}/report`)
       .send({ reason: "explicit content" })
