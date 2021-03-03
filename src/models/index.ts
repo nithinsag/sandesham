@@ -42,6 +42,7 @@ let PostSchema: Schema = new Schema({
   status: { type: String, enum: ["enabled", "disabled"], default: "enabled" },
   link: String,
   ogData: Schema.Types.Mixed,
+  mediaMetaData: Schema.Types.Mixed,
   type: { type: String, enum: ["link", "text", "image", "video", "gif"] },
   community: { type: Schema.Types.ObjectId, ref: "Community" },
   author: {
@@ -52,7 +53,7 @@ let PostSchema: Schema = new Schema({
   commentCount: { type: Schema.Types.Number, default: 0 },
   upvotes: [Schema.Types.ObjectId],
   downvotes: [Schema.Types.ObjectId],
-  reports: [{_id: Schema.Types.ObjectId, reason: String}],
+  reports: [{ _id: Schema.Types.ObjectId, reason: String }],
   created_at: { type: Date, default: Date.now },
   updated_at: { type: Date, default: Date.now },
 });
