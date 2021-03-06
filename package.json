@@ -6,6 +6,7 @@
   "scripts": {
     "cleanup": "rm -rf dist && rm -rf node_modules",
     "test": "jest -i",
+    "testdebug": "node --inspect-brk node_modules/.bin/jest",
     "testwatch": "jest --watch",
     "start": "tsc && node dist/index",
     "syncindex": "ts-node src/updateIndices.ts",

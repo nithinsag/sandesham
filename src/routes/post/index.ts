@@ -70,9 +70,19 @@ export function registerRoutes(router: Router) {
               $sum: [
                 { $log: [{ $max: [{ $abs: "$voteCount" }, 1] }, 10] },
                 {
-                  $divide: [
-                    { $sum: [{ $toLong: "$created_at" }, -1613054140757] }, // to make log votes and time factor in the same
-                    45000000,
+                  $multiply: [
+                    {
+                      $divide: [
+                        { $sum: [{ $toLong: "$created_at" }, -1613054140757] }, // to make log votes and time factor in the same
+                        45000000,
+                      ],
+                    },
+                    {
+                      $divide: [
+                        "$voteCount",
+                        { $max: [{ $abs: "$voteCount" }, 1] },
+                      ],
+                    },
                   ],
                 },
               ],
