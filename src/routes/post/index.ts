@@ -103,7 +103,7 @@ export function registerRoutes(router: Router) {
         },
         {
           $sort: {
-            score: 1,
+            score: -1,
           },
         },
         {
