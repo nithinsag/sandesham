@@ -17,7 +17,7 @@ import {
   getVoteQuery,
   updatePostCommentCount,
 } from "./helpers";
-import { DEFAULT_DEPRECATION_REASON } from "graphql";
+import Joi from "joi";
 
 export function registerRoutes(router: Router) {
   /**
@@ -238,22 +238,45 @@ export function registerRoutes(router: Router) {
   );
 
   router.get(
-    `${postUri}/:id/comments`,
+    `${postUri}/:post_id/comments`,
     authenticateFromHeader,
     async (req, res) => {
-      const post_id = req.params.id;
-      let max_depth = 4;
-      if (req.params.depth) {
-        max_depth = parseInt(req.params.depth);
+      const schema = Joi.object({
+        post_id: Joi.string().required(),
+        limit: Joi.number().default(10),
+        depth: Joi.number().default(10),
+        page: Joi.number().default(1),
+      });
+      // https://mongodb-documentation.readthedocs.io/en/latest/use-cases/storing-comments.html#gsc.tab=0
+      // http://www.sitepoint.com/hierarchical-data-database/
+      // schema options
+      const options = {
+        abortEarly: false, // include all errors
+        allowUnknown: true, // ignore unknown props
+        stripUnknown: true, // remove unknown props
+      };
+
+      // validate request body against schema
+
+      let { error, value } = schema.validate(req.params, options);
+      if (error) {
+        return res.boom.badRequest(error);
       }
+      let { limit, depth, page, post_id } = value;
+
+      if (limit > 100) limit = 100;
+      if (depth > 10) depth = 10;
+
       logger.debug(`creating comment tree for ${post_id}`);
 
       // TODO: can be optimized for memory by doing more db calls
       // can be optimized later
       let comments: any[] = await Comment.find({
         post: post_id,
-        level: { $lte: 4 },
-      }).lean();
+        level: { $lte: depth },
+      })
+        .limit(limit)
+        .lean();
       let commentMap = {};
       let replies: any[] = [];
       comments.forEach((comment) => {
@@ -292,7 +315,7 @@ export function registerRoutes(router: Router) {
       }
 
       replies = sortBy(replies, ["voteCount"]);
-      replies.forEach((reply) => fillRepliesTillDepth(reply, max_depth));
+      replies.forEach((reply) => fillRepliesTillDepth(reply, depth));
 
       return res.json(replies);
     }
