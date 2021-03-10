@@ -88,6 +88,7 @@ let CommentSchema: Schema = new Schema({
   upvotes: [Schema.Types.ObjectId],
   downvotes: [Schema.Types.ObjectId],
   level: Schema.Types.Number,
+  children: [Schema.Types.ObjectId],
   created_at: { type: Date, default: Date.now },
   updated_at: { type: Date, default: Date.now },
 });

@@ -119,19 +119,12 @@ describe("Comment tests", () => {
     expect(response.status).toBe(200);
   });
 
-  test("comment tree for a post can be retrieved with pagination", async () => {
+  test("comment tree for a post can be retrieved ", async () => {
     let response = await request
       .get(`/api/v1/post/${post1._id}/comments?depth=3&limit=10&page=1`)
       .set("Authorization", "Bearer " + token2);
     expect(response.status).toBe(200);
     let comments = response.body;
     expect(comments).toHaveLength(3);
-
-    response = await request
-      .get(`/api/v1/post/${post1._id}/comments?depth=3&limit=2&page=1`)
-      .set("Authorization", "Bearer " + token2);
-    expect(response.status).toBe(200);
-    comments = response.body;
-    expect(comments).toHaveLength(2);
   });
 });

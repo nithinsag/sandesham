@@ -147,8 +147,16 @@ export function getUserVote(document, user) {
 
 export async function updatePostCommentCount(req, res, next) {
   await Post.findOneAndUpdate(
-    { _id: req.parentPost._id },
+    { _id: req.erm.result._id },
     { $inc: { commentCount: 1 } }
+  );
+  next();
+}
+
+export async function updateParentCommentCount(req, res, next) {
+  await Comment.findOneAndUpdate(
+    { _id: req.erm.result.parent },
+    { $push: { children: req.erm.result._id } }
   );
   next();
 }
