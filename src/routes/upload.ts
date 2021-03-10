@@ -29,6 +29,7 @@ export  function registerRoutes(router: Router) {
           {
             public_id: `${req.params.type}/${uniqueFilename}`,
             tags: `${req.params.type}`,
+            resource_type: 'auto'
           }, // directory and tags are optional
           function (err, image) {
             if (err) return res.send(err);
