@@ -16,6 +16,7 @@ export async function addOGData(req, res, next) {
       next();
     } catch (e) {
       console.log(e);
+      next();
     }
   } else next();
 }
