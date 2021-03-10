@@ -22,6 +22,14 @@ const sample_post_2 = {
   description: "discription for first post",
 };
 
+const sample_post_link = {
+  title: "Test Post 1",
+  type: "link",
+  link: "http://news.ycombinator.com",
+  slug: "sadaasdfvsadf",
+  description: "discription for first post",
+};
+
 beforeAll(async () => {
   process.env.MONGO_URI = "mongodb://localhost:27017/test";
   process.env.DEPLOY_ENV = "TEST";
@@ -95,6 +103,15 @@ describe("Post routes", () => {
     post2 = response.body;
   });
 
+  test.only("link type posts will auto add open graph data", async () => {
+    let response = await request
+      .post("/api/v1/post")
+      .send(sample_post_link)
+      .set("Authorization", "Bearer " + token1);
+    expect(response.status).toBe(201);
+    expect(response.body).toHaveProperty("ogData");
+  });
+
   test("signed up user can upvote ", async () => {
     let response = await request
       .post(`/api/v1/post/${post1._id}/vote/1`)
@@ -163,6 +180,7 @@ describe("Post routes", () => {
       .set("Authorization", "Bearer " + token1);
     expect(response.status).toBe(200);
   });
+
   test("down voted post to be shown in feed and sort to be working with upvotes showing", async () => {
     let response = await request
       .get(`/api/v1/post/popular`)

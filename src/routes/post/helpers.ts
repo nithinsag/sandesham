@@ -4,27 +4,20 @@ import { Post, Comment, User } from "../../models";
 import { getOGData } from "../../helpers/openGraphScraper";
 
 export async function addOGData(req, res, next) {
-  let post = req.erm.result;
-  next();
-  // returning early as we don't want to block return
-  // TODO: use a queue for this
-  try {
-    if (post.type == "link") {
-      let result = await getOGData(post.link);
-      logger.info(result);
+  if (req.body.type === "link") {
+    // returning early as we don't want to block return
+    // TODO: use a queue for this
+    try {
+      let result = await getOGData(req.body.link);
       if (result.success) {
         logger.info("updating post with og data");
-        let p = await Post.findOneAndUpdate(
-          { _id: post._id },
-          { $set: { ogData: result } },
-          { new: true }
-        );
-        console.log(p);
+        req.body.ogData = result;
       }
+      next();
+    } catch (e) {
+      console.log(e);
     }
-  } catch (e) {
-    console.log(e);
-  }
+  } else next();
 }
 
 export function addCurrentUserVote(req, res, next) {

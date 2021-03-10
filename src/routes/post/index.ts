@@ -170,8 +170,7 @@ export function registerRoutes(router: Router) {
   const postUri = restify.serve(router, Post, {
     name: "post",
     preMiddleware: authenticateFromHeader,
-    preCreate: addCreatedBy,
-    postCreate: addOGData,
+    preCreate: [addCreatedBy, addOGData],
     postRead: addCurrentUserVote,
   });
   router.post(
