@@ -1,4 +1,7 @@
+import { text } from "body-parser";
 import mongoose, { Schema, Document } from "mongoose";
+import slug from "mongoose-slug-generator";
+mongoose.plugin(slug);
 
 let UserSchema: Schema = new Schema({
   email: { type: String, required: true },
@@ -36,7 +39,7 @@ let CommunitySchema: Schema = new Schema({
 });
 
 let PostSchema: Schema = new Schema({
-  slug: { type: String },
+  slug: { type: String, slug: "title", unique: true },
   title: { type: String, required: true },
   description: { type: String },
   status: { type: String, enum: ["enabled", "disabled"], default: "enabled" },
@@ -84,6 +87,7 @@ let CommentSchema: Schema = new Schema({
     _id: { type: Schema.Types.ObjectId, ref: "User" },
     displayname: String,
   },
+  slug: { type: String, slug: ["parent", "text"], unique: true },
   voteCount: { type: Schema.Types.Number, default: 0 },
   upvotes: [Schema.Types.ObjectId],
   downvotes: [Schema.Types.ObjectId],
