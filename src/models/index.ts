@@ -97,6 +97,20 @@ let CommentSchema: Schema = new Schema({
   updated_at: { type: Date, default: Date.now },
 });
 
+export interface IComment extends Document {
+  text: string;
+  parent: string;
+  author: { _id: string; displayname: string };
+  slug: string;
+  voteCount: number;
+  upvotes: string[];
+  downvotes: string[];
+  level: SVGAnimatedNumber;
+  children: string[];
+  created_at: Date;
+  updated_at: Date;
+}
+
 let MessageSchema: Schema = new Schema({
   text: { type: String },
   from: {
@@ -128,7 +142,7 @@ let MessageSchema: Schema = new Schema({
 const User = mongoose.model("User", UserSchema);
 const Community = mongoose.model("Community", CommunitySchema);
 const Post = mongoose.model("Post", PostSchema);
-const Comment = mongoose.model("Comment", CommentSchema);
+const Comment = mongoose.model<IComment>("Comment", CommentSchema);
 const Message = mongoose.model("Message", MessageSchema);
 // const CommentVote = mongoose.model("CommentVote", CommentVoteSchema);
 // const PostVote = mongoose.model("PostVote", PostVoteSchema);

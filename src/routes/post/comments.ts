@@ -2,20 +2,28 @@ import Joi from "joi";
 import { logger } from "../../helpers/logger";
 import { getUserVote } from "./helpers";
 import { groupBy, sortBy } from "lodash";
-import { Post, Comment, User } from "../../models";
+import { Post, Comment, User, IComment } from "../../models";
 /**
- * 
- * @param req 
- * @param res 
- * 
- * This function takes  
+ *
+ * @param req
+ * @param res
+ *
+ * This function takes
  * limit as the maximum number of comments at a level to fetch.
  * depth as the maximum depth at to which data would be fetched.
  * path is the pagination parameter used for more comments because of the limit
- */ 
+ *
+ * We first query the top first level comments with the limit.
+ *
+ * Next we query the subtree of the top level commit with the required depth parameter
+ *
+ * Thus we have pagination on top level comment and a control on the max depth.
+ *
+ */
 export async function commentTreeBuilder(req, res) {
   const schema = Joi.object({
     post_id: Joi.string().required(),
+    comment_id: Joi.string(),
     limit: Joi.number().default(10),
     depth: Joi.number().default(10),
     page: Joi.number().default(1),
@@ -35,60 +43,55 @@ export async function commentTreeBuilder(req, res) {
   if (error) {
     return res.boom.badRequest(error);
   }
-  let { limit, depth, page, post_id } = value;
+  let { limit, depth, page, post_id, comment_id } = value;
 
   if (limit > 100) limit = 100;
   if (depth > 10) depth = 10;
 
   logger.debug(`creating comment tree for ${post_id}`);
 
-  // TODO: can be optimized for memory by doing more db calls
-  // can be optimized later
-  let comments: any[] = await Comment.find({
-    post: post_id,
-    level: { $lte: depth },
-  })
-    // .limit(limit)
-    .lean();
-  let commentMap = {};
-  let replies: any[] = [];
-  comments.forEach((comment) => {
-    commentMap[comment._id] = comment;
-    if (comment.level === 0) {
-      let commentObject = comment;
-      if (req.user) {
-        commentObject.userVote = getUserVote(commentObject, req.user);
-      }
-      replies.push(commentObject);
-    }
-  });
-  let parentMap = groupBy(comments, "parent");
-
-  function fillRepliesTillDepth(comment, depth) {
-    logger.debug(`filling comment for ${comment._id}`);
-    if (comment.depth > depth) {
-      return;
-    }
-    let replies: any[] = [];
-    if (parentMap[comment._id]) {
-      parentMap[comment._id].forEach((comment) => {
-        logger.debug(`adding reply ${comment._id}`);
-        let commentObject = comment;
-        if (req.user) {
-          commentObject.userVote = getUserVote(commentObject, req.user);
-        }
-        fillRepliesTillDepth(commentObject, depth);
-        replies.push(commentObject);
-      });
-
-      logger.debug(`replies  for ${comment._id} ${replies.length}`);
-      replies = sortBy(replies, ["voteCount"]);
-      comment.replies = replies;
-    }
+  let baseQuery;
+  if (comment_id) {
+    let rootComment = await Comment.findOne({ _id: comment_id });
+    baseQuery = { parent: rootComment };
+  } else {
+    baseQuery = {
+      post: post_id,
+      level: 0,
+    };
   }
 
-  replies = sortBy(replies, ["voteCount"]);
-  replies.forEach((reply) => fillRepliesTillDepth(reply, depth));
+  let comments: IComment[] = await Comment.find(baseQuery)
+    .limit(limit)
+    .skip((page - 1) * limit)
+    .sort("voteCount")
+    .lean();
 
-  return res.json(replies);
+  let topComments = comments.map((o) => o._id);
+
+  let children: IComment[] = await Comment.find({
+    parent: { $in: topComments },
+  })
+    .sort("voteCount")
+    .lean();
+
+  let allComments = [...comments, ...children];
+  let commentIndex = {};
+  allComments.forEach((o) => {
+    commentIndex[o._id] = o;
+  });
+
+  function buildCommentTree(comment) {
+    let replies: IComment[] = [];
+    for (let i = 0; i < comment.children.length; i++) {
+      buildCommentTree(commentIndex[comment.children[i]]);
+      replies.push(commentIndex[comment.children[i]]);
+    }
+    comment.replies = replies;
+  }
+
+  let commentTree = comments.forEach((o) => {
+    buildCommentTree(o);
+  });
+  return res.json(comments);
 }

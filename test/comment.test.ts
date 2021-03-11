@@ -65,6 +65,7 @@ const SERVER_PORT = 1338;
 
 describe("Comment tests", () => {
   let post1, post2;
+  let comment1;
   process.env.DEPLOY_ENV = "TEST";
   beforeAll(async () => {
     let response = await request
