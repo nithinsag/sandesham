@@ -103,6 +103,16 @@ describe("Comment tests", () => {
       .send({ post: post1._id, parent: response.body._id, ...test_comment })
       .set("Authorization", "Bearer " + token2);
     expect(response.status).toBe(201);
+
+    let parent = response.body._id;
+    for (let i = 4; i > 0; i--) {
+      response = await request
+        .post(`/api/v1/comment`)
+        .send({ post: post1._id, parent: parent, ...test_comment })
+        .set("Authorization", "Bearer " + token2);
+      expect(response.status).toBe(201);
+      parent = response.body._id;
+    }
   });
 
   test("comment can be upvoted ", async () => {
