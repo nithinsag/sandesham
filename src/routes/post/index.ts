@@ -14,7 +14,7 @@ import {
   addCurrentUserVote,
   updateCommentKarma,
   updatePostKarma,
-  addCommentLevel,
+  addCommentMeta,
   getUserVote,
   getVoteQuery,
   updatePostCommentCount,
@@ -248,7 +248,7 @@ export function registerRoutes(router: Router) {
   const commentUri = restify.serve(router, Comment, {
     name: "comment",
     preMiddleware: authenticateFromHeader,
-    preCreate: [addCreatedBy, addCommentLevel],
+    preCreate: [addCreatedBy, addCommentMeta],
     postCreate: [updatePostCommentCount, updateParentCommentCount],
   });
 

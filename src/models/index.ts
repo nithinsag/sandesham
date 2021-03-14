@@ -93,6 +93,7 @@ let CommentSchema: Schema = new Schema({
   downvotes: [Schema.Types.ObjectId],
   level: Schema.Types.Number,
   children: [Schema.Types.ObjectId],
+  ancestors: [Schema.Types.ObjectId],
   created_at: { type: Date, default: Date.now },
   updated_at: { type: Date, default: Date.now },
 });
@@ -107,6 +108,7 @@ export interface IComment extends Document {
   downvotes: string[];
   level: SVGAnimatedNumber;
   children: string[];
+  userVote: number;
   created_at: Date;
   updated_at: Date;
 }

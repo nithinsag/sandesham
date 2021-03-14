@@ -104,7 +104,7 @@ export async function updateCommentKarma(user, increment) {
   );
 }
 
-export function addCommentLevel(req, res, next) {
+export function addCommentMeta(req, res, next) {
   async function wrapper() {
     let parent = req.body.parent;
     let post = req.body.post;
@@ -119,6 +119,7 @@ export function addCommentLevel(req, res, next) {
         return res.boom.badRequest("Invalid parent comment");
       }
       req.body.level = parentComment.level + 1;
+      req.body.ancestors = [...parentComment.ancestors, parentComment._id];
     } else {
       req.body.level = 0;
     }

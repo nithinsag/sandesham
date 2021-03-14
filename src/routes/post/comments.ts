@@ -1,4 +1,5 @@
 import Joi from "joi";
+jest.setTimeout(30000);
 import { logger } from "../../helpers/logger";
 import { getUserVote } from "./helpers";
 import { groupBy, sortBy } from "lodash";
@@ -38,8 +39,12 @@ export async function commentTreeBuilder(req, res) {
   };
 
   // validate request body against schema
+  // validate request body against schema
 
-  let { error, value } = schema.validate(req.params, options);
+  let { error, value } = schema.validate(
+    { ...req.query, ...req.params },
+    options
+  );
   if (error) {
     return res.boom.badRequest(error);
   }
@@ -75,7 +80,7 @@ export async function commentTreeBuilder(req, res) {
   let topComments = comments.map((o) => o._id);
 
   let children: IComment[] = await Comment.find({
-    parent: { $in: topComments },
+    ancestors: { $in: topComments },
     level: { $lt: maxDepth },
   })
     .sort("voteCount")
@@ -85,6 +90,9 @@ export async function commentTreeBuilder(req, res) {
   let commentIndex = {};
   // building comment lookup table
   allComments.forEach((o) => {
+    if (req.user) {
+      o.userVote = getUserVote(o, req.user);
+    }
     commentIndex[o._id] = o;
   });
 

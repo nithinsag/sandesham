@@ -132,10 +132,24 @@ describe("Comment tests", () => {
 
   test("comment tree for a post can be retrieved ", async () => {
     let response = await request
-      .get(`/api/v1/post/${post1._id}/comments?depth=3&limit=10&page=1`)
-      .set("Authorization", "Bearer " + token2);
+      .get(`/api/v1/post/${post1._id}/comments`)
+      .set("Authorization", "Bearer " + token1);
     expect(response.status).toBe(200);
     let comments = response.body;
-    expect(comments).toHaveLength(3);
+    expect(comments).toHaveLength(8);
+
+    let container: any = [];
+    comments.forEach((comment) => {
+      container.push(comment);
+      flattenCommentTree(comment);
+    });
+    function flattenCommentTree(comment) {
+      comment.replies.forEach((reply) => {
+        container.push(reply);
+        flattenCommentTree(reply);
+      });
+    }
+
+    expect(container).toHaveLength(7);
   });
 });
