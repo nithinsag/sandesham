@@ -136,7 +136,7 @@ describe("Comment tests", () => {
       .set("Authorization", "Bearer " + token1);
     expect(response.status).toBe(200);
     let comments = response.body;
-    expect(comments).toHaveLength(8);
+    expect(comments).toHaveLength(3);
 
     let container: any = [];
     comments.forEach((comment) => {
@@ -150,6 +150,6 @@ describe("Comment tests", () => {
       });
     }
 
-    expect(container).toHaveLength(7);
+    expect(container).toHaveLength(8);
   });
 });
