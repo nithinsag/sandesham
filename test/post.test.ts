@@ -11,6 +11,7 @@ let server;
 const sample_post_1 = {
   title: "Test Post 1",
   type: "text",
+  tags: ["cricket"],
   slug: "sadaasdfvsadf",
   description: "discription for first post",
 };
@@ -18,6 +19,7 @@ const sample_post_1 = {
 const sample_post_2 = {
   title: "Test Post 1",
   type: "text",
+  tags: ["football"],
   slug: "sadaasdfvsadf",
   description: "discription for first post",
 };
@@ -148,6 +150,18 @@ describe("Post routes", () => {
     expect(response.body.data[0].userVote).toBe(0);
   });
 
+  test("posts can be created with tags and filtered with tags", async () => {
+    let response = await request
+      .post("/api/v1/post")
+      .send({ ...sample_post_1, tags: ["test_tag"] })
+      .set("Authorization", "Bearer " + token1);
+    expect(response.status).toBe(201);
+    post1 = response.body;
+    response = await request.get(`/api/v1/post/popular?tag=test_tag`);
+    expect(response.status).toBe(200);
+    expect(response.body.data).toHaveLength(1);
+    expect(response.body.data[0]._id).toBe(post1._id);
+  });
   test("signed up user can upvote", async () => {
     let response = await request
       .post(`/api/v1/post/${post2._id}/vote/1`)

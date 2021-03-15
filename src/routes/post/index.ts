@@ -35,8 +35,16 @@ export function registerRoutes(router: Router) {
       let limit = 10;
       let page = 1; // first page as default
 
+      let matchQuery = {};
       if (req.query && req.query.page) {
         page = parseInt((req.query as any).page);
+      }
+      if (req.query && req.query.tag) {
+        let tag = (req.query as any).tag;
+        matchQuery = {
+          ...matchQuery,
+          tags: tag,
+        };
       }
       if (req.query && req.query.limit) {
         if (parseInt((req.query as any).limit) < 100) {
@@ -51,7 +59,7 @@ export function registerRoutes(router: Router) {
       }
 
       let aggregateQuery = [
-        // {$match:{whatever is needed here}}
+        { $match: matchQuery },
         {
           $lookup: {
             from: "communities",

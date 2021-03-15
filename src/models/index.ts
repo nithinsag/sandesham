@@ -54,6 +54,7 @@ let PostSchema: Schema = new Schema({
   },
   voteCount: { type: Schema.Types.Number, default: 0 },
   commentCount: { type: Schema.Types.Number, default: 0 },
+  tags: [String],
   upvotes: [Schema.Types.ObjectId],
   downvotes: [Schema.Types.ObjectId],
   reports: [{ _id: Schema.Types.ObjectId, reason: String }],
