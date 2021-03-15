@@ -9,6 +9,7 @@ import { registerRoutes as registerUserRoutes } from "./user";
 import { registerRoutes as registerPostRoutes } from "./post";
 import { registerRoutes as registerMessageRoutes } from "./message";
 import { registerRoutes as registerUtilityRoutes } from "./utilities";
+import { registerRoutes as registerTagRoutes } from "./tags";
 
 export function registerRoutes(router: Router) {
   registerUploadRoutes(router);
@@ -16,6 +17,7 @@ export function registerRoutes(router: Router) {
   registerPostRoutes(router);
   registerMessageRoutes(router);
   registerUtilityRoutes(router);
+  registerTagRoutes(router);
 
   const communityUri = restify.serve(router, Community, {
     name: "community",
