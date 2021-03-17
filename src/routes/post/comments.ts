@@ -24,7 +24,7 @@ export async function commentTreeBuilder(req, res) {
   const schema = Joi.object({
     post_id: Joi.string().required(),
     comment_id: Joi.string(),
-    limit: Joi.number().default(10),
+    limit: Joi.number().default(100),
     depth: Joi.number().default(10),
     page: Joi.number().default(1),
   });
