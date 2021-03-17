@@ -193,7 +193,6 @@ describe("Post routes", () => {
 
     expect(response.body.data[0]._id).toBe(post1._id);
     expect(response.body.data[0].userVote).toBe(0);
-    console.log(response.data);
     expect(response.body.data[1]._id).toBe(post2._id);
     expect(response.body.data[1].userVote).toBe(-1);
   });

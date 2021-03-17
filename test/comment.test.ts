@@ -151,5 +151,10 @@ describe("Comment tests", () => {
     }
 
     expect(container).toHaveLength(8);
+    response = await request
+      .get(`/api/v1/post/${post1._id}`)
+      .set("Authorization", "Bearer " + token1);
+    expect(response.status).toBe(200);
+    expect(response.body.commentCount).toBe(8);
   });
 });

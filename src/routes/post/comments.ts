@@ -1,5 +1,4 @@
 import Joi from "joi";
-jest.setTimeout(30000);
 import { logger } from "../../helpers/logger";
 import { getUserVote } from "./helpers";
 import { groupBy, sortBy } from "lodash";

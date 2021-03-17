@@ -145,12 +145,20 @@ export function getUserVote(document, user) {
   logger.info("no vote yet!" + userVote);
   return userVote;
 }
-
+/**
+ * post create hook on comments that updates the post votecount
+ * @param req
+ * @param res
+ * @param next
+ */
 export async function updatePostCommentCount(req, res, next) {
-  await Post.findOneAndUpdate(
-    { _id: req.erm.result._id },
-    { $inc: { commentCount: 1 } }
+  const post_id = req.erm.result.post;
+  let updatedPost = await Post.findOneAndUpdate(
+    { _id: post_id },
+    { $inc: { commentCount: 1 } },
+    { new: true }
   );
+
   next();
 }
 
