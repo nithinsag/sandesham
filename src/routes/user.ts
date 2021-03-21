@@ -1,5 +1,5 @@
 import * as admin from "firebase-admin";
-import { User } from "../models";
+import { User, Post, Comment, Community } from "../models";
 import { validateToken } from "../modules/firebase";
 import { extractTokenFromAuthHeader } from "../helpers/roueUtils";
 import { Router } from "express";
@@ -7,7 +7,7 @@ import restify from "express-restify-mongoose";
 import { logger } from "../helpers/logger";
 import { authenticateFromHeader } from "../middlewares/authenticate";
 import Joi from "joi";
-
+import mongoose from "mongoose";
 export function registerRoutes(router: Router) {
   const userUri = "/api/v1/user"; // building api url before restify to give higher priority
   // TODO: remove unnecessary function
@@ -16,7 +16,9 @@ export function registerRoutes(router: Router) {
     authenticateFromHeader,
     async (req, res) => {
       if (!req.user) {
-        return res.boom.unauthorized("User needs to be authenticated to vote!");
+        return res.boom.unauthorized(
+          "User needs to be authenticated to register token!"
+        );
       }
 
       if (req.body.pushMessageToken) {
@@ -100,6 +102,180 @@ export function registerRoutes(router: Router) {
       res.boom.unauthorized("could not register user");
     }
   });
+
+  router.get(
+    `${userUri}/:user_id/posts`,
+    authenticateFromHeader,
+    async (req, res) => {
+      let limit = 10;
+      let page = 1; // first page as default
+
+      let matchQuery: any = {
+        "author._id": mongoose.Types.ObjectId(req.params.user_id),
+      };
+
+      if (req.query && req.query.page) {
+        page = parseInt((req.query as any).page);
+      }
+      if (req.query && req.query.tag) {
+        let tag = (req.query as any).tag;
+        matchQuery = {
+          ...matchQuery,
+          tags: tag,
+        };
+      }
+      if (req.query && req.query.limit) {
+        if (parseInt((req.query as any).limit) < 100) {
+          limit = parseInt((req.query as any).limit);
+        }
+      }
+
+      let aggregateQuery = [
+        { $match: matchQuery },
+        {
+          $lookup: {
+            from: "communities",
+            localField: "community",
+            foreignField: "_id",
+            as: "community",
+          },
+        },
+        {
+          $set: {
+            community: { $arrayElemAt: ["$community", 0] },
+          },
+        },
+
+        {
+          $addFields: {
+            score: {
+              // https://medium.com/hacking-and-gonzo/how-reddit-ranking-algorithms-work-ef111e33d0d9
+              $sum: [
+                { $log: [{ $max: [{ $abs: "$voteCount" }, 1] }, 10] },
+                {
+                  $multiply: [
+                    {
+                      $divide: [
+                        { $sum: [{ $toLong: "$created_at" }, -1613054140757] }, // to make log votes and time factor in the same
+                        45000000,
+                      ],
+                    },
+                    {
+                      $divide: [
+                        "$voteCount",
+                        { $max: [{ $abs: "$voteCount" }, 1] },
+                      ],
+                    },
+                  ],
+                },
+              ],
+            },
+          },
+        },
+        {
+          $sort: {
+            score: -1,
+          },
+        },
+        {
+          $facet: {
+            metadata: [
+              { $count: "total" },
+              { $addFields: { page: page, limit: limit } },
+            ],
+            data: [{ $skip: (page - 1) * limit }, { $limit: limit }],
+          },
+        },
+      ];
+
+      console.log("getting posts from user", matchQuery);
+      let posts = await Post.aggregate(aggregateQuery);
+      res.json(posts[0]);
+    }
+  );
+
+  router.get(
+    `${userUri}/:user_id/comments`,
+    authenticateFromHeader,
+    async (req, res) => {
+      let limit = 10;
+      let page = 1; // first page as default
+
+      let matchQuery: any = {
+        "author._id": mongoose.Types.ObjectId(req.params.user_id),
+      };
+
+      if (req.query && req.query.page) {
+        page = parseInt((req.query as any).page);
+      }
+      if (req.query && req.query.limit) {
+        if (parseInt((req.query as any).limit) < 100) {
+          limit = parseInt((req.query as any).limit);
+        }
+      }
+
+      let aggregateQuery = [
+        { $match: matchQuery },
+        {
+          $lookup: {
+            from: "posts",
+            localField: "post",
+            foreignField: "_id",
+            as: "post",
+          },
+        },
+        {
+          $set: {
+            post: { $arrayElemAt: ["$post", 0] },
+          },
+        },
+        {
+          $addFields: {
+            score: {
+              // https://medium.com/hacking-and-gonzo/how-reddit-ranking-algorithms-work-ef111e33d0d9
+              $sum: [
+                { $log: [{ $max: [{ $abs: "$voteCount" }, 1] }, 10] },
+                {
+                  $multiply: [
+                    {
+                      $divide: [
+                        { $sum: [{ $toLong: "$created_at" }, -1613054140757] }, // to make log votes and time factor in the same
+                        45000000,
+                      ],
+                    },
+                    {
+                      $divide: [
+                        "$voteCount",
+                        { $max: [{ $abs: "$voteCount" }, 1] },
+                      ],
+                    },
+                  ],
+                },
+              ],
+            },
+          },
+        },
+        {
+          $sort: {
+            score: -1,
+          },
+        },
+        {
+          $facet: {
+            metadata: [
+              { $count: "total" },
+              { $addFields: { page: page, limit: limit } },
+            ],
+            data: [{ $skip: (page - 1) * limit }, { $limit: limit }],
+          },
+        },
+      ];
+
+      console.log("getting posts from user", matchQuery);
+      let comment = await Comment.aggregate(aggregateQuery);
+      res.json(comment[0]);
+    }
+  );
 
   restify.serve(router, User, { name: "user" });
 }
