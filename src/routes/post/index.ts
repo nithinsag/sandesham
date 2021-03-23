@@ -19,6 +19,7 @@ import {
   getVoteQuery,
   updatePostCommentCount,
   updateParentCommentCount,
+  sendMessageNotification,
 } from "./helpers";
 import Joi from "joi";
 
@@ -257,7 +258,11 @@ export function registerRoutes(router: Router) {
     name: "comment",
     preMiddleware: authenticateFromHeader,
     preCreate: [addCreatedBy, addCommentMeta],
-    postCreate: [updatePostCommentCount, updateParentCommentCount],
+    postCreate: [
+      updatePostCommentCount,
+      updateParentCommentCount,
+      sendMessageNotification,
+    ],
   });
 
   router.post(

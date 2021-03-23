@@ -38,6 +38,20 @@ let CommunitySchema: Schema = new Schema({
   updated_at: { type: Date, default: Date.now },
 });
 
+export interface IPost extends Document {
+  title: string;
+  slug?: string;
+  description?: string;
+  author: { _id: string; displayname: string };
+  community?: string;
+  voteCount?: number;
+  commentCount?: number;
+  upvotes?: string[];
+  downvotes?: string[];
+  userVote?: number;
+  created_at: Date;
+  updated_at: Date;
+}
 let PostSchema: Schema = new Schema({
   slug: { type: String, slug: "title", unique: true },
   title: { type: String, required: true },
@@ -144,10 +158,18 @@ let MessageSchema: Schema = new Schema({
 
 const User = mongoose.model("User", UserSchema);
 const Community = mongoose.model("Community", CommunitySchema);
-const Post = mongoose.model("Post", PostSchema);
+const Post = mongoose.model<IPost>("Post", PostSchema);
 const Comment = mongoose.model<IComment>("Comment", CommentSchema);
 const Message = mongoose.model("Message", MessageSchema);
 // const CommentVote = mongoose.model("CommentVote", CommentVoteSchema);
 // const PostVote = mongoose.model("PostVote", PostVoteSchema);
 
+export async function connectToMongo() {
+  let connection = await mongoose.connect(process.env.MONGO_URI!, {
+    useUnifiedTopology: true,
+    useNewUrlParser: true,
+    autoIndex: true,
+  });
+  return connection;
+}
 export { User, Community, Post, Comment, Message };

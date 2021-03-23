@@ -2,7 +2,8 @@ import { groupBy, includes, isArray, map, sortBy } from "lodash";
 import { logger } from "../../helpers/logger";
 import { Post, Comment, User } from "../../models";
 import { getOGData } from "../../helpers/openGraphScraper";
-
+import { addJobs } from "../../asyncJobs";
+import { PushMessageJob } from "../../asyncJobs/worker";
 export async function addOGData(req, res, next) {
   if (req.body.type === "link") {
     // returning early as we don't want to block return
@@ -167,5 +168,26 @@ export async function updateParentCommentCount(req, res, next) {
     { _id: req.erm.result.parent },
     { $push: { children: req.erm.result._id } }
   );
+  next();
+}
+
+export async function sendMessageNotification(req, res, next) {
+  let post = req.erm.result.post;
+  let parent = req.erm.result.parent;
+  let to;
+  if (parent) {
+    let parentComment = await Comment.findById(parent);
+    to = parentComment?.author._id;
+  } else {
+    let postDoc = await Post.findById(post);
+    to = postDoc?.author._id;
+  }
+  let notification: PushMessageJob = {
+    to: to,
+    title: "Someone replied",
+    message: `Someone replied to your ${parent ? "comment" : "post"}`,
+    data: { type: "comment", comment: req.erm.result },
+  };
+  await addJobs(notification);
   next();
 }

@@ -5,6 +5,11 @@ import mongoose from "mongoose";
 import boom from "express-boom";
 import morgan from "morgan";
 import { registerRoutes } from "./routes";
+import { messageQue } from "./asyncJobs";
+import { router as bullBoard } from "bull-board";
+import { connectToMongo } from "./models";
+const { setQueues, BullMQAdapter } = require("bull-board");
+
 export class Server {
   public app: any;
   private server: any;
@@ -24,11 +29,7 @@ export class Server {
     try {
       await this.config();
       await this.api();
-      let connection = await mongoose.connect(process.env.MONGO_URI!, {
-        useUnifiedTopology: true,
-        useNewUrlParser: true,
-        autoIndex: true,
-      });
+      let connection = await connectToMongo();
 
       this.server = await this.app.listen(this.port);
       this.db = connection.connection.db;
@@ -55,6 +56,9 @@ export class Server {
     this.app.use(methodOverride());
     this.app.use(boom()); // for error handling
     this.app.use(morgan("combined")); // for logs
+
+    setQueues([new BullMQAdapter(messageQue)]);
+    this.app.use("/admin/que", bullBoard);
 
     // passport.authenticate('jwt', { session: false }) can be used to protect private routes
   }

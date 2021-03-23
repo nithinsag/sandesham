@@ -23,17 +23,23 @@ export async function validateToken(
   // ...
 }
 
-export async function sendNotification(user: any, title: string, body: string, data: any) {
-
+export async function sendNotification(
+  user: any,
+  title: string,
+  body: string,
+  data: any
+) {
   const payload = {
     notification: {
-      title: 'this is title', body: 'this is body'
+      title: title,
+      body: body,
     },
-    data: data
-  }
+    //   data: data,
+  };
   const deviceToken = user.pushMessageToken;
+  console.log(`sending message to ${deviceToken}`);
   if (deviceToken) {
-    return admin.messaging().sendToDevice(deviceToken, payload)
+    return admin.messaging().sendToDevice(deviceToken, payload);
   }
-  throw Error("Device token does not exist")
+  throw Error("Device token does not exist");
 }

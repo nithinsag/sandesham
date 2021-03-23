@@ -36,6 +36,8 @@
     "@types/chai": "^4.2.15",
     "bcrypt": "^3.0.6",
     "body-parser": "^1.19.0",
+    "bull-board": "^1.5.1",
+    "bullmq": "^1.15.1",
     "chai": "^4.3.0",
     "cloudinary": "^1.23.0",
     "cors": "^2.8.5",
@@ -65,6 +67,7 @@
   "devDependencies": {
     "@types/bcrypt": "^3.0.0",
     "@types/body-parser": "^1.17.0",
+    "@types/bull": "^3.15.0",
     "@types/cors": "^2.8.5",
     "@types/jest": "^26.0.20",
     "@types/method-override": "^0.0.31",
