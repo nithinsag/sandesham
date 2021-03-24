@@ -129,6 +129,26 @@ describe("Comment tests", () => {
       .set("Authorization", "Bearer " + token2);
     expect(response.status).toBe(200);
   });
+  test("comment can be reported", async () => {
+    let response = await request
+      .post(`/api/v1/comment`)
+      .send({ post: post1._id, ...test_comment })
+      .set("Authorization", "Bearer " + token2);
+    expect(response.status).toBe(201);
+    let comment = response.body;
+
+    response = await request
+      .post(`/api/v1/comment/${comment._id}/vote/1`)
+      .send({ post: post1._id, ...test_comment })
+      .set("Authorization", "Bearer " + token2);
+    expect(response.status).toBe(200);
+
+    response = await request
+      .post(`/api/v1/comment/${comment._id}/report`)
+      .send({ reason: "explicit content" })
+      .set("Authorization", "Bearer " + token2);
+    expect(response.status).toBe(200);
+  });
 
   test("comment tree for a post can be retrieved ", async () => {
     let response = await request
@@ -136,7 +156,7 @@ describe("Comment tests", () => {
       .set("Authorization", "Bearer " + token1);
     expect(response.status).toBe(200);
     let comments = response.body;
-    expect(comments).toHaveLength(3);
+    expect(comments).toHaveLength(4);
 
     let container: any = [];
     comments.forEach((comment) => {
@@ -150,11 +170,11 @@ describe("Comment tests", () => {
       });
     }
 
-    expect(container).toHaveLength(8);
+    expect(container).toHaveLength(9);
     response = await request
       .get(`/api/v1/post/${post1._id}`)
       .set("Authorization", "Bearer " + token1);
     expect(response.status).toBe(200);
-    expect(response.body.commentCount).toBe(8);
+    expect(response.body.commentCount).toBe(9);
   });
 });

@@ -106,6 +106,7 @@ let CommentSchema: Schema = new Schema({
   voteCount: { type: Schema.Types.Number, default: 0 },
   upvotes: [Schema.Types.ObjectId],
   downvotes: [Schema.Types.ObjectId],
+  reports: [{ _id: Schema.Types.ObjectId, reason: String }],
   level: Schema.Types.Number,
   children: [Schema.Types.ObjectId],
   ancestors: [Schema.Types.ObjectId],

@@ -288,4 +288,35 @@ export function registerRoutes(router: Router) {
       }
     }
   );
+
+  router.post(
+    `${commentUri}/:id/report`,
+    authenticateFromHeader,
+    async (req, res) => {
+      if (req.user) {
+        const user_id = req.user._id;
+        const reason = req.body.reason;
+
+        if (reason.length > 0) {
+          let status = await Comment.updateOne(
+            { _id: req.params.id },
+            {
+              $push: {
+                reports: {
+                  _id: user_id,
+                  reason: reason,
+                },
+              },
+            }
+          );
+          // using lean to convert to pure js object that we can manipulate
+          return res.json({ success: true });
+        } else {
+          return res.json({ error: true, message: "Missing reporting reason" });
+        }
+      } else {
+        res.boom.unauthorized("User needs to be authenticated to vote!");
+      }
+    }
+  );
 }
