@@ -23,6 +23,7 @@ import {
   sendMessageNotification,
   doSoftDelete,
   redactDeletedPost,
+  authorizeWrites,
 } from "./helpers";
 import Joi from "joi";
 
@@ -187,10 +188,12 @@ export function registerRoutes(router: Router) {
   const postUri = restify.serve(router, Post, {
     name: "post",
     findOneAndRemove: false,
+    findOneAndUpdate: false,
     preMiddleware: authenticateFromHeader,
     preCreate: [addCreatedBy, addOGData],
     preDelete: doSoftDelete,
     postRead: postReadPost,
+    preUpdate: authorizeWrites,
   });
   router.post(
     `${postUri}/:id/vote/:type`,
@@ -264,6 +267,7 @@ export function registerRoutes(router: Router) {
   const commentUri = restify.serve(router, Comment, {
     name: "comment",
     findOneAndRemove: false, // delete is not atomic, we will read the document in to memory and then delete
+    findOneAndUpdate: false,
     preMiddleware: authenticateFromHeader,
     preCreate: [addCreatedBy, addCommentMeta],
     postCreate: [
@@ -273,6 +277,7 @@ export function registerRoutes(router: Router) {
     ],
     preDelete: doSoftDelete,
     postRead: postReadComment,
+    preUpdate: authorizeWrites,
   });
 
   router.post(
