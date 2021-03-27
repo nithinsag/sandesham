@@ -1,6 +1,14 @@
 import dotenv from "dotenv";
 dotenv.config();
 import { Server } from "../src/server";
+
+jest.mock("../src/asyncJobs", () => ({
+  __esModule: true, // this property makes it work
+  default: "mockedDefaultExport",
+  addJobs: jest.fn(),
+}));
+import { addJobs } from "../src/asyncJobs";
+
 let supertest = require("supertest");
 let request;
 let token1 = "testuser1@gmail.com";
@@ -33,6 +41,8 @@ const sample_post_link = {
 };
 
 beforeAll(async () => {
+  let mockedaddJobs = addJobs as jest.Mock;
+  mockedaddJobs.mockResolvedValue({});
   process.env.MONGO_URI = "mongodb://localhost:27017/test";
   process.env.DEPLOY_ENV = "TEST";
   server = new Server(SERVER_PORT);
@@ -44,7 +54,6 @@ beforeAll(async () => {
   } catch (e) {
     console.log(e);
   }
-
   await request
     .post("/api/v1/user/signup")
     .set("Authorization", "Bearer " + token1)
@@ -78,7 +87,6 @@ describe("Post routes", () => {
     const response = await request.get("/");
     expect(response.status).toBe(200);
   });
-
   test("gets the popular feed  endpoint", async () => {
     const response = await request.get("/api/v1/post/popular");
     expect(response.status).toBe(200);

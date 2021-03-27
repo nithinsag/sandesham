@@ -56,8 +56,9 @@ export class Server {
     this.app.use(methodOverride());
     this.app.use(boom()); // for error handling
     this.app.use(morgan("combined")); // for logs
-
-    setQueues([new BullMQAdapter(messageQue)]);
+    if (process.env.DEPLOY_ENV !== "TEST") {
+      setQueues([new BullMQAdapter(messageQue)]);
+    }
     this.app.use("/admin/que", bullBoard);
 
     // passport.authenticate('jwt', { session: false }) can be used to protect private routes
