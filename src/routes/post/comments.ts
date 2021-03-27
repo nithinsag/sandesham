@@ -1,6 +1,6 @@
 import Joi from "joi";
 import { logger } from "../../helpers/logger";
-import { getUserVote } from "./helpers";
+import { getUserVote, redactDeletedComment } from "./helpers";
 import { groupBy, sortBy } from "lodash";
 import { Post, Comment, User, IComment } from "../../models";
 /**
@@ -92,7 +92,8 @@ export async function commentTreeBuilder(req, res) {
     if (req.user) {
       o.userVote = getUserVote(o, req.user);
     }
-    commentIndex[o._id] = o;
+    o = redactDeletedComment(o);
+    o = commentIndex[o._id] = o;
   });
 
   // recursively build up the tree

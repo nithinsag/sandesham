@@ -50,6 +50,7 @@ export interface IPost extends Document {
   downvotes?: string[];
   userVote?: number;
   created_at: Date;
+  isDeleted: boolean;
   updated_at: Date;
 }
 let PostSchema: Schema = new Schema({
@@ -72,6 +73,7 @@ let PostSchema: Schema = new Schema({
   upvotes: [Schema.Types.ObjectId],
   downvotes: [Schema.Types.ObjectId],
   reports: [{ _id: Schema.Types.ObjectId, reason: String }],
+  isDeleted: { type: Boolean, default: false },
   created_at: { type: Date, default: Date.now },
   updated_at: { type: Date, default: Date.now },
 });
@@ -110,6 +112,7 @@ let CommentSchema: Schema = new Schema({
   level: Schema.Types.Number,
   children: [Schema.Types.ObjectId],
   ancestors: [Schema.Types.ObjectId],
+  isDeleted: { type: Boolean, default: false },
   created_at: { type: Date, default: Date.now },
   updated_at: { type: Date, default: Date.now },
 });
@@ -125,6 +128,7 @@ export interface IComment extends Document {
   level: SVGAnimatedNumber;
   children: string[];
   userVote: number;
+  isDeleted: boolean;
   created_at: Date;
   updated_at: Date;
 }

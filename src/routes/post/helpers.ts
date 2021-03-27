@@ -22,14 +22,26 @@ export async function addOGData(req, res, next) {
   } else next();
 }
 
-export function addCurrentUserVote(req, res, next) {
-  if (!req.user) return next();
+export function postReadPost(req, res, next) {
   let result = req.erm.result;
-  const statusCode = req.erm.statusCode; // 200
   if (!isArray(result)) {
     result = [result];
   }
-  result.forEach((post) => (post.userVote = getUserVote(post, req.user)));
+  result.forEach((post) => {
+    post.userVote = getUserVote(post, req.user);
+    post = redactDeletedPost(post);
+  });
+  return next();
+}
+export function postReadComment(req, res, next) {
+  let result = req.erm.result;
+  if (!isArray(result)) {
+    result = [result];
+  }
+  result.forEach((comment) => {
+    comment.userVote = getUserVote(comment, req.user);
+    comment = redactDeletedPost(comment);
+  });
   return next();
 }
 
@@ -190,4 +202,34 @@ export async function sendMessageNotification(req, res, next) {
   };
   await addJobs(notification);
   next();
+}
+
+export async function doSoftDelete(req, res, next) {
+  if (!req.erm.document.author._id.equals(req.user._id)) {
+    return res.boom.unauthorized("Only author can delete");
+  }
+  req.erm.document.deletedAt = new Date();
+  req.erm.document.isDeleted = true;
+  await req.erm.document.save();
+  return res.sendStatus(204);
+}
+
+export function redactDeletedPost(post) {
+  if (post.isDeleted) {
+    post.title = "Deleted";
+    post.description = "Deleted";
+    post.link = "Deleted";
+    post.ogData = {};
+    (post.author._id = null), (post.description = "Deleted");
+  }
+  return post;
+}
+
+export function redactDeletedComment(comment) {
+  if (comment.isDeleted) {
+    comment.text = "Deleted";
+    comment.author._id = null;
+    comment.author.displayName = "deleted";
+  }
+  return comment;
 }

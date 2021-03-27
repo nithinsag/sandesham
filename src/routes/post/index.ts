@@ -11,7 +11,8 @@ import { commentTreeBuilder } from "./comments";
 
 import {
   addOGData,
-  addCurrentUserVote,
+  postReadPost,
+  postReadComment,
   updateCommentKarma,
   updatePostKarma,
   addCommentMeta,
@@ -20,6 +21,8 @@ import {
   updatePostCommentCount,
   updateParentCommentCount,
   sendMessageNotification,
+  doSoftDelete,
+  redactDeletedPost,
 } from "./helpers";
 import Joi from "joi";
 
@@ -141,9 +144,10 @@ export function registerRoutes(router: Router) {
 
       let posts = await Post.aggregate(aggregateQuery);
       if (req.user) {
-        posts[0].data.forEach(
-          (post) => (post.userVote = getUserVote(post, req.user))
-        );
+        posts[0].data.forEach((post) => {
+          post.userVote = getUserVote(post, req.user);
+          post = redactDeletedPost(post);
+        });
       }
       res.json(posts[0]);
       // res.json(posts);
@@ -153,8 +157,9 @@ export function registerRoutes(router: Router) {
   /**
    * Route for getting newest posts
    */
-  router.get(`/api/v1/post/new`, async (req, res) => {
+  router.get(`/api/v1/post/new-deprecated`, async (req, res) => {
     // TODO: find a way no not hardcode the route
+    // TODO: add uservote and redact deleted
     logger.info(`inside popular feed route`);
     const limit = 10;
     let page = 1; // first page as default
@@ -181,9 +186,11 @@ export function registerRoutes(router: Router) {
 
   const postUri = restify.serve(router, Post, {
     name: "post",
+    findOneAndRemove: false,
     preMiddleware: authenticateFromHeader,
     preCreate: [addCreatedBy, addOGData],
-    postRead: addCurrentUserVote,
+    preDelete: doSoftDelete,
+    postRead: postReadPost,
   });
   router.post(
     `${postUri}/:id/vote/:type`,
@@ -256,6 +263,7 @@ export function registerRoutes(router: Router) {
 
   const commentUri = restify.serve(router, Comment, {
     name: "comment",
+    findOneAndRemove: false, // delete is not atomic, we will read the document in to memory and then delete
     preMiddleware: authenticateFromHeader,
     preCreate: [addCreatedBy, addCommentMeta],
     postCreate: [
@@ -263,6 +271,8 @@ export function registerRoutes(router: Router) {
       updateParentCommentCount,
       sendMessageNotification,
     ],
+    preDelete: doSoftDelete,
+    postRead: postReadComment,
   });
 
   router.post(

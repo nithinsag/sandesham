@@ -1,12 +1,6 @@
 import dotenv from "dotenv";
 dotenv.config();
 import { Server } from "../src/server";
-
-jest.mock("../src/asyncJobs", () => ({
-  __esModule: true, // this property makes it work
-  default: "mockedDefaultExport",
-  addJobs: jest.fn(),
-}));
 import { addJobs } from "../src/asyncJobs";
 
 let supertest = require("supertest");
@@ -220,5 +214,12 @@ describe("Post routes", () => {
   test("most popular tags can be fetched", async () => {
     let response = await request.get("/api/v1/tags");
     expect(response.status).toBe(200);
+  });
+
+  test("post can be deleted by author", async () => {
+    let response = await request
+      .delete(`/api/v1/post/${post2._id}`)
+      .set("Authorization", "Bearer " + token2);
+    expect(response.status).toBe(204);
   });
 });
