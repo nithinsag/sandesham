@@ -187,6 +187,7 @@ export async function sendMessageNotification(req, res, next) {
   let post = req.erm.result.post;
   let parent = req.erm.result.parent;
   let to;
+  let author = req.erm.result.author;
   if (parent) {
     let parentComment = await Comment.findById(parent);
     to = parentComment?.author._id;
@@ -196,8 +197,10 @@ export async function sendMessageNotification(req, res, next) {
   }
   let notification: PushMessageJob = {
     to: to,
-    title: "Someone replied",
-    message: `Someone replied to your ${parent ? "comment" : "post"}`,
+    title: `${author.displayName} replied`,
+    message: `${author.displayName} replied to your ${
+      parent ? "comment" : "post"
+    }`,
     data: { type: "comment", comment: req.erm.result },
   };
   await addJobs(notification);
@@ -212,6 +215,12 @@ export async function doSoftDelete(req, res, next) {
   req.erm.document.isDeleted = true;
   await req.erm.document.save();
   return res.sendStatus(204);
+}
+export async function authorizeWrites(req, res, next) {
+  if (!req.erm.document.author._id.equals(req.user._id)) {
+    return res.boom.unauthorized("Only author can update");
+  }
+  return next();
 }
 
 export function redactDeletedPost(post) {
