@@ -197,8 +197,8 @@ export async function sendMessageNotification(req, res, next) {
   }
   let notification: PushMessageJob = {
     to: to,
-    title: `${author.displayName} replied`,
-    message: `${author.displayName} replied to your ${
+    title: `You have a comment!`,
+    message: `${author.displayname} replied to your ${
       parent ? "comment" : "post"
     }`,
     data: { type: "comment", comment: req.erm.result },
