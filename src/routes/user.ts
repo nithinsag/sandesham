@@ -223,12 +223,12 @@ export function registerRoutes(router: Router) {
             from: "posts",
             localField: "post",
             foreignField: "_id",
-            as: "post",
+            as: "postDetail",
           },
         },
         {
           $set: {
-            post: { $arrayElemAt: ["$post", 0] },
+            postDetail: { $arrayElemAt: ["$postDetail", 0] },
           },
         },
         {
