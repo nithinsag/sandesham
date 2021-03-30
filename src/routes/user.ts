@@ -112,6 +112,7 @@ export function registerRoutes(router: Router) {
 
       let matchQuery: any = {
         "author._id": mongoose.Types.ObjectId(req.params.user_id),
+        isDeleted: false,
       };
 
       if (req.query && req.query.page) {
@@ -203,6 +204,7 @@ export function registerRoutes(router: Router) {
 
       let matchQuery: any = {
         "author._id": mongoose.Types.ObjectId(req.params.user_id),
+        isDeleted: false,
       };
 
       if (req.query && req.query.page) {
