@@ -20,7 +20,9 @@ import {
   getVoteQuery,
   updatePostCommentCount,
   updateParentCommentCount,
-  sendMessageNotification,
+  sendCommentNotification,
+  sendVoteNotificationComment,
+  sendVoteNotificationPost,
   doSoftDelete,
   redactDeletedPost,
   authorizeWrites,
@@ -215,6 +217,7 @@ export function registerRoutes(router: Router) {
           { _id: req.params.id },
           getVoteQuery(user_id, type)
         );
+        sendVoteNotificationPost(preUpdate, type);
         let post: any = await Post.findOne({ _id: req.params.id }).lean();
         // using lean to convert to pure js object that we can manipulate
         post.userVote = getUserVote(post, req.user);
@@ -273,7 +276,7 @@ export function registerRoutes(router: Router) {
     postCreate: [
       updatePostCommentCount,
       updateParentCommentCount,
-      sendMessageNotification,
+      sendCommentNotification,
     ],
     preDelete: doSoftDelete,
     postRead: postReadComment,
@@ -293,6 +296,7 @@ export function registerRoutes(router: Router) {
           { _id: req.params.id },
           getVoteQuery(user_id, type)
         );
+        sendVoteNotificationComment(preUpdate, type);
         let comment: any = await Comment.findOne({ _id: req.params.id }).lean();
         comment.userVote = getUserVote(comment, req.user);
         let scoreDelta = comment.userVote - getUserVote(preUpdate, req.user);

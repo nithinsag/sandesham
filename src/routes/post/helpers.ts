@@ -215,6 +215,35 @@ export async function sendCommentNotification(req, res, next) {
   next();
 }
 
+export async function sendVoteNotificationPost(doc, vote) {
+  if (vote == 0) return;
+  let to = doc.author._id;
+  let postLink = `post/${doc._id}`;
+  let notification: PushMessageJob = {
+    to: to,
+    title: `People are noticing your post`,
+    message: `you received  ${
+      vote > 0 ? "an upvote" : "a downvote"
+    } on your post`,
+    data: { type: "vote", link: postLink },
+  };
+  await addJobs(notification);
+}
+export async function sendVoteNotificationComment(doc, vote) {
+  if (vote == 0) return;
+  let to = doc.author._id;
+  let postLink = `post/${doc.post}`;
+  let notification: PushMessageJob = {
+    to: to,
+    title: `People are noticing your post`,
+    message: `you received  ${
+      vote > 0 ? "an upvote" : "a downvote"
+    } on your comment`,
+    data: { type: "vote", link: postLink },
+  };
+  await addJobs(notification);
+}
+
 export async function doSoftDelete(req, res, next) {
   if (!req.erm.document.author._id.equals(req.user._id)) {
     return res.boom.unauthorized("Only author can delete");
