@@ -25,7 +25,7 @@ export async function commentTreeBuilder(req, res) {
     post_id: Joi.string().required(),
     comment_id: Joi.string(),
     limit: Joi.number().default(100),
-    depth: Joi.number().default(10),
+    depth: Joi.number().default(15),
     page: Joi.number().default(1),
   });
   // https://mongodb-documentation.readthedocs.io/en/latest/use-cases/storing-comments.html#gsc.tab=0
@@ -50,7 +50,7 @@ export async function commentTreeBuilder(req, res) {
   let { limit, depth, page, post_id, comment_id } = value;
 
   if (limit > 100) limit = 100;
-  if (depth > 10) depth = 10;
+  if (depth > 15) depth = 15;
   let maxDepth = depth;
   logger.debug(`creating comment tree for ${post_id}`);
 
