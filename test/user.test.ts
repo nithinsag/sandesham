@@ -96,4 +96,10 @@ describe("User routes", () => {
     const response = await request.get(`/api/v1/user/${user_id}/comments`);
     expect(response.status).toBe(200);
   });
+  test("logout user", async () => {
+    const response = await request
+      .post(`/api/v1/user/logout`)
+      .set("Authorization", "Bearer " + token1);
+    expect(response.status).toBe(200);
+  });
 });

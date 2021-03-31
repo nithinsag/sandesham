@@ -21,9 +21,6 @@ export function registerRoutes(router: Router) {
         );
       }
 
-      if (req.body.pushMessageToken) {
-      }
-
       // create schema object
       const schema = Joi.object({
         pushMessageToken: Joi.string().required(),
@@ -101,6 +98,20 @@ export function registerRoutes(router: Router) {
     } else {
       res.boom.unauthorized("could not register user");
     }
+  });
+
+  router.post(`${userUri}/logout`, authenticateFromHeader, async (req, res) => {
+    if (!req.user) {
+      return res.boom.unauthorized("User needs to be authenticated to logout");
+    }
+    //TODO: handle multidevice better
+    let user = await User.findOneAndUpdate(
+      { _id: req.user._id },
+      { pushMessageToken: "", loggedout_at: new Date() },
+      { new: true }
+    );
+
+    return res.json(user);
   });
 
   router.get(
@@ -189,7 +200,6 @@ export function registerRoutes(router: Router) {
         },
       ];
 
-      console.log("getting posts from user", matchQuery);
       let posts = await Post.aggregate(aggregateQuery);
       res.json(posts[0]);
     }
@@ -247,7 +257,6 @@ export function registerRoutes(router: Router) {
         },
       ];
 
-      console.log("getting posts from user", matchQuery);
       let comment = await Comment.aggregate(aggregateQuery);
       res.json(comment[0]);
     }

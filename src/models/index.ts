@@ -14,6 +14,7 @@ let UserSchema: Schema = new Schema({
   picture: { type: String },
   created_at: { type: Date, default: Date.now },
   updated_at: { type: Date, default: Date.now },
+  loggedout_at: { type: Date },
 });
 
 let CommunitySchema: Schema = new Schema({
