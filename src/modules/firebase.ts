@@ -34,7 +34,7 @@ export async function sendNotification(
       title: title,
       body: body,
     },
-    //   data: data,
+    data: data,
   };
   const deviceToken = user.pushMessageToken;
   console.log(`sending message to ${deviceToken}`);

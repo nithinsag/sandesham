@@ -183,8 +183,17 @@ export async function updateParentCommentCount(req, res, next) {
   next();
 }
 
-export async function sendMessageNotification(req, res, next) {
+/**
+ * middleware for sending message to parent and comment owner once
+ * someone posts a comment.
+ * @param req
+ * @param res
+ * @param next
+ */
+export async function sendCommentNotification(req, res, next) {
   let post = req.erm.result.post;
+  let postDoc = await Post.findById(post);
+  let postLink = `post/${post._id}`;
   let parent = req.erm.result.parent;
   let to;
   let author = req.erm.result.author;
@@ -192,7 +201,6 @@ export async function sendMessageNotification(req, res, next) {
     let parentComment = await Comment.findById(parent);
     to = parentComment?.author._id;
   } else {
-    let postDoc = await Post.findById(post);
     to = postDoc?.author._id;
   }
   let notification: PushMessageJob = {
@@ -201,7 +209,7 @@ export async function sendMessageNotification(req, res, next) {
     message: `${author.displayname} replied to your ${
       parent ? "comment" : "post"
     }`,
-    data: { type: "comment", comment: req.erm.result },
+    data: { type: "comment", link: postLink },
   };
   await addJobs(notification);
   next();
