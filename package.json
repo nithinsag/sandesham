@@ -33,6 +33,8 @@
   "author": "Nithin Saji <nithin111@gmail.com>",
   "license": "MIT",
   "dependencies": {
+    "@dicebear/avatars": "^4.5.4",
+    "@dicebear/avatars-bottts-sprites": "^4.5.4",
     "@types/chai": "^4.2.15",
     "bcrypt": "^3.0.6",
     "body-parser": "^1.19.0",
@@ -61,6 +63,7 @@
     "open-graph-scraper": "^4.6.0",
     "request": "^2.88.0",
     "request-promise-native": "^1.0.7",
+    "sharp": "^0.28.0",
     "tsc": "^1.20150623.0",
     "winston": "^3.3.3"
   },

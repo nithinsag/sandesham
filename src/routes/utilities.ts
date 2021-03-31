@@ -1,4 +1,6 @@
 import { getOGData } from "../helpers/openGraphScraper";
+import createAvatar from "../helpers/avatars";
+
 export function registerRoutes(router) {
   let API_BASE_URL = "/api/v1/utility/";
   router.post(`${API_BASE_URL}ogPreview`, async (req, res) => {
@@ -11,5 +13,17 @@ export function registerRoutes(router) {
 
       return res.boom.badRequest("could not get og data");
     }
+  });
+
+  router.get(`${API_BASE_URL}avatar/:name`, async (req, res) => {
+    if (!req.params.name)
+      return req.boom.badRequest("specify name to generate avatar");
+    let img = await createAvatar(req.params.name);
+    res.writeHead(200, {
+      "Content-Type": "image/png",
+      "Cache-Control": `max-age=${60 * 60 * 24 * 365}`,
+      "Content-Length": img.length,
+    });
+    res.end(img);
   });
 }
