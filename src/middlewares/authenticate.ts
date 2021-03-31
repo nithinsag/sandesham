@@ -16,7 +16,6 @@ export function authenticateFromHeader(req, res, next) {
     logger.info("token: " + token);
     logger.info("deploy env: " + process.env.DEPLOY_ENV);
     if (token === null) {
-  
       req.is_anonymous = true;
       return next();
     }
@@ -41,7 +40,7 @@ export function authenticateFromHeader(req, res, next) {
       }
     } catch (e) {
       logger.info("Could not authenticate");
-      return next();
+      return res.boom.unauthorized("token expired");
     }
 
     if (
