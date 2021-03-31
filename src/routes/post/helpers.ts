@@ -28,7 +28,7 @@ export function postReadPost(req, res, next) {
     result = [result];
   }
   result.forEach((post) => {
-    post.userVote = getUserVote(post, req.user);
+    if (req.user) post.userVote = getUserVote(post, req.user);
     post = redactDeletedPost(post);
   });
   return next();

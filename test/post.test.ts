@@ -107,6 +107,28 @@ describe("Post routes", () => {
     post2 = response.body;
   });
 
+  test("anonymous user can fetch posts ", async () => {
+    let response = await request.get("/api/v1/post");
+    expect(response.status).toBe(200);
+    post1 = response.body[0];
+
+    response = await request.get(`/api/v1/post/${post1._id}`);
+    expect(response.status).toBe(200);
+  });
+
+  test("authorized user can fetch posts ", async () => {
+    let response = await request
+      .get("/api/v1/post")
+      .set("Authorization", "Bearer " + token2);
+    expect(response.status).toBe(200);
+    post1 = response.body[0];
+
+    response = await request
+      .get(`/api/v1/post/${post1._id}`)
+      .set("Authorization", "Bearer " + token2);
+    expect(response.status).toBe(200);
+  });
+
   test.skip("link type posts will auto add open graph data", async () => {
     let response = await request
       .post("/api/v1/post")
