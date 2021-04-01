@@ -6,6 +6,7 @@ import sharp from "sharp";
 export default async function createAvatar(seed) {
   let options = {};
   options["h"] = options["w"] = 256;
+  options["colorful"] = 1;
 
   let avatars = new Avatars(botttsStyles);
   let svg = avatars.create(seed, options);
