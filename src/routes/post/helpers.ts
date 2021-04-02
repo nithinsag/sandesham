@@ -193,7 +193,7 @@ export async function updateParentCommentCount(req, res, next) {
 export async function sendCommentNotification(req, res, next) {
   let post = req.erm.result.post;
   let postDoc = await Post.findById(post);
-  let postLink = `post/${post._id}`;
+  let postLink = `/post/${post._id}`;
   let parent = req.erm.result.parent;
   let to;
   let author = req.erm.result.author;
@@ -218,11 +218,11 @@ export async function sendCommentNotification(req, res, next) {
 export async function sendVoteNotificationPost(doc, vote) {
   if (vote == 0) return;
   let to = doc.author._id;
-  let postLink = `post/${doc._id}`;
+  let postLink = `/post/${doc._id}`;
   let notification: PushMessageJob = {
     to: to,
     title: `People are noticing your post`,
-    message: `you received  ${
+    message: `you received ${
       vote > 0 ? "an upvote" : "a downvote"
     } on your post`,
     data: { type: "vote", link: postLink },
@@ -232,11 +232,11 @@ export async function sendVoteNotificationPost(doc, vote) {
 export async function sendVoteNotificationComment(doc, vote) {
   if (vote == 0) return;
   let to = doc.author._id;
-  let postLink = `post/${doc.post}`;
+  let postLink = `/post/${doc.post}`;
   let notification: PushMessageJob = {
     to: to,
     title: `People are noticing your post`,
-    message: `you received  ${
+    message: `you received ${
       vote > 0 ? "an upvote" : "a downvote"
     } on your comment`,
     data: { type: "vote", link: postLink },
