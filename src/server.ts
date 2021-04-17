@@ -8,6 +8,7 @@ import { registerRoutes } from "./routes";
 import { messageQue } from "./asyncJobs";
 import { router as bullBoard } from "bull-board";
 import { connectToMongo } from "./models";
+import "./tracer";
 const { setQueues, BullMQAdapter } = require("bull-board");
 
 export class Server {
