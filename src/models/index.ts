@@ -68,9 +68,10 @@ let PostSchema: Schema = new Schema({
     _id: { type: Schema.Types.ObjectId, ref: "User" },
     displayname: String,
   },
-  voteCount: { type: Schema.Types.Number, default: 0 },
+  voteCount: { type: Schema.Types.Number, default: 1 },
   commentCount: { type: Schema.Types.Number, default: 0 },
   tags: [String],
+  // default upvote from creator
   upvotes: [Schema.Types.ObjectId],
   downvotes: [Schema.Types.ObjectId],
   reports: [{ _id: Schema.Types.ObjectId, reason: String }],
