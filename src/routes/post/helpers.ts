@@ -4,7 +4,7 @@ import { Post, Comment, User } from "../../models";
 import { getOGData } from "../../helpers/openGraphScraper";
 import { addJobs } from "../../asyncJobs";
 import { PushMessageJob } from "../../asyncJobs/worker";
-export async function addOGData(req, res, next) {
+export async function preCreateAddOGData(req, res, next) {
   if (req.body.type === "link") {
     // returning early as we don't want to block return
     // TODO: use a queue for this
@@ -42,6 +42,11 @@ export function postReadComment(req, res, next) {
     comment.userVote = getUserVote(comment, req.user);
     comment = redactDeletedPost(comment);
   });
+  return next();
+}
+export function preCreateAutoUpvote(req, res, next) {
+  let user_id = req.user._id;
+  req.body.upvotes = [user_id];
   return next();
 }
 
@@ -117,7 +122,7 @@ export async function updateCommentKarma(user, increment) {
   );
 }
 
-export function addCommentMeta(req, res, next) {
+export function preCreateAddCommentMeta(req, res, next) {
   async function wrapper() {
     let parent = req.body.parent;
     let post = req.body.post;
@@ -136,6 +141,9 @@ export function addCommentMeta(req, res, next) {
     } else {
       req.body.level = 0;
     }
+    let user_id = req.user._id;
+    req.body.upvotes = [user_id];
+
     req.parentComment = parentComment;
     req.parentPost = parentPost;
 
@@ -215,28 +223,35 @@ export async function sendCommentNotification(req, res, next) {
   next();
 }
 
-export async function sendVoteNotificationPost(doc, vote) {
+export async function sendVoteNotificationPost(doc, vote, from) {
+  // don't notify cancellations
   if (vote == 0) return;
   let to = doc.author._id;
+
+  // don't notify yourself
+  if (to.equals(from)) return;
   let postLink = `/post/${doc._id}`;
   let notification: PushMessageJob = {
     to: to,
-    title: `People are noticing your post`,
-    message: `you received ${
+    title: `Your post is getting noticed!`,
+    message: `You received ${
       vote > 0 ? "an upvote" : "a downvote"
     } on your post`,
     data: { type: "vote", link: postLink },
   };
   await addJobs(notification);
 }
-export async function sendVoteNotificationComment(doc, vote) {
+export async function sendVoteNotificationComment(doc, vote, from) {
+  // don't notify cancellations
   if (vote == 0) return;
+  // don't notify yourself
   let to = doc.author._id;
+  if (to.equals(from)) return;
   let postLink = `/post/${doc.post}`;
   let notification: PushMessageJob = {
     to: to,
-    title: `People are noticing your post`,
-    message: `you received ${
+    title: `Your comment is getting noticed!`,
+    message: `You received ${
       vote > 0 ? "an upvote" : "a downvote"
     } on your comment`,
     data: { type: "vote", link: postLink },
