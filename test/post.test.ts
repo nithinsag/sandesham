@@ -98,6 +98,7 @@ describe("Post routes", () => {
       .set("Authorization", "Bearer " + token1);
     expect(response.status).toBe(201);
     post1 = response.body;
+    expect(post1.voteCount).toBe(1);
 
     response = await request
       .post("/api/v1/post")
@@ -138,13 +139,6 @@ describe("Post routes", () => {
     expect(response.body).toHaveProperty("ogData");
   });
 
-  test("signed up user can upvote ", async () => {
-    let response = await request
-      .post(`/api/v1/post/${post1._id}/vote/1`)
-      .set("Authorization", "Bearer " + token2);
-    expect(response.status).toBe(200);
-  });
-
   test("signed up user1 can report ", async () => {
     let response = await request
       .post(`/api/v1/post/${post1._id}/report`)
@@ -177,7 +171,7 @@ describe("Post routes", () => {
   test("signed up user can upvote", async () => {
     let response = await request
       .post(`/api/v1/post/${post2._id}/vote/1`)
-      .set("Authorization", "Bearer " + token2);
+      .set("Authorization", "Bearer " + token1);
     expect(response.status).toBe(200);
   });
 
@@ -216,7 +210,7 @@ describe("Post routes", () => {
     expect(response.body.data).toHaveLength(2);
 
     expect(response.body.data[0]._id).toBe(post1._id);
-    expect(response.body.data[0].userVote).toBe(0);
+    expect(response.body.data[0].userVote).toBe(1);
     expect(response.body.data[1]._id).toBe(post2._id);
     expect(response.body.data[1].userVote).toBe(-1);
   });

@@ -10,12 +10,13 @@ import { groupBy, includes, isArray, map, sortBy } from "lodash";
 import { commentTreeBuilder } from "./comments";
 
 import {
-  addOGData,
+  preCreateAutoUpvote,
+  preCreateAddOGData,
   postReadPost,
   postReadComment,
   updateCommentKarma,
   updatePostKarma,
-  addCommentMeta,
+  preCreateAddCommentMeta,
   getUserVote,
   getVoteQuery,
   updatePostCommentCount,
@@ -192,7 +193,7 @@ export function registerRoutes(router: Router) {
     findOneAndRemove: false,
     findOneAndUpdate: false,
     preMiddleware: authenticateFromHeader,
-    preCreate: [addCreatedBy, addOGData],
+    preCreate: [addCreatedBy, preCreateAddOGData, preCreateAutoUpvote],
     preDelete: doSoftDelete,
     postRead: postReadPost,
     preUpdate: authorizeWrites,
@@ -217,7 +218,7 @@ export function registerRoutes(router: Router) {
           { _id: req.params.id },
           getVoteQuery(user_id, type)
         );
-        sendVoteNotificationPost(preUpdate, type);
+        sendVoteNotificationPost(preUpdate, type, user_id);
         let post: any = await Post.findOne({ _id: req.params.id }).lean();
         // using lean to convert to pure js object that we can manipulate
         post.userVote = getUserVote(post, req.user);
@@ -272,7 +273,7 @@ export function registerRoutes(router: Router) {
     findOneAndRemove: false, // delete is not atomic, we will read the document in to memory and then delete
     findOneAndUpdate: false,
     preMiddleware: authenticateFromHeader,
-    preCreate: [addCreatedBy, addCommentMeta],
+    preCreate: [addCreatedBy, preCreateAddCommentMeta],
     postCreate: [
       updatePostCommentCount,
       updateParentCommentCount,
@@ -296,7 +297,7 @@ export function registerRoutes(router: Router) {
           { _id: req.params.id },
           getVoteQuery(user_id, type)
         );
-        sendVoteNotificationComment(preUpdate, type);
+        sendVoteNotificationComment(preUpdate, type, user_id);
         let comment: any = await Comment.findOne({ _id: req.params.id }).lean();
         comment.userVote = getUserVote(comment, req.user);
         let scoreDelta = comment.userVote - getUserVote(preUpdate, req.user);
