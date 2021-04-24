@@ -61,9 +61,15 @@ export function registerRoutes(router: Router) {
       }
 
       let user_id = "";
+      let blockedUsers: any[] = [];
       logger.info("checking if authorised " + req.is_anonymous);
       if (!req.is_anonymous) {
         user_id = req.user._id;
+        blockedUsers = [...req.user.blockedUsers];
+        matchQuery = {
+          ...matchQuery,
+          "author._id": { $nin: req.user.blockedUsers },
+        };
       }
 
       let aggregateQuery = [

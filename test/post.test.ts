@@ -8,6 +8,7 @@ let request;
 let token1 = "testuser1@gmail.com";
 let token2 = "testuser2@gmail.com";
 let token3 = "testuser3@gmail.com";
+let user1, user2;
 let server;
 
 const sample_post_1 = {
@@ -48,18 +49,21 @@ beforeAll(async () => {
   } catch (e) {
     console.log(e);
   }
-  await request
+
+  let response = await request
     .post("/api/v1/user/signup")
     .set("Authorization", "Bearer " + token1)
     .send({ displayname: "testuser 1" });
+  user1 = response.body;
 
-  await request
+  response = await request
     .post("/api/v1/user/signup")
     .set("Authorization", "Bearer " + token2)
     .send({ displayname: "testuser 2" });
+  user2 = response.body;
   await request
     .post("/api/v1/user/signup")
-    .set("Authorization", "Bearer " + token2)
+    .set("Authorization", "Bearer " + token3)
     .send({ displayname: "testuser 3" });
 });
 
@@ -232,10 +236,57 @@ describe("Post routes", () => {
     expect(response.status).toBe(200);
   });
 
+  test("post cannot be deleted by others", async () => {
+    let response = await request
+      .delete(`/api/v1/post/${post2._id}`)
+      .set("Authorization", "Bearer " + token1);
+    expect(response.status).toBe(401);
+  });
+
   test("post can be deleted by author", async () => {
     let response = await request
       .delete(`/api/v1/post/${post2._id}`)
       .set("Authorization", "Bearer " + token2);
     expect(response.status).toBe(204);
+  });
+  test("blocked users posts are not visible", async () => {
+    let response = await request
+      .post(`/api/v1/user/blockUser/${user2._id}`)
+      .set("Authorization", "Bearer " + token1);
+    response = await request
+      .post("/api/v1/post")
+      .send(sample_post_2)
+      .set("Authorization", "Bearer " + token2);
+    expect(response.status).toBe(201);
+    response = await request
+      .get(`/api/v1/post/popular`)
+      .set("Authorization", "Bearer " + token1);
+
+    expect(response.status).toBe(200);
+
+    let users: any = [];
+    response.body.data.forEach((post) => {
+      users.push(post.author._id);
+    });
+    expect(users).not.toContain(user2._id);
+    expect(users).toContain(user1._id);
+  });
+  test("unblocblocked user posts are visible", async () => {
+    let response = await request
+      .post(`/api/v1/user/unblockUser/${user2._id}`)
+      .set("Authorization", "Bearer " + token1);
+    expect(response.status).toBe(200);
+    response = await request
+      .get(`/api/v1/post/popular`)
+      .set("Authorization", "Bearer " + token1);
+
+    expect(response.status).toBe(200);
+
+    let users: any = [];
+    response.body.data.forEach((post) => {
+      users.push(post.author._id);
+    });
+    expect(users).toContain(user2._id);
+    expect(users).toContain(user1._id);
   });
 });
