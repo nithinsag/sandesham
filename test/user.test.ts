@@ -102,4 +102,19 @@ describe("User routes", () => {
       .set("Authorization", "Bearer " + token1);
     expect(response.status).toBe(200);
   });
+  test("block user", async () => {
+    let userId = "6083c17be1f5f01ffcc43f4a";
+    const response = await request
+      .post(`/api/v1/user/blockUser/${userId}`)
+      .set("Authorization", "Bearer " + token1);
+    expect(response.status).toBe(200);
+  });
+  test("unblock user", async () => {
+    let userId = "6083c17be1f5f01ffcc43f4a";
+    const response = await request
+      .post(`/api/v1/user/unblockUser/${userId}`)
+      .set("Authorization", "Bearer " + token1);
+    expect(response.status).toBe(200);
+    expect(response.body).toBe(true);
+  });
 });

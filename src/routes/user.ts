@@ -114,6 +114,44 @@ export function registerRoutes(router: Router) {
     return res.json(user);
   });
 
+  router.post(
+    `${userUri}/blockUser/:targetUser`,
+    authenticateFromHeader,
+    async (req, res) => {
+      if (!req.user) {
+        return res.boom.unauthorized("User needs to be authenticated");
+      }
+      let blockedUser = req.params.targetUser;
+      let blockedUserId = mongoose.Types.ObjectId(blockedUser);
+      req.user.blockedUsers.push(blockedUserId);
+      await req.user.save();
+      return res.json(true);
+    }
+  );
+
+  router.post(
+    `${userUri}/unblockUser/:targetUser`,
+    authenticateFromHeader,
+    async (req, res) => {
+      if (!req.user) {
+        return res.boom.unauthorized("User needs to be authenticated");
+      }
+      let blockedUser = req.params.targetUser;
+      let blockedUserId = mongoose.Types.ObjectId(blockedUser);
+      let index = req.user.blockedUsers.indexOf(blockedUserId);
+      if (index < 0) {
+        return res.json(false);
+      } else {
+        req.user.blockedUsers.splice(index, 1);
+        await req.user.save();
+        return res.json(true);
+      }
+
+      await req.user.save();
+      return res.json(true);
+    }
+  );
+
   router.get(
     `${userUri}/:user_id/posts`,
     authenticateFromHeader,
