@@ -8,6 +8,7 @@ import { logger } from "../helpers/logger";
 import { authenticateFromHeader } from "../middlewares/authenticate";
 import Joi from "joi";
 import mongoose from "mongoose";
+
 export function registerRoutes(router: Router) {
   const userUri = "/api/v1/user"; // building api url before restify to give higher priority
   // TODO: remove unnecessary function
@@ -123,6 +124,8 @@ export function registerRoutes(router: Router) {
       }
       let blockedUser = req.params.targetUser;
       let blockedUserId = mongoose.Types.ObjectId(blockedUser);
+      let index = req.user.blockedUsers.indexOf(blockedUserId);
+      if (index > 0) return res.json(true); // return early as already blocked
       req.user.blockedUsers.push(blockedUserId);
       await req.user.save();
       return res.json(true);
