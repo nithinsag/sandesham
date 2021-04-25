@@ -9,6 +9,7 @@ let request;
 let token1 = "testuser1@gmail.com";
 let token2 = "testuser2@gmail.com";
 let token3 = "testuser3@gmail.com";
+let token_anon = "anon@anon";
 
 const sample_post_1 = {
   title: "Test Post 1",
@@ -87,13 +88,17 @@ describe("User routes", () => {
     expect(response.status).toBe(201);
     post2 = response.body;
     let user_id = user._id;
-    response = await request.get(`/api/v1/user/${user_id}/posts`);
+    response = await request
+      .get(`/api/v1/user/${user_id}/posts`)
+      .set("Authorization", "Bearer " + token_anon);
     expect(response.status).toBe(200);
     expect(response.body.data).toHaveLength(1);
   });
   test("fetch user comments", async () => {
     let user_id = user._id;
-    const response = await request.get(`/api/v1/user/${user_id}/comments`);
+    const response = await request
+      .get(`/api/v1/user/${user_id}/comments`)
+      .set("Authorization", "Bearer " + token_anon);
     expect(response.status).toBe(200);
   });
   test("logout user", async () => {

@@ -8,6 +8,7 @@ let request;
 let token1 = "testuser1@gmail.com";
 let token2 = "testuser2@gmail.com";
 let token3 = "testuser3@gmail.com";
+let token_anon = "anon_user3@anon";
 let user1, user2;
 let server;
 
@@ -86,7 +87,11 @@ describe("Post routes", () => {
     expect(response.status).toBe(200);
   });
   test("gets the popular feed  endpoint", async () => {
-    const response = await request.get("/api/v1/post/popular");
+    let response = await request.get("/api/v1/post/popular");
+    expect(response.status).toBe(401);
+    response = await request
+      .get("/api/v1/post/popular")
+      .set("Authorization", "Bearer " + token_anon);
     expect(response.status).toBe(200);
   });
 
@@ -113,11 +118,15 @@ describe("Post routes", () => {
   });
 
   test("anonymous user can fetch posts ", async () => {
-    let response = await request.get("/api/v1/post");
+    let response = await request
+      .get("/api/v1/post")
+      .set("Authorization", "Bearer " + token_anon);
     expect(response.status).toBe(200);
     post1 = response.body[0];
 
-    response = await request.get(`/api/v1/post/${post1._id}`);
+    response = await request
+      .get(`/api/v1/post/${post1._id}`)
+      .set("Authorization", "Bearer " + token_anon);
     expect(response.status).toBe(200);
   });
 
@@ -160,13 +169,17 @@ describe("Post routes", () => {
   });
 
   test("should be able to fetch popular feed", async () => {
-    let response = await request.get(`/api/v1/post/popular`);
+    let response = await request
+      .get(`/api/v1/post/popular`)
+      .set("Authorization", "Bearer " + token_anon);
     expect(response.status).toBe(200);
     expect(response.body.data).toHaveLength(2);
   });
 
   test("should be able to fetch popular feed with pagination for anonymous user", async () => {
-    let response = await request.get(`/api/v1/post/popular?limit=1&page=1`);
+    let response = await request
+      .get(`/api/v1/post/popular?limit=1&page=1`)
+      .set("Authorization", "Bearer " + token_anon);
     expect(response.status).toBe(200);
     expect(response.body.data).toHaveLength(1);
     expect(response.body.data[0].userVote).toBe(0);
@@ -180,7 +193,9 @@ describe("Post routes", () => {
   });
 
   test("upvoted post to be shown in feed and sort to be working", async () => {
-    let response = await request.get(`/api/v1/post/popular`);
+    let response = await request
+      .get(`/api/v1/post/popular`)
+      .set("Authorization", "Bearer " + token_anon);
     expect(response.status).toBe(200);
     expect(response.body.data).toHaveLength(2);
     expect(response.body.data[0]._id).toBe(post2._id);
@@ -225,14 +240,18 @@ describe("Post routes", () => {
       .set("Authorization", "Bearer " + token1);
     expect(response.status).toBe(201);
     post1 = response.body;
-    response = await request.get(`/api/v1/post/popular?tag=test_tag`);
+    response = await request
+      .get(`/api/v1/post/popular?tag=test_tag`)
+      .set("Authorization", "Bearer " + token_anon);
     expect(response.status).toBe(200);
     expect(response.body.data).toHaveLength(1);
     expect(response.body.data[0]._id).toBe(post1._id);
   });
 
   test("most popular tags can be fetched", async () => {
-    let response = await request.get("/api/v1/tags");
+    let response = await request
+      .get("/api/v1/tags")
+      .set("Authorization", "Bearer " + token_anon);
     expect(response.status).toBe(200);
   });
 

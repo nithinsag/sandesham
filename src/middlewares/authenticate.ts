@@ -16,8 +16,7 @@ export function authenticateFromHeader(req, res, next) {
     logger.info("token: " + token);
     logger.info("deploy env: " + process.env.DEPLOY_ENV);
     if (token === null) {
-      req.is_anonymous = true;
-      return next();
+      return res.boom.unauthorized("Token required to access this resource");
     }
     var decodedToken;
     try {
@@ -28,12 +27,22 @@ export function authenticateFromHeader(req, res, next) {
 
       if (process.env.DEPLOY_ENV == "TEST" && token) {
         logger.info("using test token decoding");
-        decodedToken = {
-          name: "Test User",
-          picture: "http://example.com/picure.jpg",
-          email: token,
-          email_verified: true,
-        };
+        if (token.startsWith("anon")) {
+          decodedToken = {
+            name: "test user",
+            picture: "http://example.com/picure.jpg",
+            email: token,
+            email_verified: true,
+            provider_id: "anonymous",
+          };
+        } else {
+          decodedToken = {
+            name: "test user",
+            picture: "http://example.com/picure.jpg",
+            email: token,
+            email_verified: true,
+          };
+        }
       } else {
         decodedToken = await validateToken(token);
         logger.info("token validated" + JSON.stringify(decodedToken));
