@@ -70,6 +70,10 @@ export async function commentTreeBuilder(req, res) {
     };
   }
 
+  if (req.user) {
+    baseQuery = { ...baseQuery, "author._id": { $nin: req.user.blockedUsers } }; // filter comments from blocked users
+  }
+
   let comments: IComment[] = await Comment.find(baseQuery)
     .limit(limit)
     .skip((page - 1) * limit)
@@ -77,11 +81,18 @@ export async function commentTreeBuilder(req, res) {
     .lean();
 
   let topComments = comments.map((o) => o._id);
-
-  let children: IComment[] = await Comment.find({
+  let childrenQuery: any = {
     ancestors: { $in: topComments },
     level: { $lt: maxDepth },
-  })
+  };
+
+  if (req.user) {
+    childrenQuery = {
+      ...childrenQuery,
+      "author._id": { $nin: req.user.blockedUsers },
+    }; // filter comments from blocked users
+  }
+  let children: IComment[] = await Comment.find(childrenQuery)
     .sort("voteCount")
     .lean();
 
