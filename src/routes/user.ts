@@ -300,5 +300,8 @@ export function registerRoutes(router: Router) {
     }
   );
 
-  restify.serve(router, User, { name: "user" });
+  restify.serve(router, User, {
+    name: "user",
+    preMiddleware: authenticateFromHeader,
+  });
 }
