@@ -17,10 +17,12 @@ import {
   updateCommentKarma,
   updatePostKarma,
   preCreateAddCommentMeta,
+  postCreateUpdatePostCommentCount,
+  postCreateUpdateParentCommentCount,
+  postCreateUpdateAuthorKarmaComment,
+  postCreateUpdateAuthorKarmaPost,
   getUserVote,
   getVoteQuery,
-  updatePostCommentCount,
-  updateParentCommentCount,
   sendCommentNotification,
   sendVoteNotificationComment,
   sendVoteNotificationPost,
@@ -203,6 +205,7 @@ export function registerRoutes(router: Router) {
     preDelete: doSoftDelete,
     postRead: postReadPost,
     preUpdate: authorizeWrites,
+    postCreate: [postCreateUpdateAuthorKarmaPost],
   });
   router.post(
     `${postUri}/:id/vote/:type`,
@@ -229,7 +232,7 @@ export function registerRoutes(router: Router) {
         // using lean to convert to pure js object that we can manipulate
         post.userVote = getUserVote(post, req.user);
         let scoreDelta = post.userVote - preUservote;
-        updatePostKarma(req.user, scoreDelta);
+        updatePostKarma(post.author._id, scoreDelta);
         return res.json(post);
       } else {
         res.boom.unauthorized("User needs to be authenticated to vote!");
@@ -281,8 +284,9 @@ export function registerRoutes(router: Router) {
     preMiddleware: authenticateFromHeader,
     preCreate: [addCreatedBy, preCreateAddCommentMeta],
     postCreate: [
-      updatePostCommentCount,
-      updateParentCommentCount,
+      postCreateUpdatePostCommentCount,
+      postCreateUpdateParentCommentCount,
+      postCreateUpdateAuthorKarmaComment,
       sendCommentNotification,
     ],
     preDelete: doSoftDelete,
@@ -307,7 +311,7 @@ export function registerRoutes(router: Router) {
         let comment: any = await Comment.findOne({ _id: req.params.id }).lean();
         comment.userVote = getUserVote(comment, req.user);
         let scoreDelta = comment.userVote - getUserVote(preUpdate, req.user);
-        updateCommentKarma(req.user, scoreDelta); // not waiting for complete
+        updateCommentKarma(comment.author._id, scoreDelta); // not waiting for complete
         return res.json(comment);
       } else {
         res.boom.unauthorized("User needs to be authenticated to vote!");

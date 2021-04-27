@@ -109,15 +109,15 @@ export function getVoteQuery(user_id, type: number) {
 
   return voteQueries[type];
 }
-export async function updatePostKarma(user, increment) {
+export async function updatePostKarma(user_id, increment) {
   return User.findOneAndUpdate(
-    { _id: user._id },
+    { _id: user_id },
     { $inc: { postKarma: increment } }
   );
 }
-export async function updateCommentKarma(user, increment) {
+export async function updateCommentKarma(user_id, increment) {
   return User.findOneAndUpdate(
-    { _id: user._id },
+    { _id: user_id },
     { $inc: { commentKarma: increment } }
   );
 }
@@ -149,7 +149,7 @@ export function preCreateAddCommentMeta(req, res, next) {
 
     next();
   }
-  wrapper();
+  wrapper(); //  wrapping to use async await
 }
 
 export function ObjectIdToString(objectId) {
@@ -172,7 +172,7 @@ export function getUserVote(document, user) {
  * @param res
  * @param next
  */
-export async function updatePostCommentCount(req, res, next) {
+export async function postCreateUpdatePostCommentCount(req, res, next) {
   const post_id = req.erm.result.post;
   let updatedPost = await Post.findOneAndUpdate(
     { _id: post_id },
@@ -183,11 +183,20 @@ export async function updatePostCommentCount(req, res, next) {
   next();
 }
 
-export async function updateParentCommentCount(req, res, next) {
+export async function postCreateUpdateParentCommentCount(req, res, next) {
   await Comment.findOneAndUpdate(
     { _id: req.erm.result.parent },
     { $push: { children: req.erm.result._id } }
   );
+  next();
+}
+
+export async function postCreateUpdateAuthorKarmaPost(req, res, next) {
+  await updatePostKarma(req.erm.result.author._id, 1);
+  next();
+}
+export async function postCreateUpdateAuthorKarmaComment(req, res, next) {
+  await updateCommentKarma(req.erm.result.author._id, 1);
   next();
 }
 
