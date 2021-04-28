@@ -51,6 +51,7 @@ fs.createReadStream("youtube-accounts.csv")
               description,
               link: url,
               type: "link",
+              author: botUser,
             });
             await post.save();
           } catch (e) {
