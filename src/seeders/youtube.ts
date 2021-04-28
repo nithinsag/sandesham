@@ -4,6 +4,7 @@ import csv from "csv-parser";
 import fs from "fs";
 import axios from "axios";
 import mongoose from "mongoose";
+import { getOGData } from "../helpers/openGraphScraper";
 dotenv.config();
 const CP_FILE = "youtube_lastrun";
 let connection = connectToMongo();
@@ -44,6 +45,7 @@ fs.createReadStream("youtube-accounts.csv")
           let url = videoUrlPrefix + videoId;
           let title = item["snippet"]["title"];
           let description = item["snippet"]["description"];
+          let ogData = await getOGData(url);
           try {
             let post = new Post({
               title,
@@ -52,6 +54,7 @@ fs.createReadStream("youtube-accounts.csv")
               link: url,
               type: "link",
               author: botUser,
+              ogData,
             });
             await post.save();
           } catch (e) {
