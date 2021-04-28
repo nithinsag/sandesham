@@ -9,7 +9,7 @@ const CP_FILE = "youtube_lastrun";
 let connection = connectToMongo();
 let botUser = {
   _id: process.env.BOT_USER_ID,
-  displayName: process.env.BOT_USER,
+  displayname: process.env.BOT_USER,
 };
 
 let results: any = [];
