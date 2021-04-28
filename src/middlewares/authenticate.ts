@@ -45,6 +45,10 @@ export function authenticateFromHeader(req, res, next) {
         }
       } else {
         decodedToken = await validateToken(token);
+        if (decodedToken == false) {
+          logger.info("invalid token");
+          return res.boom.unauthorized("token expired"); // return early if cannot decode token
+        }
         logger.info("token validated" + JSON.stringify(decodedToken));
       }
     } catch (e) {
@@ -56,6 +60,7 @@ export function authenticateFromHeader(req, res, next) {
       typeof decodedToken == "object" &&
       decodedToken.provider_id != "anonymous"
     ) {
+      // token is decoded and is not anonymous
       const { name, picture, email, email_verified } = decodedToken;
       let users, user;
 
