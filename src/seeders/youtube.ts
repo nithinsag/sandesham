@@ -61,7 +61,7 @@ fs.createReadStream("youtube-accounts.csv")
                 ogData,
               });
               //console.log(post);
-              //            await post.save();
+              await post.save();
             } catch (e) {
               console.log(e);
             }
