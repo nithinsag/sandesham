@@ -132,3 +132,8 @@ buck-out/
 
 .jest/
 .env
+
+src/seeders/assets/*
+src/seeders/posts.csv
+src/seeders/*lastrun
+src/seeders/*.txt
