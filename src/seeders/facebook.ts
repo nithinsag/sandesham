@@ -5,6 +5,7 @@ import fs from "fs";
 import axios from "axios";
 import mongoose from "mongoose";
 import { getOGData } from "../helpers/openGraphScraper";
+import { v2 as cloudinary } from "cloudinary";
 dotenv.config();
 const CP_FILE = "facebook_lastrun";
 let connection = connectToMongo();
@@ -29,19 +30,40 @@ fs.createReadStream("src/seeders/posts.csv")
       for (let row of results) {
         let posted_at = new Date(row["date"]);
         if (!lastrun || posted_at > lastrun) {
-          let ogData = await getOGData(row["url"]);
-          console.log(ogData);
-          let title = ogData.title;
-          let description = ogData.description;
+          const uniqueFilename = new Date().toISOString();
+          cloudinary.config({
+            cloud_name: process.env.CLOUDINARY_NAME,
+            api_key: process.env.CLOUDINARY_API_KEY,
+            api_secret: process.env.CLOUDINARY_API_SECRET,
+          });
+          let image = await cloudinary.uploader.upload(
+            `src/seeders/${row["asset_path"]}`,
+            {
+              public_id: `image/${uniqueFilename}`,
+              tags: `image`,
+              resource_type: "auto",
+            } // directory and tags are optional
+          );
+          console.log("file uploaded to Cloudinary");
+          if (image && process.env.CLOUDINARY_RESP_URL && process.env.CDN_URL) {
+            image.url = image.url.replace(
+              process.env.CLOUDINARY_RESP_URL,
+              process.env.CDN_URL
+            );
+            image.secure_url = image.secure_url.replace(
+              process.env.CLOUDINARY_RESP_URL,
+              process.env.CDN_URL
+            );
+          }
+          console.log(image);
+          let title = row["title"];
           try {
             let post = new Post({
               title,
-              posted_at,
-              description,
-              link: row["url"],
-              type: "link",
+              link: image.secure_url,
+              type: "image",
               author: botUser,
-              ogData,
+              mediaMetadata: image,
             });
             //console.log(post);
             //            await post.save();

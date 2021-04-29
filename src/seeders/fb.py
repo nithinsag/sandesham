@@ -13,7 +13,7 @@ prevTimestampDict = {}
 nextTimestampDict = {}
 prevTimestampDict = defaultdict(lambda: 0, prevTimestampDict)
 nextTimestampDict = defaultdict(lambda: 0, nextTimestampDict)
-row = [["data", "url", "media"]]
+row = [["url", "date", "media_url", "title", "asset_path"]]
 
 timestampfile = "fbtimestamp.txt"
 
@@ -50,6 +50,7 @@ for account in accounts:
             print(post['post_id'])
             print(post['post_url'])
             url = post['image_lowquality']
+            filename = post['post_id']+".jpg"
             if not url:
                 print('no image so checking for video')
                 url = post['video']
@@ -57,8 +58,16 @@ for account in accounts:
                 if not url:
                     print('no video too :(')
                     continue
-            
-            row.append([post['post_url'], posted_at.isoformat(), url, post["post_text"]])
+            assetPath = "assets"        
+            accountPath = assetPath+"/"+account 
+            if not os.path.exists(accountPath):
+                os.makedirs(accountPath)
+    
+            r = requests.get(url)
+            fpath = accountPath+"/"+filename
+            with open(fpath, "wb") as f:
+                f.write(r.content)
+            row.append([post['post_url'], posted_at.isoformat(), url, post["post_text"], fpath])
 
         
     except Exception as e:
