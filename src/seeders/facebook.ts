@@ -29,7 +29,10 @@ fs.createReadStream("src/seeders/posts.csv")
     try {
       for (let row of results) {
         let posted_at = new Date(row["date"]);
-        if (!lastrun || posted_at > lastrun) {
+        if (
+          (!lastrun || posted_at > lastrun) &&
+          row["asset_path"].indexOf("jpg") > 0
+        ) {
           const uniqueFilename = new Date().toISOString();
           cloudinary.config({
             cloud_name: process.env.CLOUDINARY_NAME,
@@ -66,7 +69,7 @@ fs.createReadStream("src/seeders/posts.csv")
               mediaMetadata: image,
             });
             //console.log(post);
-            //            await post.save();
+            await post.save();
           } catch (e) {
             console.log(e);
           }
