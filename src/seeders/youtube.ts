@@ -56,6 +56,8 @@ fs.createReadStream("youtube-accounts.csv")
                 link: url,
                 type: "link",
                 author: botUser,
+                upvotes: [process.env.BOT_USER_ID],
+                voteCount: 1,
                 ogData,
               });
               //console.log(post);

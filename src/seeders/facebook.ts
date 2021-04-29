@@ -67,6 +67,8 @@ fs.createReadStream("src/seeders/posts.csv")
               type: "image",
               author: botUser,
               mediaMetadata: image,
+              upvotes: [process.env.BOT_USER_ID],
+              voteCount: 1,
             });
             //console.log(post);
             await post.save();
