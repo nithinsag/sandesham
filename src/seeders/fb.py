@@ -38,7 +38,7 @@ for account in accounts:
     next_latest_timestamp = float(prevTimestampDict[account])
     
     try:
-        for post in get_posts(account, pages=10):        
+        for post in get_posts(account, pages=5):        
             posted_at = post['time']
             timestamp = time.mktime(posted_at.timetuple())
             if timestamp<=prev_latest_timestamp:

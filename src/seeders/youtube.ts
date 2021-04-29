@@ -29,7 +29,7 @@ fs.createReadStream("youtube-accounts.csv")
     try {
       for (let channel of results) {
         let channelId = Object.values(channel)[0];
-        let url = `https://www.googleapis.com/youtube/v3/search?key=${process.env.YOUTUBE_API_KEY}&channelId=${channelId}&part=snippet,id&order=date&maxResults=20`;
+        let url = `https://www.googleapis.com/youtube/v3/search?key=${process.env.YOUTUBE_API_KEY}&channelId=${channelId}&part=snippet,id&order=date&maxResults=3`;
         console.log(url);
         let response = await axios.get(url);
         let feed = response.data;
