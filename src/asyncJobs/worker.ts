@@ -16,7 +16,7 @@ export interface PushMessageJob {
 (async function () {
   connectToMongo();
   const worker = new Worker(
-    "messageSender",
+    `${process.env.DD_ENV}messageSender`,
     async (job: Job<PushMessageJob>) => {
       // Will print { foo: 'bar'} for the first job
       // and { qux: 'baz' } for the second.
