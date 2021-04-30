@@ -21,7 +21,7 @@ export function registerRoutes(router) {
 
   router.get(
     `${API_BASE_URL}avatar/:name`,
-    authenticateFromHeader,
+    //authenticateFromHeader,
     async (req, res) => {
       if (!req.params.name)
         return req.boom.badRequest("specify name to generate avatar");
