@@ -200,7 +200,7 @@ export function registerRoutes(router: Router) {
         },
         {
           $sort: {
-            creaated_at: -1,
+            created_at: -1,
           },
         },
         {
@@ -279,6 +279,5 @@ export function registerRoutes(router: Router) {
   restify.serve(router, User, {
     name: "user",
     preMiddleware: authenticateFromHeader,
-    postUpdate:-
   });
 }
