@@ -198,36 +198,9 @@ export function registerRoutes(router: Router) {
             community: { $arrayElemAt: ["$community", 0] },
           },
         },
-
-        {
-          $addFields: {
-            score: {
-              // https://medium.com/hacking-and-gonzo/how-reddit-ranking-algorithms-work-ef111e33d0d9
-              $sum: [
-                { $log: [{ $max: [{ $abs: "$voteCount" }, 1] }, 10] },
-                {
-                  $multiply: [
-                    {
-                      $divide: [
-                        { $sum: [{ $toLong: "$created_at" }, -1613054140757] }, // to make log votes and time factor in the same
-                        45000000,
-                      ],
-                    },
-                    {
-                      $divide: [
-                        "$voteCount",
-                        { $max: [{ $abs: "$voteCount" }, 1] },
-                      ],
-                    },
-                  ],
-                },
-              ],
-            },
-          },
-        },
         {
           $sort: {
-            score: -1,
+            creaated_at: -1,
           },
         },
         {
@@ -306,5 +279,6 @@ export function registerRoutes(router: Router) {
   restify.serve(router, User, {
     name: "user",
     preMiddleware: authenticateFromHeader,
+    postUpdate:-
   });
 }
