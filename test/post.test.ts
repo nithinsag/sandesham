@@ -152,7 +152,7 @@ describe("Post routes", () => {
     expect(response.body).toHaveProperty("ogData");
   });
 
-  test("signed up user1 can report ", async () => {
+  test("signed up user can report ", async () => {
     let response = await request
       .post(`/api/v1/post/${post1._id}/report`)
       .send({ reason: "explicit content" })
@@ -168,12 +168,27 @@ describe("Post routes", () => {
     expect(response.status).toBe(200);
   });
 
+  test("reported posts are hidden from feed for users", async () => {
+    let response = await request
+      .post(`/api/v1/post/${post1._id}/report`)
+      .send({ reason: "explicit content" })
+      .set("Authorization", "Bearer " + token2);
+    expect(response.status).toBe(200);
+  });
+
   test("should be able to fetch popular feed", async () => {
     let response = await request
       .get(`/api/v1/post/popular`)
       .set("Authorization", "Bearer " + token_anon);
     expect(response.status).toBe(200);
     expect(response.body.data).toHaveLength(2);
+  });
+  test("reported posts are hidden from feed for users", async () => {
+    let response = await request
+      .get(`/api/v1/post/popular`)
+      .set("Authorization", "Bearer " + token2);
+    expect(response.status).toBe(200);
+    expect(response.body.data).toHaveLength(1);
   });
 
   test("should be able to fetch popular feed with pagination for anonymous user", async () => {

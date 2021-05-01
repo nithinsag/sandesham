@@ -71,6 +71,7 @@ export function registerRoutes(router: Router) {
         matchQuery = {
           ...matchQuery,
           "author._id": { $nin: req.user.blockedUsers },
+          reports: { $not: { $elemMatch: { _id: req.user._id } } },
         };
       }
 
