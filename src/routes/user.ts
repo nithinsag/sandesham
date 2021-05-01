@@ -114,6 +114,23 @@ export function registerRoutes(router: Router) {
 
     return res.json(user);
   });
+  router.post(
+    `${userUri}/leaderboard`,
+    //authenticateFromHeader,
+    async (req, res) => {
+      //TODO: handle multidevice better
+      let users = await User.aggregate([
+        {
+          $project: { _id: 1, displayname: 1, voteKarma: 1, commentKarma: 1 },
+        },
+        {
+          $addFields: { karma: { $sum: ["$postKarma", "$commentKarma"] } },
+        },
+        { $sort: { projectField: -1 } },
+      ]);
+      return res.json(users);
+    }
+  );
 
   router.post(
     `${userUri}/blockUser/:targetUser`,
