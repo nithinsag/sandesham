@@ -12,6 +12,7 @@ let UserSchema: Schema = new Schema({
   postKarma: { type: Schema.Types.Number, default: 0 },
   commentKarma: { type: Schema.Types.Number, default: 0 },
   picture: { type: String },
+  bio: { type: String, default: "" },
   blockedUsers: [Schema.Types.ObjectId],
   created_at: { type: Date, default: Date.now },
   updated_at: { type: Date, default: Date.now },
