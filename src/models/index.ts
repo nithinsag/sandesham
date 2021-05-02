@@ -151,6 +151,14 @@ let MessageSchema: Schema = new Schema({
   created_at: { type: Date, default: Date.now },
 });
 
+let NotificationSchema: Schema = new Schema({
+  text: { type: String },
+  to: { type: Schema.Types.ObjectId, ref: "User" },
+  link: { type: String },
+  read: { type: Schema.Types.Boolean, default: false },
+  created_at: { type: Date, default: Date.now },
+});
+
 // TODO: Refactor when more users
 // let CommentVoteSchema: Schema = new Schema({
 //   comment: { type: Schema.Types.ObjectId, ref: "Comment" },
@@ -170,6 +178,7 @@ const Community = mongoose.model("Community", CommunitySchema);
 const Post = mongoose.model<IPost>("Post", PostSchema);
 const Comment = mongoose.model<IComment>("Comment", CommentSchema);
 const Message = mongoose.model("Message", MessageSchema);
+const Notification = mongoose.model("Notification", NotificationSchema);
 // const CommentVote = mongoose.model("CommentVote", CommentVoteSchema);
 // const PostVote = mongoose.model("PostVote", PostVoteSchema);
 
@@ -181,4 +190,4 @@ export async function connectToMongo() {
   });
   return connection;
 }
-export { User, Community, Post, Comment, Message };
+export { User, Community, Post, Comment, Message, Notification };
