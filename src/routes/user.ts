@@ -8,6 +8,7 @@ import { logger } from "../helpers/logger";
 import { authenticateFromHeader } from "../middlewares/authenticate";
 import Joi from "joi";
 import mongoose from "mongoose";
+import { updateUser } from "../asyncJobs";
 
 export function registerRoutes(router: Router) {
   const userUri = "/api/v1/user"; // building api url before restify to give higher priority
@@ -293,8 +294,14 @@ export function registerRoutes(router: Router) {
     }
   );
 
+  async function postUserUpdate(req, res, next) {
+    const result = req.erm.result;
+    updateUser({ updatedUser: result._id });
+  }
+
   restify.serve(router, User, {
     name: "user",
     preMiddleware: authenticateFromHeader,
+    postUpdate: postUserUpdate,
   });
 }

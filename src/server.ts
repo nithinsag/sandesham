@@ -5,7 +5,7 @@ import mongoose from "mongoose";
 import boom from "express-boom";
 import morgan from "morgan";
 import { registerRoutes } from "./routes";
-import { messageQue } from "./asyncJobs";
+import { messageQue, userUpdateQue } from "./asyncJobs";
 import { router as bullBoard } from "bull-board";
 import { connectToMongo } from "./models";
 import "./tracer";
@@ -52,6 +52,7 @@ export class Server {
   public stop() {
     this.server.close();
     messageQue.close();
+    userUpdateQue.close();
     mongoose.connection.close();
   }
   public async config() {
@@ -60,7 +61,10 @@ export class Server {
     this.app.use(boom()); // for error handling
     this.app.use(morgan("combined")); // for logs
     if (process.env.DEPLOY_ENV !== "TEST") {
-      setQueues([new BullMQAdapter(messageQue)]);
+      setQueues([
+        new BullMQAdapter(messageQue),
+        new BullMQAdapter(userUpdateQue),
+      ]);
     }
     this.app.use("/admin/que", bullBoard);
 
