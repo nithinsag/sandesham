@@ -50,6 +50,7 @@ export class Server {
 
   public stop() {
     this.server.close();
+    messageQue.close();
     mongoose.connection.close();
   }
   public async config() {

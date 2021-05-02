@@ -1,6 +1,7 @@
 import { Notification, User } from "../models";
 import { authenticateFromHeader } from "../middlewares/authenticate";
 import { logger } from "../helpers/logger";
+import Joi from "joi";
 
 export function registerRoutes(router) {
   let API_BASE_URL = "/api/v1/notification/";
@@ -10,20 +11,47 @@ export function registerRoutes(router) {
       return res.boom.unauthorized(
         "User needs to be authenticated to get messages"
       );
-    let all = false;
+    const schema = Joi.object({
+      limit: Joi.number().default(10),
+      page: Joi.number().default(1),
+      all: Joi.bool().default(false),
+    });
+    // https://mongodb-documentation.readthedocs.io/en/latest/use-cases/storing-comments.html#gsc.tab=0
+    // http://www.sitepoint.com/hierarchical-data-database/
+    // schema options
+    const options = {
+      abortEarly: false, // include all errors
+      allowUnknown: true, // ignore unknown props
+      stripUnknown: true, // remove unknown props
+    };
+
+    // validate request body against schema
+    // validate request body against schema
+
+    let { error, value } = schema.validate(
+      { ...req.query, ...req.params },
+      options
+    );
+    if (error) {
+      return res.boom.badRequest(error);
+    }
+    let { limit, all, page } = value;
     logger.info(req.query);
     if (req.query.all) {
       all = true;
     }
     let notification;
-    if (all) {
-      notification = await Notification.find({ to: req.user._id });
-    } else {
-      console.log("finding notification");
-      notification = await Notification.find({
-        to: req.user._id,
-      });
+    let query: any = { to: req.user._id };
+
+    if (!all) {
+      query = {
+        ...query,
+        read: false,
+      };
     }
+    notification = await Notification.find(query)
+      .limit(limit)
+      .skip((page - 1) * limit);
     return res.json(notification);
   });
 

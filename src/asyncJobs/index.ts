@@ -11,6 +11,4 @@ export async function addJobs(data: PushMessageJob) {
     link: data?.data?.link,
   });
   await notification.save();
-
-  console.log("pushing message to que", data);
 }
