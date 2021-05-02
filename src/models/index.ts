@@ -18,6 +18,21 @@ let UserSchema: Schema = new Schema({
   updated_at: { type: Date, default: Date.now },
   loggedout_at: { type: Date },
 });
+export interface IUser extends Document {
+  email: string;
+  name: string;
+  pushMessageToken: string;
+  displayname: string;
+  role: string;
+  postKarma: number;
+  commentKarma: number;
+  picture: string;
+  bio: string;
+  blockedUsers: string[];
+  created_at: Date;
+  updated_at: Date;
+  loggedout_at: Date;
+}
 
 let CommunitySchema: Schema = new Schema({
   name: { type: String, required: true, unique: true },
@@ -173,7 +188,7 @@ let NotificationSchema: Schema = new Schema({
 //   updated_at: { type: Date, default: Date.now },
 // });
 
-const User = mongoose.model("User", UserSchema);
+const User = mongoose.model<IUser>("User", UserSchema);
 const Community = mongoose.model("Community", CommunitySchema);
 const Post = mongoose.model<IPost>("Post", PostSchema);
 const Comment = mongoose.model<IComment>("Comment", CommentSchema);

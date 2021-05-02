@@ -43,3 +43,21 @@ export async function sendNotification(
   }
   throw Error("Device token does not exist");
 }
+
+export async function sendMulticastNotification(
+  tokens: any,
+  title: string,
+  body: string,
+  data: any
+) {
+  const payload = {
+    notification: {
+      title: title,
+      body: body,
+    },
+    tokens: tokens,
+    data: data,
+  };
+
+  return admin.messaging().sendMulticast(payload);
+}
