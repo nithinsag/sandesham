@@ -6,7 +6,7 @@ import { User, connectToMongo, Post } from "../models";
 import { sendMulticastNotification } from "../modules/firebase";
 import { addJobs } from "./index";
 import _ from "lodash";
-
+import mongoose from "mongoose";
 import cron from "node-cron";
 
 const job = cron.schedule("0 20 * * *", PromoteTopPost, { scheduled: false });
@@ -21,7 +21,7 @@ async function PromoteTopPost() {
   let promotionalMessage = await getPromotionalMessage();
 
   _.chunk(tokens, 400).forEach(async (batch) => {
-    let title = `${promotionalMessage.author.displayname} is treanding on ulkka! 🚀🚀🚀`;
+    let title = `${promotionalMessage.author.displayname} post is trending now ulkka! 🚀🚀🚀`;
     let text = promotionalMessage.title;
     let postLink = `/post/${promotionalMessage._id}`;
     sendMulticastNotification(batch, title, text, {
@@ -29,11 +29,12 @@ async function PromoteTopPost() {
       link: postLink,
     });
   });
+  await mongoose.connection.close();
 }
 
 async function getPromotionalMessage() {
   let topPosts = await Post.find({
-    createdAt: { $gt: new Date(Date.now() - 24 * 60 * 60 * 1000) },
+    created_at: { $gt: new Date(Date.now() - 24 * 60 * 60 * 1000) },
   })
     .sort({ voteCount: -1, commentCount: -1 })
     .limit(1);
