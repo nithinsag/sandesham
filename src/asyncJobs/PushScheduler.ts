@@ -1,10 +1,7 @@
 import dotenv from "dotenv";
 dotenv.config();
-import { Worker, Job } from "bullmq";
-import { send } from "process";
 import { User, connectToMongo, Post } from "../models";
 import { sendMulticastNotification } from "../modules/firebase";
-import { addJobs } from "./index";
 import _ from "lodash";
 import mongoose from "mongoose";
 import cron from "node-cron";
@@ -21,7 +18,7 @@ async function PromoteTopPost() {
   let promotionalMessage = await getPromotionalMessage();
 
   _.chunk(tokens, 400).forEach(async (batch) => {
-    let title = `${promotionalMessage.author.displayname} post is trending now ulkka! 🚀🚀🚀`;
+    let title = `${promotionalMessage.author.displayname}'s post is trending now ulkka! 🚀🚀🚀`;
     let text = promotionalMessage.title;
     let postLink = `/post/${promotionalMessage._id}`;
     sendMulticastNotification(batch, title, text, {
