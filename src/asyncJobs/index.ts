@@ -8,6 +8,7 @@ export async function addJobs(data: PushMessageJob) {
   let notification = new Notification({
     to: data.to,
     text: data.message,
+    title: data.title,
     link: data?.data?.link,
   });
   await notification.save();

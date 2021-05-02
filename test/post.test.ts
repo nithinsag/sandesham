@@ -37,8 +37,8 @@ const sample_post_link = {
 };
 
 beforeAll(async () => {
-  let mockedaddJobs = addJobs as jest.Mock;
-  mockedaddJobs.mockResolvedValue({});
+  // let mockedaddJobs = addJobs as jest.Mock;
+  // mockedaddJobs.mockResolvedValue({});
   process.env.MONGO_URI = "mongodb://localhost:27017/test";
   process.env.DEPLOY_ENV = "TEST";
   server = new Server(SERVER_PORT);
@@ -73,7 +73,7 @@ beforeEach(() => {
 });
 
 afterAll(async () => {
-  server.stop();
+  if (server) server.stop();
 });
 
 const SERVER_PORT = 1338;

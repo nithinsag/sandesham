@@ -24,6 +24,7 @@ export class Server {
 
   constructor(private port: number) {
     this.app = express();
+    this.port = port;
   }
 
   async start() {
