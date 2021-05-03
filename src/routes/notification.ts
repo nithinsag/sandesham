@@ -54,6 +54,22 @@ export function registerRoutes(router) {
       .skip((page - 1) * limit);
     return res.json(notification);
   });
+  
+  router.get(
+    `${API_BASE_URL}unReadCount`,
+    authenticateFromHeader,
+    async (req, res) => {
+      if (!req.user)
+        return res.boom.unauthorized(
+          "User needs to be authenticated to get messages"
+        );
+      let count: any = await Notification.countDocuments({
+        read: false,
+        to: req.user._id,
+      });
+      return res.json({count:count});
+    }
+  );
 
   router.post(
     `${API_BASE_URL}:id/markRead`,
