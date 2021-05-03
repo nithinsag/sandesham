@@ -301,22 +301,20 @@ export function registerRoutes(router: Router) {
     async (req, res) => {
       logger.info(`inside comment vote ${req.params.type} `);
       let type: number = parseInt(req.params.type);
-      if (req.user) {
-        const user_id = req.user._id;
-        let preUpdate = await Comment.findOne({ _id: req.params.id }).lean();
-        let status = await Comment.updateOne(
-          { _id: req.params.id },
-          getVoteQuery(user_id, type)
-        );
-        sendVoteNotificationComment(preUpdate, type, user_id);
-        let comment: any = await Comment.findOne({ _id: req.params.id }).lean();
-        comment.userVote = getUserVote(comment, req.user);
-        let scoreDelta = comment.userVote - getUserVote(preUpdate, req.user);
-        updateCommentKarma(comment.author._id, scoreDelta); // not waiting for complete
-        return res.json(comment);
-      } else {
-        res.boom.unauthorized("User needs to be authenticated to vote!");
-      }
+      if (!req.user)
+        return res.boom.unauthorized("User needs to be authenticated to vote!");
+      const user_id = req.user._id;
+      let preUpdate = await Comment.findOne({ _id: req.params.id }).lean();
+      let status = await Comment.updateOne(
+        { _id: req.params.id },
+        getVoteQuery(user_id, type)
+      );
+      sendVoteNotificationComment(preUpdate, type, user_id);
+      let comment: any = await Comment.findOne({ _id: req.params.id }).lean();
+      comment.userVote = getUserVote(comment, req.user);
+      let scoreDelta = comment.userVote - getUserVote(preUpdate, req.user);
+      updateCommentKarma(comment.author._id, scoreDelta); // not waiting for complete
+      return res.json(comment);
     }
   );
 
