@@ -294,15 +294,23 @@ export function registerRoutes(router: Router) {
     }
   );
 
-  async function postUserUpdate(req, res, next) {
+  async function postUserUpdateTrigeerUpdates(req, res, next) {
     const result = req.erm.result;
     await updateUser({ updatedUser: result._id });
     next();
   }
 
+  async function preUpdateAuthorizeUserUpdate(req, res, next) {
+    if (!req.erm.document._id.equals(req.user._id)) {
+      return res.boom.unauthorized("you can only update yourself");
+    }
+    return next();
+  }
   restify.serve(router, User, {
     name: "user",
+    findOneAndUpdate: false,
     preMiddleware: authenticateFromHeader,
-    postUpdate: postUserUpdate,
+    postUpdate: postUserUpdateTrigeerUpdates,
+    preUpdate: preUpdateAuthorizeUserUpdate,
   });
 }
