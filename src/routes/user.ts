@@ -296,7 +296,8 @@ export function registerRoutes(router: Router) {
 
   async function postUserUpdate(req, res, next) {
     const result = req.erm.result;
-    updateUser({ updatedUser: result._id });
+    await updateUser({ updatedUser: result._id });
+    next();
   }
 
   restify.serve(router, User, {
