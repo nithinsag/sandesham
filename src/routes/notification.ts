@@ -40,7 +40,6 @@ export function registerRoutes(router) {
     if (req.query.all) {
       all = true;
     }
-    let notification;
     let query: any = { to: req.user._id };
 
     if (!all) {
@@ -49,12 +48,28 @@ export function registerRoutes(router) {
         read: false,
       };
     }
-    notification = await Notification.find(query)
-      .limit(limit)
-      .skip((page - 1) * limit);
-    return res.json(notification);
+    let aggregatequery = [
+      { $match: query },
+      {
+        $sort: {
+          created_at: -1,
+        },
+      },
+      {
+        $facet: {
+          metadata: [
+            { $count: "total" },
+            { $addFields: { page: page, limit: limit } },
+          ],
+          data: [{ $skip: (page - 1) * limit }, { $limit: limit }],
+        },
+      },
+    ];
+
+    let notification = await Notification.aggregate(aggregatequery);
+    return res.json(notification[0]);
   });
-  
+
   router.get(
     `${API_BASE_URL}unReadCount`,
     authenticateFromHeader,
@@ -67,7 +82,7 @@ export function registerRoutes(router) {
         read: false,
         to: req.user._id,
       });
-      return res.json({count:count});
+      return res.json({ count: count });
     }
   );
 

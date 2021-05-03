@@ -100,9 +100,9 @@ describe("Comment tests", () => {
     response = await request
       .get(`/api/v1/notification`)
       .set("Authorization", "Bearer " + token1);
-    expect(response.body).toHaveLength(1);
+    expect(response.body.data).toHaveLength(1);
 
-    notification1 = response.body[0];
+    notification1 = response.body.data[0];
   });
   test("notifications can be marked as read", async () => {
     let response = await request
@@ -114,7 +114,7 @@ describe("Comment tests", () => {
     response = await request
       .get(`/api/v1/notification`)
       .set("Authorization", "Bearer " + token1);
-    expect(response.body).toHaveLength(0);
+    expect(response.body.data).toHaveLength(0);
   });
   test("all notifications can be marked as read", async () => {
     let response = await request
@@ -131,7 +131,7 @@ describe("Comment tests", () => {
     response = await request
       .get(`/api/v1/notification`)
       .set("Authorization", "Bearer " + token1);
-    expect(response.body).toHaveLength(2);
+    expect(response.body.data).toHaveLength(2);
     response = await request
       .post(`/api/v1/notification/markAllRead`)
       .send({ post: post1._id, ...test_comment })
@@ -140,12 +140,12 @@ describe("Comment tests", () => {
     response = await request
       .get(`/api/v1/notification`)
       .set("Authorization", "Bearer " + token1);
-    expect(response.body).toHaveLength(0);
+    expect(response.body.data).toHaveLength(0);
   });
   test("all read notifications can also be fetched", async () => {
     let response = await request
       .get(`/api/v1/notification?all=true&limit=10&page=1`)
       .set("Authorization", "Bearer " + token1);
-    expect(response.body).toHaveLength(3);
+    expect(response.body.data).toHaveLength(3);
   });
 });
