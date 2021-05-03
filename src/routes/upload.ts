@@ -23,13 +23,18 @@ export function registerRoutes(router: Router) {
         api_key: process.env.CLOUDINARY_API_KEY,
         api_secret: process.env.CLOUDINARY_API_SECRET,
       });
+
+      let cloudinaryOptions: any = {
+        public_id: `${req.params.type}/${uniqueFilename}`,
+        tags: `${req.params.type}`,
+        resource_type: "auto",
+      }; // directory and tags are optional
+
+      if (req.params.type == "video")
+        cloudinaryOptions = { ...cloudinaryOptions, width: 480, crop: "limit" };
       cloudinary.uploader.upload(
         path,
-        {
-          public_id: `${req.params.type}/${uniqueFilename}`,
-          tags: `${req.params.type}`,
-          resource_type: "auto",
-        }, // directory and tags are optional
+        cloudinaryOptions,
         function (err, image) {
           if (err) return res.send(err);
           console.log("file uploaded to Cloudinary");
