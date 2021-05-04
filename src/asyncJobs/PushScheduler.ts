@@ -8,13 +8,12 @@ import cron from "node-cron";
 
 const job1 = cron.schedule("0 20 * * *", getSchedulerFunction(4), {
   scheduled: false,
+  timezone: "Asia/Kolkata",
 });
 const job2 = cron.schedule("0 14 * * *", getSchedulerFunction(8), {
   scheduled: false,
+  timezone: "Asia/Kolkata",
 });
-
-job1.start();
-job2.start();
 
 function getSchedulerFunction(period) {
   return function () {
@@ -22,21 +21,20 @@ function getSchedulerFunction(period) {
   };
 }
 async function PromoteTopPost(period) {
-  connectToMongo();
   let users = await User.find();
   let tokens = users.map((user) => user.pushMessageToken).filter(Boolean);
   let promotionalMessage = await getPromotionalMessage(period);
-
-  _.chunk(tokens, 400).forEach(async (batch) => {
-    let title = `${promotionalMessage.author.displayname}'s post is trending now on Ulkka! 🚀🚀🚀`;
-    let text = promotionalMessage.title;
-    let postLink = `/post/${promotionalMessage._id}`;
-    await sendMulticastNotification(batch, title, text, {
-      type: "post",
-      link: postLink,
+  if (promotionalMessage) {
+    _.chunk(tokens, 400).forEach(async (batch) => {
+      let title = `${promotionalMessage.author.displayname}'s post is trending now on Ulkka! 🚀🚀🚀`;
+      let text = promotionalMessage.title;
+      let postLink = `/post/${promotionalMessage._id}`;
+      await sendMulticastNotification(batch, title, text, {
+        type: "post",
+        link: postLink,
+      });
     });
-  });
-  await mongoose.connection.close();
+  }
 }
 
 async function getPromotionalMessage(period) {
@@ -48,3 +46,8 @@ async function getPromotionalMessage(period) {
   console.log(topPosts);
   return topPosts[0];
 }
+(async () => {
+  await connectToMongo();
+  job1.start();
+  job2.start();
+})();
