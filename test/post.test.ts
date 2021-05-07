@@ -94,6 +94,22 @@ describe("Post routes", () => {
       .set("Authorization", "Bearer " + token_anon);
     expect(response.status).toBe(200);
   });
+  test("gets the new feed  endpoint", async () => {
+    let response = await request.get("/api/v1/post/new");
+    expect(response.status).toBe(401);
+    response = await request
+      .get("/api/v1/post/new")
+      .set("Authorization", "Bearer " + token_anon);
+    expect(response.status).toBe(200);
+  });
+  test("gets the top feed  endpoint", async () => {
+    let response = await request.get("/api/v1/post/top");
+    expect(response.status).toBe(401);
+    response = await request
+      .get("/api/v1/post/top")
+      .set("Authorization", "Bearer " + token_anon);
+    expect(response.status).toBe(200);
+  });
 
   test("can't create new post without authentication", async () => {
     const response = await request.post("/api/v1/post");

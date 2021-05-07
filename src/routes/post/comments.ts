@@ -1,6 +1,6 @@
 import Joi from "joi";
 import { logger } from "../../helpers/logger";
-import { getUserVote, redactDeletedComment } from "./helpers";
+import { getUserVote, redactDeletedComment } from "./helpers/helpers";
 import { groupBy, sortBy } from "lodash";
 import { Post, Comment, User, IComment } from "../../models";
 /**

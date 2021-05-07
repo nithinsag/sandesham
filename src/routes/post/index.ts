@@ -8,6 +8,7 @@ import { logger } from "../../helpers/logger";
 import { Types as MongooseTypes } from "mongoose";
 import { groupBy, includes, isArray, map, sortBy } from "lodash";
 import { commentTreeBuilder } from "./comments";
+import { getFeedHandler } from "./helpers/feed";
 
 import {
   preCreateAutoUpvote,
@@ -29,7 +30,7 @@ import {
   doSoftDelete,
   redactDeletedPost,
   authorizeWrites,
-} from "./helpers";
+} from "./helpers/helpers";
 import Joi from "joi";
 
 export function registerRoutes(router: Router) {
@@ -39,163 +40,10 @@ export function registerRoutes(router: Router) {
   router.get(
     `/api/v1/post/popular`,
     authenticateFromHeader,
-    async (req, res) => {
-      // TODO: find a way no not hardcode the route
-      logger.info(`inside popular feed route`);
-      let limit = 10;
-      let page = 1; // first page as default
-
-      let matchQuery: any = { isDeleted: false };
-      if (req.query && req.query.page) {
-        page = parseInt((req.query as any).page);
-      }
-      if (req.query && req.query.tag) {
-        let tag = (req.query as any).tag;
-        matchQuery = {
-          ...matchQuery,
-          tags: tag,
-        };
-      }
-      if (req.query && req.query.limit) {
-        if (parseInt((req.query as any).limit) < 100) {
-          limit = parseInt((req.query as any).limit);
-        }
-      }
-
-      let user_id = "";
-      let blockedUsers: any[] = [];
-      logger.info("checking if authorised " + req.is_anonymous);
-      if (!req.is_anonymous) {
-        user_id = req.user._id;
-        blockedUsers = [...req.user.blockedUsers];
-        matchQuery = {
-          ...matchQuery,
-          "author._id": { $nin: req.user.blockedUsers },
-          reports: { $not: { $elemMatch: { _id: req.user._id } } },
-        };
-      }
-
-      let aggregateQuery = [
-        { $match: matchQuery },
-        {
-          $lookup: {
-            from: "communities",
-            localField: "community",
-            foreignField: "_id",
-            as: "community",
-          },
-        },
-        {
-          $set: {
-            community: { $arrayElemAt: ["$community", 0] },
-          },
-        },
-
-        {
-          $addFields: {
-            score: {
-              // https://medium.com/hacking-and-gonzo/how-reddit-ranking-algorithms-work-ef111e33d0d9
-              $sum: [
-                { $log: [{ $max: [{ $abs: "$voteCount" }, 1] }, 10] },
-                {
-                  $multiply: [
-                    {
-                      $divide: [
-                        { $sum: [{ $toLong: "$created_at" }, -1613054140757] }, // to make log votes and time factor in the same
-                        4500000,
-                      ],
-                    },
-                    {
-                      $divide: [
-                        "$voteCount",
-                        { $max: [{ $abs: "$voteCount" }, 1] },
-                      ],
-                    },
-                  ],
-                },
-              ],
-            },
-            userVote: {
-              $subtract: [
-                {
-                  $size: {
-                    $filter: {
-                      input: "$upvotes",
-                      as: "upvote",
-                      cond: { $eq: ["$$upvote", user_id] },
-                    },
-                  },
-                },
-                {
-                  $size: {
-                    $filter: {
-                      input: "$downvotes",
-                      as: "downvote",
-                      cond: { $eq: ["$$downvote", user_id] },
-                    },
-                  },
-                },
-              ],
-            },
-          },
-        },
-        {
-          $sort: {
-            score: -1,
-          },
-        },
-        {
-          $facet: {
-            metadata: [
-              { $count: "total" },
-              { $addFields: { page: page, limit: limit } },
-            ],
-            data: [{ $skip: (page - 1) * limit }, { $limit: limit }],
-          },
-        },
-      ];
-
-      let posts = await Post.aggregate(aggregateQuery);
-      if (req.user) {
-        posts[0].data.forEach((post) => {
-          post.userVote = getUserVote(post, req.user);
-          post = redactDeletedPost(post);
-        });
-      }
-      res.json(posts[0]);
-      // res.json(posts);
-    }
+    getFeedHandler("popular")
   );
-
-  /**
-   * Route for getting newest posts
-   */
-  router.get(`/api/v1/post/new-deprecated`, async (req, res) => {
-    // TODO: find a way no not hardcode the route
-    // TODO: add uservote and redact deleted
-    logger.info(`inside popular feed route`);
-    const limit = 10;
-    let page = 1; // first page as default
-
-    if (req.query && req.query.page) {
-      page = parseInt((req.query as any).page);
-    }
-    let posts = await Post.aggregate([
-      // {$match:{whatever is needed here}}
-      {
-        $sort: {
-          created_at: 1,
-        },
-      },
-      {
-        $facet: {
-          metadata: [{ $count: "total" }, { $addFields: { page: page } }],
-          data: [{ $skip: (page - 1) * limit }, { $limit: limit }],
-        },
-      },
-    ]);
-    res.json(posts);
-  });
+  router.get(`/api/v1/post/new`, authenticateFromHeader, getFeedHandler("new"));
+  router.get(`/api/v1/post/top`, authenticateFromHeader, getFeedHandler("top"));
 
   const postUri = restify.serve(router, Post, {
     name: "post",
