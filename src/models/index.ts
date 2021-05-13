@@ -36,7 +36,7 @@ export interface IUser extends Document {
 
 let CommunitySchema: Schema = new Schema({
   name: { type: String, required: true, unique: true },
-  slug: { type: String, unique: true },
+  slug: { type: String, unique: true, slug: "name" },
   description: { type: String, required: true },
   visibility: {
     type: String,
