@@ -36,6 +36,7 @@ export interface IUser extends Document {
 
 let CommunitySchema: Schema = new Schema({
   name: { type: String, required: true, unique: true },
+  slug: { type: String, unique: true },
   description: { type: String, required: true },
   visibility: {
     type: String,
@@ -43,11 +44,10 @@ let CommunitySchema: Schema = new Schema({
     default: "public",
   },
   status: { type: String, enum: ["enabled", "disabled"], default: "enabled" },
+  type: { type: String },
   rules: { type: String },
   icon: { type: String },
-  moderators: [
-    { _id: { type: Schema.Types.ObjectId, ref: "User" }, displayname: String },
-  ],
+  banner: { type: String },
   owner: {
     _id: { type: Schema.Types.ObjectId, ref: "User" },
     displayname: String,
@@ -97,17 +97,50 @@ let PostSchema: Schema = new Schema({
   updated_at: { type: Date, default: Date.now },
 });
 
-let CommunityMembership: Schema = new Schema({
-  user: {
-    name: String,
-    user: {
+let CommunityMembershipSchema: Schema = new Schema({
+  member: {
+    displayname: String,
+    _id: {
       type: Schema.Types.ObjectId,
       ref: "User",
     },
   },
   community: {
     name: String,
-    community: { type: Schema.Types.ObjectId, ref: "Community" },
+    _id: { type: Schema.Types.ObjectId, ref: "Community" },
+  },
+
+  created_at: { type: Date, default: Date.now },
+  updated_at: { type: Date, default: Date.now },
+});
+
+let CommunityModeratorSchema: Schema = new Schema({
+  moderator: {
+    displayname: String,
+    _id: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+    },
+  },
+  community: {
+    name: String,
+    _id: { type: Schema.Types.ObjectId, ref: "Community" },
+  },
+
+  created_at: { type: Date, default: Date.now },
+  updated_at: { type: Date, default: Date.now },
+});
+let CommunityBannedUsersSchema: Schema = new Schema({
+  bannedUser: {
+    displayname: String,
+    _id: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+    },
+  },
+  community: {
+    name: String,
+    _id: { type: Schema.Types.ObjectId, ref: "Community" },
   },
 
   created_at: { type: Date, default: Date.now },
@@ -189,11 +222,23 @@ let NotificationSchema: Schema = new Schema({
 // });
 
 const User = mongoose.model<IUser>("User", UserSchema);
-const Community = mongoose.model("Community", CommunitySchema);
 const Post = mongoose.model<IPost>("Post", PostSchema);
 const Comment = mongoose.model<IComment>("Comment", CommentSchema);
 const Message = mongoose.model("Message", MessageSchema);
 const Notification = mongoose.model("Notification", NotificationSchema);
+const Community = mongoose.model("Community", CommunitySchema);
+const CommunityMembership = mongoose.model(
+  "CommunityMembership",
+  CommunityMembershipSchema
+);
+const CommunityModerator = mongoose.model(
+  "CommunityModerator",
+  CommunityModeratorSchema
+);
+const CommunityBannedUsers = mongoose.model(
+  "CommunityModerator",
+  CommunityBannedUsersSchema
+);
 // const CommentVote = mongoose.model("CommentVote", CommentVoteSchema);
 // const PostVote = mongoose.model("PostVote", PostVoteSchema);
 
@@ -205,4 +250,14 @@ export async function connectToMongo() {
   });
   return connection;
 }
-export { User, Community, Post, Comment, Message, Notification };
+export {
+  User,
+  Community,
+  Post,
+  Comment,
+  Message,
+  Notification,
+  CommunityMembership,
+  CommunityModerator,
+  CommunityBannedUsers,
+};
