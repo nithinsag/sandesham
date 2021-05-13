@@ -114,7 +114,7 @@ let CommunityMembershipSchema: Schema = new Schema({
   updated_at: { type: Date, default: Date.now },
 });
 
-let CommunityModeratorSchema: Schema = new Schema({
+let CommunityModsSchema: Schema = new Schema({
   moderator: {
     displayname: String,
     _id: {
@@ -130,7 +130,7 @@ let CommunityModeratorSchema: Schema = new Schema({
   created_at: { type: Date, default: Date.now },
   updated_at: { type: Date, default: Date.now },
 });
-let CommunityBannedUsersSchema: Schema = new Schema({
+let CommunityBansSchema: Schema = new Schema({
   bannedUser: {
     displayname: String,
     _id: {
@@ -231,14 +231,8 @@ const CommunityMembership = mongoose.model(
   "CommunityMembership",
   CommunityMembershipSchema
 );
-const CommunityModerator = mongoose.model(
-  "CommunityModerator",
-  CommunityModeratorSchema
-);
-const CommunityBannedUsers = mongoose.model(
-  "CommunityModerator",
-  CommunityBannedUsersSchema
-);
+const CommunityMods = mongoose.model("CommunityMods", CommunityModsSchema);
+const CommunityBans = mongoose.model("CommunityBans", CommunityBansSchema);
 // const CommentVote = mongoose.model("CommentVote", CommentVoteSchema);
 // const PostVote = mongoose.model("PostVote", PostVoteSchema);
 
@@ -258,6 +252,6 @@ export {
   Message,
   Notification,
   CommunityMembership,
-  CommunityModerator,
-  CommunityBannedUsers,
+  CommunityMods,
+  CommunityBans,
 };
