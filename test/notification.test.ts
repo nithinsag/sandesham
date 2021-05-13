@@ -30,6 +30,7 @@ const test_comment = {
 beforeAll(async () => {
   process.env.MONGO_URI = "mongodb://localhost:27017/test";
   process.env.DEPLOY_ENV = "TEST";
+  process.env.DEFAULT_COMMUNITY_ID = "609cb219daba822b65cbbd29";
   server = new Server(SERVER_PORT);
 
   try {

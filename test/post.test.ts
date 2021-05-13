@@ -81,6 +81,7 @@ const SERVER_PORT = 1338;
 describe("Post routes", () => {
   let post1, post2;
   process.env.DEPLOY_ENV = "TEST";
+  process.env.DEFAULT_COMMUNITY_ID = "609cb219daba822b65cbbd29";
 
   test("gets the root endpoint", async () => {
     const response = await request.get("/");

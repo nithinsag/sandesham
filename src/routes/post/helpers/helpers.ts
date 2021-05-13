@@ -22,6 +22,20 @@ export async function preCreateAddOGData(req, res, next) {
   } else next();
 }
 
+export async function preCreateDefaultCommunity(req, res, next) {
+  if (!req.body?.community?._id) {
+    // returning early as we don't want to block return
+    // TODO: use a queue for this
+    req.body.community = {
+      name: "general",
+      _id: process.env.DEFAULT_COMMUNITY_ID,
+    };
+    logger.info(req.body);
+    return next();
+  }
+  return next();
+}
+
 export function postReadPost(req, res, next) {
   let result = req.erm.result;
   if (!isArray(result)) {

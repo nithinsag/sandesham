@@ -80,7 +80,10 @@ let PostSchema: Schema = new Schema({
   ogData: Schema.Types.Mixed,
   mediaMetadata: Schema.Types.Mixed,
   type: { type: String, enum: ["link", "text", "image", "video", "gif"] },
-  community: { type: Schema.Types.ObjectId, ref: "Community" },
+  community: {
+    _id: { type: Schema.Types.ObjectId, ref: "Community", required: true },
+    name: String,
+  },
   author: {
     _id: { type: Schema.Types.ObjectId, ref: "User" },
     displayname: String,
@@ -242,6 +245,7 @@ export async function connectToMongo() {
     useNewUrlParser: true,
     autoIndex: true,
   });
+
   return connection;
 }
 export {
