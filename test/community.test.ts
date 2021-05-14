@@ -146,43 +146,97 @@ describe("Community routes", () => {
     expect(response.body).toBe(false);
   });
 
-  test("anonymous user can fetch community feed ", async () => {
-    let response = await request
-      .get("/api/v1/post")
-      .set("Authorization", "Bearer " + token_anon);
-    expect(response.status).toBe(200);
-    post1 = response.body[0];
-
-    response = await request
-      .get(`/api/v1/post/${post1._id}`)
-      .set("Authorization", "Bearer " + token_anon);
-    expect(response.status).toBe(200);
-  });
-
   test("authorized user can fetch community feed ", async () => {
     let response = await request
-      .get("/api/v1/post")
-      .set("Authorization", "Bearer " + token2);
-    expect(response.status).toBe(200);
-    post1 = response.body[0];
+      .post("/api/v1/post")
+      .send({
+        ...sample_post_1,
+        community: { _id: community1._id, name: community1.name },
+      })
+      .set("Authorization", "Bearer " + token1);
+    expect(response.status).toBe(201);
+    post1 = response.body;
+    expect(post1.voteCount).toBe(1);
 
     response = await request
-      .get(`/api/v1/post/${post1._id}`)
+      .post("/api/v1/post")
+      .send({
+        ...sample_post_2,
+        community: { _id: community2._id, name: community2.name },
+      })
+      .set("Authorization", "Bearer " + token2);
+    expect(response.status).toBe(201);
+    post2 = response.body;
+
+    response = await request
+      .get(`/api/v1/feed/community/${community1._id}`)
       .set("Authorization", "Bearer " + token2);
     expect(response.status).toBe(200);
+    let posts = response.body.data;
+
+    expect(posts).toHaveLength(1);
+    response = await request
+      .get(`/api/v1/feed/community/${community2._id}`)
+      .set("Authorization", "Bearer " + token2);
+    expect(response.status).toBe(200);
+    posts = response.body.data;
+    expect(posts).toHaveLength(1);
   });
 
-  test("post can be removed from feed by mod", async () => {
+  test("authorized user can fetch home feed ", async () => {
     let response = await request
-      .delete(`/api/v1/post/${post2._id}`)
-      .set("Authorization", "Bearer " + token1);
-    expect(response.status).toBe(401);
-  });
+      .get(`/api/v1/feed/home`)
+      .set("Authorization", "Bearer " + token2);
+    expect(response.status).toBe(200);
+    let posts = response.body.data;
 
-  test("post cannot be removed from feed by non mod", async () => {
+    expect(posts).toHaveLength(0);
+
+    response = await request
+      .post(`/api/v1/community/${community2._id}/join`)
+      .set("Authorization", "Bearer " + token2);
+    expect(response.status).toBe(200);
+
+    response = await request
+      .get(`/api/v1/feed/home`)
+      .set("Authorization", "Bearer " + token2);
+    expect(response.status).toBe(200);
+    posts = response.body.data;
+    expect(posts).toHaveLength(1);
+
+    response = await request
+      .post(`/api/v1/community/${community1._id}/join`)
+      .set("Authorization", "Bearer " + token2);
+    expect(response.status).toBe(200);
+
+    response = await request
+      .get(`/api/v1/feed/home`)
+      .set("Authorization", "Bearer " + token2);
+    expect(response.status).toBe(200);
+    posts = response.body.data;
+    expect(posts).toHaveLength(2);
+  });
+  test("home feed can be sorted by top/new/hot", async () => {
     let response = await request
-      .delete(`/api/v1/post/${post2._id}`)
-      .set("Authorization", "Bearer " + token1);
-    expect(response.status).toBe(401);
+      .get(`/api/v1/feed/home?sort=hot`)
+      .set("Authorization", "Bearer " + token2);
+    expect(response.status).toBe(200);
+    let posts = response.body.data;
+
+    expect(posts).toHaveLength(2);
+    response = await request
+      .get(`/api/v1/feed/home?sort=top`)
+      .set("Authorization", "Bearer " + token2);
+    expect(response.status).toBe(200);
+    posts = response.body.data;
+
+    expect(posts).toHaveLength(2);
+    response = await request
+      .get(`/api/v1/feed/home?sort=new`)
+      .set("Authorization", "Bearer " + token2);
+    expect(response.status).toBe(200);
+    posts = response.body.data;
+
+    expect(posts).toHaveLength(2);
   });
 });

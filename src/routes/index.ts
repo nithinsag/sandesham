@@ -12,6 +12,7 @@ import { registerRoutes as registerNotificationRoutes } from "./notification";
 import { registerRoutes as registerUtilityRoutes } from "./utilities";
 import { registerRoutes as registerCommunityRoutes } from "./community";
 import { registerRoutes as registerTagRoutes } from "./tags";
+import { registerRoutes as registerFeedRoutes } from "./feed";
 
 export function registerRoutes(router: Router) {
   registerUploadRoutes(router);
@@ -22,4 +23,5 @@ export function registerRoutes(router: Router) {
   registerTagRoutes(router);
   registerNotificationRoutes(router);
   registerCommunityRoutes(router);
+  registerFeedRoutes(router);
 }

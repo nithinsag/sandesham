@@ -1,9 +1,9 @@
 import { groupBy, includes, isArray, map, sortBy } from "lodash";
-import { logger } from "../../../helpers/logger";
-import { Post, Comment, User } from "../../../models";
-import { getOGData } from "../../../helpers/openGraphScraper";
-import { addJobs } from "../../../asyncJobs";
-import { PushMessageJob } from "../../../asyncJobs/worker";
+import { logger } from "../../helpers/logger";
+import { Post, Comment, User } from "../../models";
+import { getOGData } from "../../helpers/openGraphScraper";
+import { addJobs } from "../../asyncJobs";
+import { PushMessageJob } from "../../asyncJobs/worker";
 export async function preCreateAddOGData(req, res, next) {
   if (req.body.type === "link") {
     // returning early as we don't want to block return

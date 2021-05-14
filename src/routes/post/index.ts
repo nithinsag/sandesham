@@ -8,7 +8,7 @@ import { logger } from "../../helpers/logger";
 import { Types as MongooseTypes } from "mongoose";
 import { groupBy, includes, isArray, map, sortBy } from "lodash";
 import { commentTreeBuilder } from "./comments";
-import { getFeedHandler } from "./helpers/feed";
+import { getFeedHandler } from "../helpers/feed";
 
 import {
   preCreateAutoUpvote,
@@ -31,7 +31,7 @@ import {
   doSoftDelete,
   redactDeletedPost,
   authorizeWrites,
-} from "./helpers/helpers";
+} from "../helpers/helpers";
 import Joi from "joi";
 
 export function registerRoutes(router: Router) {

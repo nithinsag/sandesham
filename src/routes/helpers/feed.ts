@@ -1,5 +1,5 @@
-import { logger } from "../../../helpers/logger";
-import { Post, Comment, User } from "../../../models";
+import { logger } from "../../helpers/logger";
+import { Post, Comment, User } from "../../models";
 import { getUserVote, redactDeletedPost } from "./helpers";
 
 export const getFeedHandler = function (type) {
