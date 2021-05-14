@@ -27,11 +27,36 @@ export function registerRoutes(router) {
       let community = await Community.findOne({ _id: req.params.id });
       if (!community) return res.boom.badRequest("invalid community id");
       let communityMembership = new CommunityMembership({
-        community: { name: community.modelName, _id: community.id },
+        community: { name: community.name, _id: community.id },
         member: { displayname: req.user.displayname, _id: req.user._id },
       });
       await communityMembership.save();
       res.json(communityMembership);
+    }
+  );
+  router.post(
+    `${API_BASE_URL}:id/leave`,
+    authenticateFromHeader,
+    async (req, res) => {
+      if (!req.user)
+        return res.boom.badRequest(
+          "user needs to be authenticated to join community"
+        );
+
+      try {
+        let communityMembership = await CommunityMembership.findOneAndDelete({
+          "community._id": req.params.id,
+          "member._id": req.user._id,
+        });
+        if (communityMembership) {
+          return res.json(true);
+        } else {
+          return res.json(false);
+        }
+      } catch (e) {
+        logger.debug(e);
+        return res.json(false);
+      }
     }
   );
   const communityUri = restify.serve(router, Community, {

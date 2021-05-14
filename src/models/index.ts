@@ -34,6 +34,10 @@ export interface IUser extends Document {
   loggedout_at: Date;
 }
 
+export interface ICommunity extends Document {
+  name: string;
+  _id: string;
+}
 let CommunitySchema: Schema = new Schema({
   name: { type: String, required: true, unique: true },
   slug: { type: String, unique: true, slug: "name" },
@@ -99,6 +103,10 @@ let PostSchema: Schema = new Schema({
   created_at: { type: Date, default: Date.now },
   updated_at: { type: Date, default: Date.now },
 });
+export interface ICommunityMembership extends Document {
+  member: { _id: string; displayname: string };
+  community: { _id: string; name: string };
+}
 
 let CommunityMembershipSchema: Schema = new Schema({
   member: {
@@ -229,8 +237,8 @@ const Post = mongoose.model<IPost>("Post", PostSchema);
 const Comment = mongoose.model<IComment>("Comment", CommentSchema);
 const Message = mongoose.model("Message", MessageSchema);
 const Notification = mongoose.model("Notification", NotificationSchema);
-const Community = mongoose.model("Community", CommunitySchema);
-const CommunityMembership = mongoose.model(
+const Community = mongoose.model<ICommunity>("Community", CommunitySchema);
+const CommunityMembership = mongoose.model<ICommunityMembership>(
   "CommunityMembership",
   CommunityMembershipSchema
 );
