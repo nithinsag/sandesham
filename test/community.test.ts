@@ -239,4 +239,13 @@ describe("Community routes", () => {
 
     expect(posts).toHaveLength(2);
   });
+  test("all posts can be fetched in all feed", async () => {
+    let response = await request
+      .get(`/api/v1/feed/all?sort=hot`)
+      .set("Authorization", "Bearer " + token1);
+    expect(response.status).toBe(200);
+    let posts = response.body.data;
+
+    expect(posts).toHaveLength(2);
+  });
 });
