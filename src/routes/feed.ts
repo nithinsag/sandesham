@@ -86,13 +86,15 @@ export const getFeedHandler = function (type) {
         };
       }
       if (type == "home") {
-        let communities = (
-          await CommunityMembership.find({ "member._id": req.user._id })
-        ).map((communityMembership) => communityMembership.community._id);
-        matchQuery = {
-          ...matchQuery,
-          "community._id": { $in: communities },
-        };
+        if (req.user) {
+          let communities = (
+            await CommunityMembership.find({ "member._id": req.user._id })
+          ).map((communityMembership) => communityMembership.community._id);
+          matchQuery = {
+            ...matchQuery,
+            "community._id": { $in: communities },
+          };
+        }
       }
       if (type == "community") {
         matchQuery = {
