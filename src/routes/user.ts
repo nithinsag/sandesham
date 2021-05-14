@@ -204,19 +204,6 @@ export function registerRoutes(router: Router) {
       let aggregateQuery = [
         { $match: matchQuery },
         {
-          $lookup: {
-            from: "communities",
-            localField: "community",
-            foreignField: "_id",
-            as: "community",
-          },
-        },
-        {
-          $set: {
-            community: { $arrayElemAt: ["$community", 0] },
-          },
-        },
-        {
           $sort: {
             created_at: -1,
           },
