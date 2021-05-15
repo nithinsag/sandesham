@@ -2,7 +2,15 @@ import dotenv from "dotenv";
 dotenv.config();
 import { Worker, Job } from "bullmq";
 import { send } from "process";
-import { User, connectToMongo, Post, Comment } from "../models";
+import {
+  User,
+  connectToMongo,
+  Post,
+  Comment,
+  CommunityMembership,
+  CommunityMods,
+  CommunityBans,
+} from "../models";
 import { sendNotification } from "../modules/firebase";
 
 export interface userUpdate {
@@ -33,6 +41,24 @@ export interface userUpdate {
           { "author._id": updatedUser._id },
           {
             author: {
+              _id: updatedUser?._id,
+              displayname: updatedUser?.displayname,
+            },
+          }
+        );
+        await CommunityMembership.updateMany(
+          { "member._id": updatedUser._id },
+          {
+            member: {
+              _id: updatedUser?._id,
+              displayname: updatedUser?.displayname,
+            },
+          }
+        );
+        await CommunityMods.updateMany(
+          { "moderator._id": updatedUser._id },
+          {
+            moderator: {
               _id: updatedUser?._id,
               displayname: updatedUser?.displayname,
             },
