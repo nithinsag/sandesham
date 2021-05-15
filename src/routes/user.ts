@@ -281,7 +281,7 @@ export function registerRoutes(router: Router) {
     }
   );
 
-  async function postUserUpdateTrigeerUpdates(req, res, next) {
+  async function postUserUpdateTrigerUpdates(req, res, next) {
     const result = req.erm.result;
     await updateUser({ updatedUser: result._id });
     next();
@@ -297,7 +297,7 @@ export function registerRoutes(router: Router) {
     name: "user",
     findOneAndUpdate: false,
     preMiddleware: authenticateFromHeader,
-    postUpdate: postUserUpdateTrigeerUpdates,
+    postUpdate: postUserUpdateTrigerUpdates,
     preUpdate: preUpdateAuthorizeUserUpdate,
   });
 }
