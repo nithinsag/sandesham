@@ -59,9 +59,19 @@ export function registerRoutes(router) {
       }
     }
   );
+  async function postCreateAutoAddModerator(req, res, next) {
+    let community = req.erm.result;
+    let modship = new CommunityMods({
+      community: { _id: community._id, name: community.name },
+      moderator: { _id: req.user._id, displayname: req.user.displayname },
+    });
+    await modship.save();
+    next();
+  }
   const communityUri = restify.serve(router, Community, {
     name: "community",
     preMiddleware: authenticateFromHeader,
     preCreate: addCreatedBy,
+    postCreate: postCreateAutoAddModerator,
   });
 }

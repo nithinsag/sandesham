@@ -248,4 +248,20 @@ describe("Community routes", () => {
 
     expect(posts).toHaveLength(2);
   });
+  test("feed can be fetched by anonymous user", async () => {
+    let response = await request
+      .get(`/api/v1/feed/all?sort=hot`)
+      .set("Authorization", "Bearer " + token_anon);
+    expect(response.status).toBe(200);
+    let posts = response.body.data;
+
+    expect(posts).toHaveLength(2);
+    response = await request
+      .get(`/api/v1/feed/home?sort=hot`)
+      .set("Authorization", "Bearer " + token_anon);
+    expect(response.status).toBe(200);
+    posts = response.body.data;
+
+    expect(posts).toHaveLength(2);
+  });
 });
