@@ -1,5 +1,12 @@
 import * as admin from "firebase-admin";
-import { User, Post, Comment, Community } from "../models";
+import {
+  User,
+  Post,
+  Comment,
+  Community,
+  CommunityMembership,
+  CommunityMods,
+} from "../models";
 import { validateToken } from "../modules/firebase";
 import { extractTokenFromAuthHeader } from "../helpers/roueUtils";
 import { Router } from "express";
@@ -8,7 +15,7 @@ import { logger } from "../helpers/logger";
 import { authenticateFromHeader } from "../middlewares/authenticate";
 import Joi from "joi";
 import mongoose from "mongoose";
-import { updateUser } from "../asyncJobs";
+import { updateUser, userUpdateQue } from "../asyncJobs";
 
 export function registerRoutes(router: Router) {
   const userUri = "/api/v1/user"; // building api url before restify to give higher priority
@@ -293,11 +300,30 @@ export function registerRoutes(router: Router) {
     }
     return next();
   }
+
+  async function postReadPopulateCommunityData(req, res, next) {
+    const result = req.erm.result; // unfiltered document, object or array
+    const statusCode = req.erm.statusCode; // 200
+    if (!Array.isArray(result)) {
+      let communities = (
+        await CommunityMembership.find({ "member._id": result._id })
+      ).map((o) => o.community);
+      let adminCommunities = (
+        await CommunityMods.find({ "moderator._id": result._id })
+      ).map((o) => o.community);
+
+      result.joinedCommunities = communities;
+      result.adminCommunities = adminCommunities;
+    }
+    next();
+  }
+
   restify.serve(router, User, {
     name: "user",
     findOneAndUpdate: false,
     preMiddleware: authenticateFromHeader,
     postUpdate: postUserUpdateTrigerUpdates,
     preUpdate: preUpdateAuthorizeUserUpdate,
+    postRead: postReadPopulateCommunityData,
   });
 }

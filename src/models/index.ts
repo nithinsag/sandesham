@@ -125,6 +125,10 @@ let CommunityMembershipSchema: Schema = new Schema({
   updated_at: { type: Date, default: Date.now },
 });
 
+export interface ICommunityMods extends Document {
+  member: { _id: string; displayname: string };
+  community: { _id: string; name: string };
+}
 let CommunityModsSchema: Schema = new Schema({
   moderator: {
     displayname: String,
@@ -242,7 +246,10 @@ const CommunityMembership = mongoose.model<ICommunityMembership>(
   "CommunityMembership",
   CommunityMembershipSchema
 );
-const CommunityMods = mongoose.model("CommunityMods", CommunityModsSchema);
+const CommunityMods = mongoose.model<ICommunityMods>(
+  "CommunityMods",
+  CommunityModsSchema
+);
 const CommunityBans = mongoose.model("CommunityBans", CommunityBansSchema);
 // const CommentVote = mongoose.model("CommentVote", CommentVoteSchema);
 // const PostVote = mongoose.model("PostVote", PostVoteSchema);
