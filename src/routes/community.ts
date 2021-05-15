@@ -68,10 +68,27 @@ export function registerRoutes(router) {
     await modship.save();
     next();
   }
+  async function postReadPopulateCommunityData(req, res, next) {
+    const result = req.erm.result; // unfiltered document, object or array
+    const statusCode = req.erm.statusCode; // 200
+    if (!Array.isArray(result)) {
+      let memberCount = await CommunityMembership.countDocuments({
+        "community._id": result._id,
+      });
+
+      let adminCommunities = (
+        await CommunityMods.find({ "community._id": result._id })
+      ).map((o) => o.moderator);
+      result.memberCount = memberCount;
+      result.admins = adminCommunities;
+    }
+    next();
+  }
   const communityUri = restify.serve(router, Community, {
     name: "community",
     preMiddleware: authenticateFromHeader,
     preCreate: addCreatedBy,
     postCreate: postCreateAutoAddModerator,
+    postRead: postReadPopulateCommunityData,
   });
 }

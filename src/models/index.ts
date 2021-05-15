@@ -126,7 +126,7 @@ let CommunityMembershipSchema: Schema = new Schema({
 });
 
 export interface ICommunityMods extends Document {
-  member: { _id: string; displayname: string };
+  moderator: { _id: string; displayname: string };
   community: { _id: string; name: string };
 }
 let CommunityModsSchema: Schema = new Schema({
