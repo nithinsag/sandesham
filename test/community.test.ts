@@ -26,7 +26,6 @@ const sample_post_1 = {
   title: "Test Post 1",
   type: "text",
   tags: ["cricket"],
-  slug: "sadaasdfvsadf",
   description: "discription for first post",
 };
 
@@ -180,6 +179,39 @@ describe("Community routes", () => {
       .set("Authorization", "Bearer " + token2);
     expect(response.status).toBe(200);
     posts = response.body.data;
+    expect(posts).toHaveLength(1);
+  });
+
+  test("admins can remove posts from community", async () => {
+    let response = await request
+      .post("/api/v1/post")
+      .send({
+        ...sample_post_2,
+        community: { _id: community2._id, name: community2.name },
+      })
+      .set("Authorization", "Bearer " + token1);
+    let post3 = response.body;
+    expect(response.status).toBe(201);
+
+    response = await request
+      .get(`/api/v1/feed/community/${community2._id}`)
+      .set("Authorization", "Bearer " + token2);
+    expect(response.status).toBe(200);
+    let posts = response.body.data;
+
+    expect(posts).toHaveLength(2);
+
+    response = await request
+      .post(`/api/v1/post/${post3._id}/remove`)
+      .set("Authorization", "Bearer " + token2);
+    expect(response.status).toBe(200);
+
+    response = await request
+      .get(`/api/v1/feed/community/${community2._id}`)
+      .set("Authorization", "Bearer " + token2);
+    expect(response.status).toBe(200);
+    posts = response.body.data;
+
     expect(posts).toHaveLength(1);
   });
 
