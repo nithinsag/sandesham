@@ -132,7 +132,7 @@ let CommunityMembershipSchema: Schema = new Schema({
 
 CommunityMembershipSchema.index(
   { "member._id": 1, "community._id": 1 },
-  { unique: true }
+  { unique: true, required: true }
 );
 
 // https://www.xuchao.org/docs/mongodb/use-cases/storing-comments.html#gsc.tab=0

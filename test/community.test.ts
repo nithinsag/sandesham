@@ -203,6 +203,11 @@ describe("Community routes", () => {
 
     response = await request
       .post(`/api/v1/post/${post3._id}/remove`)
+      .set("Authorization", "Bearer " + token1);
+    expect(response.status).toBe(401);
+
+    response = await request
+      .post(`/api/v1/post/${post3._id}/remove`)
       .set("Authorization", "Bearer " + token2);
     expect(response.status).toBe(200);
 
@@ -222,7 +227,7 @@ describe("Community routes", () => {
     expect(response.status).toBe(200);
     let posts = response.body.data;
 
-    expect(posts).toHaveLength(0);
+    expect(posts).toHaveLength(1);
 
     response = await request
       .post(`/api/v1/community/${community2._id}/join`)

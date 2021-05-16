@@ -20,7 +20,7 @@ export function registerRoutes(router) {
       let community = await Community.findOne({ _id: req.params.id });
       if (!community) return res.boom.badRequest("invalid community id");
       let communityMembership = new CommunityMembership({
-        community: { name: community.name, _id: community.id },
+        community: { name: community.name, _id: community._id },
         member: { displayname: req.user.displayname, _id: req.user._id },
       });
       try {
@@ -60,7 +60,7 @@ export function registerRoutes(router) {
     let community = req.erm.result;
     let membership = new CommunityMembership({
       community: { _id: community._id, name: community.name },
-      moderator: { _id: req.user._id, displayname: req.user.displayname },
+      member: { _id: req.user._id, displayname: req.user.displayname },
       isAdmin: true,
     });
     await membership.save();

@@ -139,7 +139,7 @@ export function registerRoutes(router: Router) {
       const reason = req.body.reason;
       let post = await Post.findOne({ _id: req.params.id });
       if (!post) return res.boom.badRequest("bad post Id");
-      let communityAdmins = CommunityMembership.findOne({
+      let communityAdmins = await CommunityMembership.findOne({
         "community._id": post?.community?._id,
         "member._id": user_id,
         isAdmin: true,
