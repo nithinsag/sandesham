@@ -190,6 +190,7 @@ export function registerRoutes(router: Router) {
       let matchQuery: any = {
         "author._id": mongoose.Types.ObjectId(req.params.user_id),
         isDeleted: false,
+        isRemoved: false,
       };
 
       if (req.query && req.query.page) {
@@ -288,7 +289,7 @@ export function registerRoutes(router: Router) {
     }
   );
 
-  async function postUserUpdateTrigerUpdates(req, res, next) {
+  async function postUserUpdateTriggerUpdates(req, res, next) {
     const result = req.erm.result;
     await updateUser({ updatedUser: result._id });
     next();
@@ -322,7 +323,7 @@ export function registerRoutes(router: Router) {
     name: "user",
     findOneAndUpdate: false,
     preMiddleware: authenticateFromHeader,
-    postUpdate: postUserUpdateTrigerUpdates,
+    postUpdate: postUserUpdateTriggerUpdates,
     preUpdate: preUpdateAuthorizeUserUpdate,
     postRead: postReadPopulateCommunityData,
   });

@@ -2,7 +2,7 @@ import { Router } from "express";
 import { addCreatedBy } from "../../middlewares/mongoose/author";
 
 import { authenticateFromHeader } from "../../middlewares/authenticate";
-import { Post, Comment, User } from "../../models";
+import { Post, Comment, User, CommunityMods } from "../../models";
 import restify from "express-restify-mongoose";
 import { logger } from "../../helpers/logger";
 import { Types as MongooseTypes } from "mongoose";
@@ -126,6 +126,31 @@ export function registerRoutes(router: Router) {
     }
   );
 
+  router.post(
+    `${postUri}/:id/remove`,
+    authenticateFromHeader,
+    async (req, res) => {
+      if (!req.user) {
+        return res.boom.unauthorized(
+          "User needs to be authenticated to remove!"
+        );
+      }
+      const user_id = req.user._id;
+      const reason = req.body.reason;
+      let post = await Post.findOne({ _id: req.params.id });
+      if (!post) return res.boom.badRequest("bad post Id");
+      let communityMods = CommunityMods.findOne({
+        "community._id": post?.community?._id,
+        "moderator._id": user_id,
+      });
+      if (!communityMods)
+        return res.boom.unauthorized("You are not authorized to remove");
+
+      post.isRemoved = true;
+      post = await post.save();
+      return res.json(post);
+    }
+  );
   router.get(
     `${postUri}/:post_id/comments`,
     authenticateFromHeader,

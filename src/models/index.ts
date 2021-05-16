@@ -65,7 +65,7 @@ export interface IPost extends Document {
   slug?: string;
   description?: string;
   author: { _id: string; displayname: string };
-  community?: string;
+  community?: { _id: string; name: string };
   voteCount?: number;
   commentCount?: number;
   upvotes?: string[];
@@ -73,6 +73,7 @@ export interface IPost extends Document {
   userVote?: number;
   created_at: Date;
   isDeleted: boolean;
+  isRemoved: boolean;
   updated_at: Date;
 }
 let PostSchema: Schema = new Schema({
@@ -100,6 +101,7 @@ let PostSchema: Schema = new Schema({
   downvotes: [Schema.Types.ObjectId],
   reports: [{ _id: Schema.Types.ObjectId, reason: String }],
   isDeleted: { type: Boolean, default: false },
+  isRemoved: { type: Boolean, default: false },
   created_at: { type: Date, default: Date.now },
   updated_at: { type: Date, default: Date.now },
 });

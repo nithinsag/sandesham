@@ -299,7 +299,7 @@ export async function authorizeWrites(req, res, next) {
 }
 
 export function redactDeletedPost(post) {
-  if (post.isDeleted) {
+  if (post.isDeleted || post.isRemoved) {
     post.title = "Deleted";
     post.description = "Deleted";
     post.link = "Deleted";
@@ -310,7 +310,7 @@ export function redactDeletedPost(post) {
 }
 
 export function redactDeletedComment(comment) {
-  if (comment.isDeleted) {
+  if (comment.isDeleted || comment.isRemoved) {
     comment.text = "Deleted";
     comment.author._id = null;
     comment.author.displayName = "deleted";

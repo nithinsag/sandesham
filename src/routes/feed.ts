@@ -68,7 +68,7 @@ export const getFeedHandler = function (type) {
     }
 
     async function getMatchQuery(type) {
-      let matchQuery: any = { isDeleted: false };
+      let matchQuery: any = { isDeleted: false, isRemoved: false };
       if (req.query && req.query.tag) {
         let tag = (req.query as any).tag;
         matchQuery = {
