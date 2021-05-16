@@ -130,6 +130,11 @@ let CommunityMembershipSchema: Schema = new Schema({
   updated_at: { type: Date, default: Date.now },
 });
 
+CommunityMembershipSchema.index(
+  { "member._id": 1, "community._id": 1 },
+  { unique: true }
+);
+
 // https://www.xuchao.org/docs/mongodb/use-cases/storing-comments.html#gsc.tab=0
 let CommentSchema: Schema = new Schema({
   text: { type: String },
