@@ -4,7 +4,7 @@ jest.setTimeout(30000);
 import { Server } from "../src/server";
 let supertest = require("supertest");
 let server;
-let user;
+let user1, user2;
 let request;
 let token1 = "testuser1@gmail.com";
 let token2 = "testuser2@gmail.com";
@@ -39,17 +39,19 @@ beforeAll(async () => {
     console.log(e);
   }
 
-  user = (
+  user1 = (
     await request
       .post("/api/v1/user/signup")
       .set("Authorization", "Bearer " + token1)
       .send({ displayname: "testuser 1" })
   ).body;
 
-  await request
-    .post("/api/v1/user/signup")
-    .set("Authorization", "Bearer " + token2)
-    .send({ displayname: "testuser 2" });
+  user2 = (
+    await request
+      .post("/api/v1/user/signup")
+      .set("Authorization", "Bearer " + token2)
+      .send({ displayname: "testuser 2" })
+  ).body;
 });
 
 beforeEach(() => {
@@ -88,7 +90,7 @@ describe("User routes", () => {
       .set("Authorization", "Bearer " + token2);
     expect(response.status).toBe(201);
     post2 = response.body;
-    let user_id = user._id;
+    let user_id = user1._id;
     response = await request
       .get(`/api/v1/user/${user_id}/posts`)
       .set("Authorization", "Bearer " + token_anon);
@@ -96,7 +98,7 @@ describe("User routes", () => {
     expect(response.body.data).toHaveLength(1);
   });
   test("fetch user comments", async () => {
-    let user_id = user._id;
+    let user_id = user1._id;
     const response = await request
       .get(`/api/v1/user/${user_id}/comments`)
       .set("Authorization", "Bearer " + token_anon);
@@ -109,18 +111,36 @@ describe("User routes", () => {
     expect(response.status).toBe(200);
   });
   test("block user", async () => {
-    let userId = "6083c17be1f5f01ffcc43f4a";
+    let userId = user2._id;
     const response = await request
       .post(`/api/v1/user/blockUser/${userId}`)
       .set("Authorization", "Bearer " + token1);
     expect(response.status).toBe(200);
   });
   test("unblock user", async () => {
-    let userId = "6083c17be1f5f01ffcc43f4a";
+    let userId = user2._id;
     const response = await request
       .post(`/api/v1/user/unblockUser/${userId}`)
       .set("Authorization", "Bearer " + token1);
     expect(response.status).toBe(200);
     expect(response.body).toBe(true);
+  });
+  test("fetch user", async () => {
+    let userId = user2._id;
+    let response = await request
+      .get(`/api/v1/user/${userId}`)
+      .set("Authorization", "Bearer " + token1);
+    expect(response.status).toBe(200);
+    expect(response.body._id).toBe(userId);
+    response = await request
+      .get(`/api/v1/user/${userId}`)
+      .set("Authorization", "Bearer " + token2);
+    expect(response.status).toBe(200);
+    expect(response.body._id).toBe(userId);
+    response = await request
+      .get(`/api/v1/user/${userId}`)
+      .set("Authorization", "Bearer " + token_anon);
+    expect(response.status).toBe(200);
+    expect(response.body._id).toBe(userId);
   });
 });

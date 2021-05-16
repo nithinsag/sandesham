@@ -264,4 +264,17 @@ describe("Community routes", () => {
 
     expect(posts).toHaveLength(2);
   });
+  test("communities can be fetched", async () => {
+    let response = await request
+      .get(`/api/v1/community/${community1._id}`)
+      .set("Authorization", "Bearer " + token_anon);
+    expect(response.status).toBe(200);
+    expect(response.body._id).toBe(community1._id);
+
+    response = await request
+      .get(`/api/v1/community/${community1._id}`)
+      .set("Authorization", "Bearer " + token1);
+    expect(response.status).toBe(200);
+    expect(response.body._id).toBe(community1._id);
+  });
 });
