@@ -1,11 +1,4 @@
-import {
-  Post,
-  Community,
-  CommunityMembership,
-  CommunityBans,
-  CommunityMods,
-  User,
-} from "../models";
+import { Post, Community, CommunityMembership, User } from "../models";
 import { Router } from "express";
 import { addCreatedBy } from "../middlewares/mongoose/author";
 import { Comment } from "../models";

@@ -1,12 +1,5 @@
 import * as admin from "firebase-admin";
-import {
-  User,
-  Post,
-  Comment,
-  Community,
-  CommunityMembership,
-  CommunityMods,
-} from "../models";
+import { User, Post, Comment, Community, CommunityMembership } from "../models";
 import { validateToken } from "../modules/firebase";
 import { extractTokenFromAuthHeader } from "../helpers/roueUtils";
 import { Router } from "express";

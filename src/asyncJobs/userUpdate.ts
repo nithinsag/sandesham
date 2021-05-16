@@ -8,8 +8,6 @@ import {
   Post,
   Comment,
   CommunityMembership,
-  CommunityMods,
-  CommunityBans,
 } from "../models";
 import { sendNotification } from "../modules/firebase";
 
@@ -50,15 +48,6 @@ export interface userUpdate {
           { "member._id": updatedUser._id },
           {
             member: {
-              _id: updatedUser?._id,
-              displayname: updatedUser?.displayname,
-            },
-          }
-        );
-        await CommunityMods.updateMany(
-          { "moderator._id": updatedUser._id },
-          {
-            moderator: {
               _id: updatedUser?._id,
               displayname: updatedUser?.displayname,
             },
