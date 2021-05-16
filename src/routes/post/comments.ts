@@ -74,6 +74,7 @@ export async function commentTreeBuilder(req, res) {
     baseQuery = { ...baseQuery, "author._id": { $nin: req.user.blockedUsers } }; // filter comments from blocked users
   }
 
+  baseQuery = { ...baseQuery, isDeleted: false, isRemoved: false };
   let comments: IComment[] = await Comment.find(baseQuery)
     .limit(limit)
     .skip((page - 1) * limit)
@@ -92,6 +93,7 @@ export async function commentTreeBuilder(req, res) {
       "author._id": { $nin: req.user.blockedUsers },
     }; // filter comments from blocked users
   }
+  childrenQuery = { ...childrenQuery, isDeleted: false, isRemoved: false };
   let children: IComment[] = await Comment.find(childrenQuery)
     .sort("voteCount")
     .lean();

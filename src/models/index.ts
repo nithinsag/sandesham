@@ -153,6 +153,7 @@ let CommentSchema: Schema = new Schema({
   children: [Schema.Types.ObjectId],
   ancestors: [Schema.Types.ObjectId],
   isDeleted: { type: Boolean, default: false },
+  isRemoved: { type: Boolean, default: false },
   created_at: { type: Date, default: Date.now },
   updated_at: { type: Date, default: Date.now },
 });
