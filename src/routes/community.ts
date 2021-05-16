@@ -23,7 +23,11 @@ export function registerRoutes(router) {
         community: { name: community.name, _id: community.id },
         member: { displayname: req.user.displayname, _id: req.user._id },
       });
-      await communityMembership.save();
+      try {
+        await communityMembership.save();
+      } catch (e) {
+        res.boom.badData("cannot create membership", e);
+      }
       res.json(communityMembership);
     }
   );
