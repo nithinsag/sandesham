@@ -2,7 +2,7 @@ import { Router } from "express";
 import { addCreatedBy } from "../../middlewares/mongoose/author";
 
 import { authenticateFromHeader } from "../../middlewares/authenticate";
-import { Post, Comment, User, CommunityMods } from "../../models";
+import { Post, Comment, User, CommunityMembership } from "../../models";
 import restify from "express-restify-mongoose";
 import { logger } from "../../helpers/logger";
 import { Types as MongooseTypes } from "mongoose";
@@ -139,11 +139,12 @@ export function registerRoutes(router: Router) {
       const reason = req.body.reason;
       let post = await Post.findOne({ _id: req.params.id });
       if (!post) return res.boom.badRequest("bad post Id");
-      let communityMods = CommunityMods.findOne({
+      let communityAdmins = CommunityMembership.findOne({
         "community._id": post?.community?._id,
-        "moderator._id": user_id,
+        "member._id": user_id,
+        isAdmin: true,
       });
-      if (!communityMods)
+      if (!communityAdmins)
         return res.boom.unauthorized("You are not authorized to remove");
 
       post.isRemoved = true;

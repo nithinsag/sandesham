@@ -59,13 +59,14 @@ export function registerRoutes(router) {
       }
     }
   );
-  async function postCreateAutoAddModerator(req, res, next) {
+  async function postCreateAutoAdmin(req, res, next) {
     let community = req.erm.result;
-    let modship = new CommunityMods({
+    let membership = new CommunityMembership({
       community: { _id: community._id, name: community.name },
       moderator: { _id: req.user._id, displayname: req.user.displayname },
+      isAdmin: true,
     });
-    await modship.save();
+    await membership.save();
     next();
   }
   async function postReadPopulateCommunityData(req, res, next) {
@@ -77,8 +78,11 @@ export function registerRoutes(router) {
       });
 
       let adminCommunities = (
-        await CommunityMods.find({ "community._id": result._id })
-      ).map((o) => o.moderator);
+        await CommunityMembership.find({
+          "community._id": result._id,
+          isAdmin: true,
+        })
+      ).map((o) => o.member);
       result.memberCount = memberCount;
       result.admins = adminCommunities;
     }
@@ -88,7 +92,7 @@ export function registerRoutes(router) {
     name: "community",
     preMiddleware: authenticateFromHeader,
     preCreate: addCreatedBy,
-    postCreate: postCreateAutoAddModerator,
+    postCreate: postCreateAutoAdmin,
     postRead: postReadPopulateCommunityData,
   });
 }

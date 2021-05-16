@@ -310,7 +310,10 @@ export function registerRoutes(router: Router) {
         await CommunityMembership.find({ "member._id": result._id })
       ).map((o) => o.community);
       let adminCommunities = (
-        await CommunityMods.find({ "moderator._id": result._id })
+        await CommunityMembership.find({
+          "member._id": result._id,
+          isAdmin: true,
+        })
       ).map((o) => o.community);
 
       result.joinedCommunities = communities;

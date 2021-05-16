@@ -108,6 +108,8 @@ let PostSchema: Schema = new Schema({
 export interface ICommunityMembership extends Document {
   member: { _id: string; displayname: string };
   community: { _id: string; name: string };
+  isAdmin: boolean;
+  isBanned: boolean;
 }
 
 let CommunityMembershipSchema: Schema = new Schema({
@@ -122,44 +124,8 @@ let CommunityMembershipSchema: Schema = new Schema({
     name: String,
     _id: { type: Schema.Types.ObjectId, ref: "Community" },
   },
-
-  created_at: { type: Date, default: Date.now },
-  updated_at: { type: Date, default: Date.now },
-});
-
-export interface ICommunityMods extends Document {
-  moderator: { _id: string; displayname: string };
-  community: { _id: string; name: string };
-}
-let CommunityModsSchema: Schema = new Schema({
-  moderator: {
-    displayname: String,
-    _id: {
-      type: Schema.Types.ObjectId,
-      ref: "User",
-    },
-  },
-  community: {
-    name: String,
-    _id: { type: Schema.Types.ObjectId, ref: "Community" },
-  },
-
-  created_at: { type: Date, default: Date.now },
-  updated_at: { type: Date, default: Date.now },
-});
-let CommunityBansSchema: Schema = new Schema({
-  bannedUser: {
-    displayname: String,
-    _id: {
-      type: Schema.Types.ObjectId,
-      ref: "User",
-    },
-  },
-  community: {
-    name: String,
-    _id: { type: Schema.Types.ObjectId, ref: "Community" },
-  },
-
+  isAdmin: { type: Schema.Types.Boolean, default: false },
+  isBanned: { type: Schema.Types.Boolean, default: false },
   created_at: { type: Date, default: Date.now },
   updated_at: { type: Date, default: Date.now },
 });
@@ -248,11 +214,6 @@ const CommunityMembership = mongoose.model<ICommunityMembership>(
   "CommunityMembership",
   CommunityMembershipSchema
 );
-const CommunityMods = mongoose.model<ICommunityMods>(
-  "CommunityMods",
-  CommunityModsSchema
-);
-const CommunityBans = mongoose.model("CommunityBans", CommunityBansSchema);
 // const CommentVote = mongoose.model("CommentVote", CommentVoteSchema);
 // const PostVote = mongoose.model("PostVote", PostVoteSchema);
 
@@ -273,6 +234,4 @@ export {
   Message,
   Notification,
   CommunityMembership,
-  CommunityMods,
-  CommunityBans,
 };
