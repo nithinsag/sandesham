@@ -97,8 +97,10 @@ export const getFeedHandler = function (type) {
       }
 
       if (type == "user") {
+        let { isRemoved, ...rest } = matchQuery;
+
         matchQuery = {
-          ...matchQuery,
+          ...rest,
           "author._id": mongoose.Types.ObjectId(req.params.id),
         };
       }
