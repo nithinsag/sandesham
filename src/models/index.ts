@@ -59,7 +59,7 @@ let CommunitySchema: Schema = new Schema({
   created_at: { type: Date, default: Date.now },
   updated_at: { type: Date, default: Date.now },
 });
-
+CommunitySchema.index({ name: "text", description: "text" });
 export interface IPost extends Document {
   title: string;
   slug?: string;
@@ -105,6 +105,8 @@ let PostSchema: Schema = new Schema({
   created_at: { type: Date, default: Date.now },
   updated_at: { type: Date, default: Date.now },
 });
+
+PostSchema.index({ title: "text", description: "text" });
 export interface ICommunityMembership extends Document {
   member: { _id: string; displayname: string };
   community: { _id: string; name: string };
