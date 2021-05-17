@@ -174,6 +174,33 @@ export function registerRoutes(router: Router) {
     postRead: postReadComment,
     preUpdate: authorizeWrites,
   });
+  router.post(
+    `${commentUri}/:id/remove`,
+    authenticateFromHeader,
+    async (req, res) => {
+      if (!req.user) {
+        return res.boom.unauthorized(
+          "User needs to be authenticated to remove!"
+        );
+      }
+      const user_id = req.user._id;
+      const reason = req.body.reason;
+      let comment = await Comment.findOne({ _id: req.params.id });
+      if (!comment) return res.boom.badRequest("bad comment Id");
+      let post = await Post.findOne({ _id: comment.post });
+      let communityAdmins = await CommunityMembership.findOne({
+        "community._id": post?.community?._id,
+        "member._id": user_id,
+        isAdmin: true,
+      });
+      if (!communityAdmins)
+        return res.boom.unauthorized("You are not authorized to remove");
+
+      comment.isRemoved = true;
+      comment = await comment.save();
+      return res.json(comment);
+    }
+  );
 
   router.post(
     `${commentUri}/:id/vote/:type`,

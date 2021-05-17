@@ -161,6 +161,7 @@ let CommentSchema: Schema = new Schema({
 export interface IComment extends Document {
   text: string;
   parent: string;
+  post: string;
   author: { _id: string; displayname: string };
   slug: string;
   voteCount: number;
@@ -170,6 +171,7 @@ export interface IComment extends Document {
   children: string[];
   userVote: number;
   isDeleted: boolean;
+  isRemoved: boolean;
   created_at: Date;
   updated_at: Date;
 }
