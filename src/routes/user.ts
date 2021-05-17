@@ -300,16 +300,19 @@ export function registerRoutes(router: Router) {
     if (!Array.isArray(result)) {
       let communities = (
         await CommunityMembership.find({ "member._id": result._id })
-      ).map((o) => o.community);
+      ).map((o) => o.community._id);
       let adminCommunities = (
         await CommunityMembership.find({
           "member._id": result._id,
           isAdmin: true,
         })
-      ).map((o) => o.community);
-
-      result.joinedCommunities = communities;
-      result.adminCommunities = adminCommunities;
+      ).map((o) => o.community._id.toString());
+      let communityFull = await Community.find({ _id: { $in: communities } });
+      result.joinedCommunities = communityFull;
+      result.adminCommunities = communityFull.filter((c) =>
+        adminCommunities.includes(c._id.toString())
+      );
+      // result.adminCommunities = adminCommunities;
     }
     next();
   }
