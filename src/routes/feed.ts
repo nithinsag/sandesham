@@ -201,12 +201,6 @@ export const getFeedHandler = function (type) {
       },
     ];
     let posts = await Post.aggregate(aggregateQuery);
-    if (req.user) {
-      posts[0].data.forEach((post) => {
-        post.userVote = getUserVote(post, req.user);
-        post = redactDeletedPost(post);
-      });
-    }
     res.json(posts[0]);
     // res.json(posts);
   };
