@@ -1,7 +1,7 @@
 import dotenv from "dotenv";
 dotenv.config();
 import { Server } from "../src/server";
-import { addJobs } from "../src/asyncJobs";
+import { sendNotification } from "../src/asyncJobs";
 
 let supertest = require("supertest");
 let request;

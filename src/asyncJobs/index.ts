@@ -5,7 +5,7 @@ import { userUpdate } from "./userUpdate";
 export const messageQue = new Queue(`${process.env.DD_ENV}messageSender`);
 export const userUpdateQue = new Queue(`${process.env.DD_ENV}userUpdate`);
 
-export async function addJobs(data: PushMessageJob) {
+export async function sendNotification(data: PushMessageJob) {
   let notification = new Notification({
     to: data.to,
     text: data.message,

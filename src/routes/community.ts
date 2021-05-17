@@ -1,11 +1,13 @@
-import { Post, Community, CommunityMembership } from "../models";
+import { Post, Community, CommunityMembership, User } from "../models";
 import { Router } from "express";
 import { addCreatedBy } from "../middlewares/mongoose/author";
 
 import restify from "express-restify-mongoose";
 import { authenticateFromHeader } from "../middlewares/authenticate";
 import { logger } from "../helpers/logger";
-
+import { sendNotification } from "../asyncJobs";
+import { PushMessageJob } from "../asyncJobs/worker";
+import { cpuUsage } from "node:process";
 export function registerRoutes(router) {
   let API_BASE_URL = "/api/v1/community/";
 
@@ -54,6 +56,36 @@ export function registerRoutes(router) {
         logger.debug(e);
         return res.json(false);
       }
+    }
+  );
+  router.post(
+    `${API_BASE_URL}:id/invite/:user`,
+    authenticateFromHeader,
+    async (req, res) => {
+      if (!req.user)
+        return res.boom.badRequest("user needs to be authenticated");
+      let community = await Community.findOne({ _id: req.params.id });
+      if (!community) return res.boom.badRequest("invalid community id");
+      let membership = await CommunityMembership.findOne({
+        "member._id": req.user._id,
+      });
+      if (!membership)
+        return res.boom.badRequest(
+          "user need to be member of a community to invite another user"
+        );
+
+      let to = await User.findById(req.params.user);
+      if (!to) return res.boom.badRequest("invalid user to invite");
+
+      let notification: PushMessageJob;
+      notification = {
+        to: to._id,
+        title: `You recieved an invite!`,
+        message: `${req.user.displayName} invited you to join ${community.name}`,
+        data: { type: "community", link: `/community/${community._id}` },
+      };
+      await sendNotification(notification);
+      return res.json(true);
     }
   );
   async function postCreateAutoAdmin(req, res, next) {

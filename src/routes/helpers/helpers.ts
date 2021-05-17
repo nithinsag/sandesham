@@ -2,7 +2,7 @@ import { groupBy, includes, isArray, map, sortBy } from "lodash";
 import { logger } from "../../helpers/logger";
 import { Post, Comment, User } from "../../models";
 import { getOGData } from "../../helpers/openGraphScraper";
-import { addJobs } from "../../asyncJobs";
+import { sendNotification } from "../../asyncJobs";
 import { PushMessageJob } from "../../asyncJobs/worker";
 export async function preCreateAddOGData(req, res, next) {
   if (req.body.type === "link") {
@@ -242,7 +242,7 @@ export async function sendCommentNotification(req, res, next) {
     }`,
     data: { type: "comment", link: postLink },
   };
-  await addJobs(notification);
+  await sendNotification(notification);
   next();
 }
 
@@ -262,7 +262,7 @@ export async function sendVoteNotificationPost(doc, vote, from) {
     } on your post`,
     data: { type: "vote", link: postLink },
   };
-  await addJobs(notification);
+  await sendNotification(notification);
 }
 export async function sendVoteNotificationComment(doc, vote, from) {
   // don't notify cancellations
@@ -279,7 +279,7 @@ export async function sendVoteNotificationComment(doc, vote, from) {
     } on your comment`,
     data: { type: "vote", link: postLink },
   };
-  await addJobs(notification);
+  await sendNotification(notification);
 }
 
 export async function doSoftDelete(req, res, next) {
