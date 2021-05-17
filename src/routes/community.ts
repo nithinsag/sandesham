@@ -33,6 +33,45 @@ export function registerRoutes(router) {
       res.json(communityMembership);
     }
   );
+  router.get(`${API_BASE_URL}top`, authenticateFromHeader, async (req, res) => {
+    if (!req.user)
+      return res.boom.badRequest(
+        "user needs to be authenticated to join community"
+      );
+    let memberCommunities = (
+      await CommunityMembership.find({ "member._id": req.user._id })
+    ).map((m) => m.community._id);
+    let page = req.query.page || 1;
+    let limit = parseInt(req.query.limit) || 10;
+
+    let aggregateQuery = [
+      { $match: { _id: { $nin: memberCommunities } } },
+      {
+        $lookup: {
+          from: "communitymemberships",
+          localField: "_id",
+          foreignField: "community._id",
+          as: "memberCount",
+        },
+      },
+      { $addFields: { memberCount: { $size: "$memberCount" } } },
+      { $sort: { memberCount: -1 } },
+      {
+        $facet: {
+          metadata: [
+            { $count: "total" },
+            { $addFields: { page: page, limit: limit } },
+          ],
+          data: [{ $skip: (page - 1) * limit }, { $limit: limit }],
+        },
+      },
+    ];
+
+    console.log(JSON.stringify(aggregateQuery));
+    let communities = await Community.aggregate(aggregateQuery);
+    return res.json(communities);
+  });
+
   router.post(
     `${API_BASE_URL}:id/leave`,
     authenticateFromHeader,
