@@ -49,7 +49,7 @@ let CommunitySchema: Schema = new Schema({
   },
   status: { type: String, enum: ["enabled", "disabled"], default: "enabled" },
   type: { type: String },
-  rules: [{ type: String }],
+  rules: { type: String },
   icon: { type: String },
   banner: { type: String },
   owner: {
