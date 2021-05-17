@@ -19,7 +19,7 @@ export const getFeedHandler = function (type) {
     } else if (type == "popular") {
       return {
         $sort: {
-          voteCount: -1,
+          score: -1,
         },
       };
     }

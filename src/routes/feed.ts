@@ -54,7 +54,7 @@ export const getFeedHandler = function (type) {
       } else if (sort == "hot") {
         return {
           $sort: {
-            voteCount: -1,
+            score: -1,
           },
         };
       }
@@ -97,7 +97,7 @@ export const getFeedHandler = function (type) {
       }
 
       if (type == "user") {
-        let { isRemoved, ...rest } = matchQuery;
+        let { isRemoved, ...rest } = matchQuery; // we are removing the isRemoved filter from user routes
 
         matchQuery = {
           ...rest,
