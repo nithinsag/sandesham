@@ -126,6 +126,20 @@ export const getFeedHandler = function (type) {
     let aggregateQuery = [
       { $match: await getMatchQuery(type) },
       {
+        $lookup: {
+          from: "communities",
+          localField: "community._id",
+          foreignField: "_id",
+          as: "community",
+        },
+      },
+      {
+        $unwind: {
+          path: "$community",
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+      {
         $addFields: {
           score: {
             // https://medium.com/hacking-and-gonzo/how-reddit-ranking-algorithms-work-ef111e33d0d9
