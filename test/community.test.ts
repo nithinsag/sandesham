@@ -314,4 +314,19 @@ describe("Community routes", () => {
     expect(response.status).toBe(200);
     expect(response.body._id).toBe(community1._id);
   });
+  test("top communities can be fetched", async () => {
+    let response = await request
+      .get(`/api/v1/community/top`)
+      .set("Authorization", "Bearer " + token_anon);
+    expect(response.status).toBe(400);
+
+    response = await request
+      .get(`/api/v1/community/top`)
+      .set("Authorization", "Bearer " + token1);
+    expect(response.status).toBe(200);
+    response = await request
+      .get(`/api/v1/community/top`)
+      .set("Authorization", "Bearer " + token2);
+    expect(response.status).toBe(200);
+  });
 });
