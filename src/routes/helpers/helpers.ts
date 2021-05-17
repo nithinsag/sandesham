@@ -299,7 +299,7 @@ export async function authorizeWrites(req, res, next) {
 }
 
 export function redactDeletedPost(post) {
-  if (post.isDeleted || post.isRemoved) {
+  if (post.isDeleted) {
     post.title = "Deleted";
     post.description = "Deleted";
     post.link = "Deleted";
