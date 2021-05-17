@@ -68,7 +68,7 @@ export function registerRoutes(router) {
     ];
 
     let communities = await Community.aggregate(aggregateQuery);
-    return res.json(communities);
+    return res.json(communities[0]);
   });
 
   router.post(
