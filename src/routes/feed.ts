@@ -108,7 +108,7 @@ export const getFeedHandler = function (type) {
     }
 
     function getAdditionalFieldsQuery(type, sort, user_id) {
-      return {
+      let query: any | undefined = {
         $addFields: {
           ...(sort == "hot" && {
             score: {
@@ -160,6 +160,9 @@ export const getFeedHandler = function (type) {
           }),
         },
       };
+      if (Object.entries(query.$addFields).length === 0) query = undefined;
+      console.log(type, sort, user_id, query);
+      return query;
     }
     let user_id = "";
     if (!req.is_anonymous) user_id = req.user._id;
@@ -182,7 +185,7 @@ export const getFeedHandler = function (type) {
 
     let sort = "hot";
     if (["top", "hot", "new"].includes(req.query.sort)) sort = req.query.sort;
-    let aggregateQuery = [
+    let aggregateQuery: any = [
       { $match: await getMatchQuery(type) },
       {
         $lookup: {
@@ -198,18 +201,25 @@ export const getFeedHandler = function (type) {
           preserveNullAndEmptyArrays: true,
         },
       },
-      getAdditionalFieldsQuery(type, sort, user_id),
-      getSortQuery(type, sort),
-      {
-        $facet: {
-          metadata: [
-            { $count: "total" },
-            { $addFields: { page: page, limit: limit } },
-          ],
-          data: [{ $skip: (page - 1) * limit }, { $limit: limit }],
-        },
-      },
     ];
+
+    let additionalFields = getAdditionalFieldsQuery(type, sort, user_id);
+    if (additionalFields) {
+      aggregateQuery.push(additionalFields);
+    }
+
+    aggregateQuery.push(getSortQuery(type, sort));
+
+    aggregateQuery.push({
+      $facet: {
+        metadata: [
+          { $count: "total" },
+          { $addFields: { page: page, limit: limit } },
+        ],
+        data: [{ $skip: (page - 1) * limit }, { $limit: limit }],
+      },
+    });
+
     let posts = await Post.aggregate(aggregateQuery);
     res.json(posts[0]);
     // res.json(posts);
