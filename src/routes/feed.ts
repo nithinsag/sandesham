@@ -36,9 +36,7 @@ export function registerRoutes(router) {
 
 export const getFeedHandler = function (type) {
   return async (req, res) => {
-    function getSortQuery() {
-      let sort = "hot";
-      if (["top", "hot", "new"].includes(req.query.sort)) sort = req.query.sort;
+    function getSortQuery(type, sort) {
       if (sort == "new") {
         return {
           $sort: {
@@ -61,6 +59,8 @@ export const getFeedHandler = function (type) {
     }
 
     async function getMatchQuery(type) {
+      let user_id = "";
+      if (!req.is_anonymous) user_id = req.user._id;
       let matchQuery: any = { isDeleted: false, isRemoved: false };
       if (req.query && req.query.tag) {
         let tag = (req.query as any).tag;
@@ -70,7 +70,6 @@ export const getFeedHandler = function (type) {
         };
       }
       if (!req.is_anonymous) {
-        let user_id = req.user._id;
         let blockedUsers = [...req.user.blockedUsers];
         matchQuery = {
           ...matchQuery,
@@ -107,6 +106,63 @@ export const getFeedHandler = function (type) {
 
       return matchQuery;
     }
+
+    function getAdditionalFieldsQuery(type, sort, user_id) {
+      return {
+        $addFields: {
+          ...(sort == "hot" && {
+            score: {
+              // https://medium.com/hacking-and-gonzo/how-reddit-ranking-algorithms-work-ef111e33d0d9
+              $sum: [
+                { $log: [{ $max: [{ $abs: "$voteCount" }, 1] }, 10] },
+                {
+                  $multiply: [
+                    {
+                      $divide: [
+                        { $sum: [{ $toLong: "$created_at" }, -1613054140757] }, // to make log votes and time factor in the same
+                        4500000,
+                      ],
+                    },
+                    {
+                      $divide: [
+                        "$voteCount",
+                        { $max: [{ $abs: "$voteCount" }, 1] },
+                      ],
+                    },
+                  ],
+                },
+              ],
+            },
+          }),
+          ...(user_id && {
+            userVote: {
+              $subtract: [
+                {
+                  $size: {
+                    $filter: {
+                      input: "$upvotes",
+                      as: "upvote",
+                      cond: { $eq: ["$$upvote", user_id] },
+                    },
+                  },
+                },
+                {
+                  $size: {
+                    $filter: {
+                      input: "$downvotes",
+                      as: "downvote",
+                      cond: { $eq: ["$$downvote", user_id] },
+                    },
+                  },
+                },
+              ],
+            },
+          }),
+        },
+      };
+    }
+    let user_id = "";
+    if (!req.is_anonymous) user_id = req.user._id;
     // TODO: find a way no not hardcode the route
     logger.info(`inside popular feed route`);
     let limit = 10;
@@ -121,10 +177,11 @@ export const getFeedHandler = function (type) {
       }
     }
 
-    let user_id = "";
     let blockedUsers: any[] = [];
     logger.info("checking if authorised " + req.is_anonymous);
 
+    let sort = "hot";
+    if (["top", "hot", "new"].includes(req.query.sort)) sort = req.query.sort;
     let aggregateQuery = [
       { $match: await getMatchQuery(type) },
       {
@@ -141,55 +198,8 @@ export const getFeedHandler = function (type) {
           preserveNullAndEmptyArrays: true,
         },
       },
-      {
-        $addFields: {
-          score: {
-            // https://medium.com/hacking-and-gonzo/how-reddit-ranking-algorithms-work-ef111e33d0d9
-            $sum: [
-              { $log: [{ $max: [{ $abs: "$voteCount" }, 1] }, 10] },
-              {
-                $multiply: [
-                  {
-                    $divide: [
-                      { $sum: [{ $toLong: "$created_at" }, -1613054140757] }, // to make log votes and time factor in the same
-                      4500000,
-                    ],
-                  },
-                  {
-                    $divide: [
-                      "$voteCount",
-                      { $max: [{ $abs: "$voteCount" }, 1] },
-                    ],
-                  },
-                ],
-              },
-            ],
-          },
-          userVote: {
-            $subtract: [
-              {
-                $size: {
-                  $filter: {
-                    input: "$upvotes",
-                    as: "upvote",
-                    cond: { $eq: ["$$upvote", user_id] },
-                  },
-                },
-              },
-              {
-                $size: {
-                  $filter: {
-                    input: "$downvotes",
-                    as: "downvote",
-                    cond: { $eq: ["$$downvote", user_id] },
-                  },
-                },
-              },
-            ],
-          },
-        },
-      },
-      getSortQuery(),
+      getAdditionalFieldsQuery(type, sort, user_id),
+      getSortQuery(type, sort),
       {
         $facet: {
           metadata: [
