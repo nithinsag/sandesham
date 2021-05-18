@@ -329,4 +329,23 @@ describe("Community routes", () => {
       .set("Authorization", "Bearer " + token2);
     expect(response.status).toBe(200);
   });
+  test("community members can be fetched", async () => {
+    let response = await request
+      .get(`/api/v1/community/${community1._id}/members`)
+      .set("Authorization", "Bearer " + token_anon);
+    expect(response.status).toBe(200);
+
+    response = await request
+      .get(`/api/v1/community/${community1._id}/members`)
+      .set("Authorization", "Bearer " + token1);
+    expect(response.status).toBe(200);
+    response = await request
+      .get(`/api/v1/community/${community1._id}/members`)
+      .set("Authorization", "Bearer " + token2);
+    expect(response.status).toBe(200);
+    response = await request
+      .get(`/api/v1/community/${community2._id}/members`)
+      .set("Authorization", "Bearer " + token2);
+    expect(response.status).toBe(200);
+  });
 });

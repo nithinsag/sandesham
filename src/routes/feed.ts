@@ -161,7 +161,6 @@ export const getFeedHandler = function (type) {
         },
       };
       if (Object.entries(query.$addFields).length === 0) query = undefined;
-      console.log(type, sort, user_id, query);
       return query;
     }
     let user_id = "";
