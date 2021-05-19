@@ -197,10 +197,6 @@ export function registerRoutes(router) {
       if (!req.query.text)
         return res.boom.badRequest("text required to search");
 
-      if (!req.user)
-        return res.boom.badRequest(
-          "user needs to be authenticated to join community"
-        );
       let page = parseInt(String(req.query.page)) || 1;
       let limit = parseInt(String(req.query.limit)) || 10;
 
