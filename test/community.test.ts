@@ -356,4 +356,10 @@ describe("Community routes", () => {
 
     expect(response.body.data).toHaveLength(2);
   });
+  test("community categories can be fetched", async () => {
+    let response = await request
+      .get(`/api/v1/community/category`)
+      .set("Authorization", "Bearer " + token1);
+    expect(response.status).toBe(200);
+  });
 });

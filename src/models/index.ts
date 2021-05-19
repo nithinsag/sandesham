@@ -33,7 +33,12 @@ export interface IUser extends Document {
   updated_at: Date;
   loggedout_at: Date;
 }
-
+export interface ICommunityCategory extends Document {
+  name: string;
+}
+let CommunityCategorySchema: Schema = new Schema({
+  name: { type: String, required: true },
+});
 export interface ICommunity extends Document {
   name: string;
   _id: string;
@@ -220,6 +225,10 @@ const Comment = mongoose.model<IComment>("Comment", CommentSchema);
 const Message = mongoose.model("Message", MessageSchema);
 const Notification = mongoose.model("Notification", NotificationSchema);
 const Community = mongoose.model<ICommunity>("Community", CommunitySchema);
+const CommunityCategory = mongoose.model<ICommunityCategory>(
+  "CommunityCategory",
+  CommunityCategorySchema
+);
 const CommunityMembership = mongoose.model<ICommunityMembership>(
   "CommunityMembership",
   CommunityMembershipSchema
@@ -244,4 +253,5 @@ export {
   Message,
   Notification,
   CommunityMembership,
+  CommunityCategory,
 };

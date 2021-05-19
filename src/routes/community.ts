@@ -1,4 +1,10 @@
-import { Post, Community, CommunityMembership, User } from "../models";
+import {
+  Post,
+  Community,
+  CommunityMembership,
+  User,
+  CommunityCategory,
+} from "../models";
 import { Router } from "express";
 import { addCreatedBy } from "../middlewares/mongoose/author";
 
@@ -222,6 +228,33 @@ export function registerRoutes(router) {
       ];
       let communities = await Community.aggregate(aggregateQuery);
       return res.json(communities[0]);
+    }
+  );
+  router.get(
+    `${API_BASE_URL}category`,
+    authenticateFromHeader,
+    async (req, res) => {
+      if (!req.user)
+        return res.boom.badRequest(
+          "user needs to be authenticated to join community"
+        );
+      let page = parseInt(String(req.query.page)) || 1;
+      let limit = parseInt(String(req.query.limit)) || 10;
+
+      let aggregateQuery = [
+        { $match: {} },
+        {
+          $facet: {
+            metadata: [
+              { $count: "total" },
+              { $addFields: { page: page, limit: limit } },
+            ],
+            data: [{ $skip: (page - 1) * limit }, { $limit: limit }],
+          },
+        },
+      ];
+      let communityCategory = await CommunityCategory.aggregate(aggregateQuery);
+      return res.json(communityCategory[0]);
     }
   );
   const communityUri = restify.serve(router, Community, {
