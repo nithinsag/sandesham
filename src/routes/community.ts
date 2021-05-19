@@ -74,7 +74,7 @@ export function registerRoutes(router) {
     `${API_BASE_URL}:id/members`,
     authenticateFromHeader,
     async (req, res) => {
-      let page = req.query.page || 1;
+      let page = parseInt(req.query.page) || 1;
       let limit = parseInt(req.query.limit) || 10;
 
       let aggregateQuery = [
