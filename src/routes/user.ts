@@ -316,6 +316,37 @@ export function registerRoutes(router: Router) {
     }
     next();
   }
+  // TODO: use common pattern for base uri
+  router.get(`${userUri}/search`, authenticateFromHeader, async (req, res) => {
+    if (!req.query.text) return res.boom.badRequest("text required to search");
+
+    if (!req.user)
+      return res.boom.badRequest(
+        "user needs to be authenticated to join community"
+      );
+    let page = parseInt(String(req.query.page)) || 1;
+    let limit = parseInt(String(req.query.limit)) || 10;
+
+    let aggregateQuery = [
+      {
+        $match: {
+          displayname: { $regex: `${req.query.text}`, $options: "ig" },
+        },
+      },
+      { $sort: { created_at: 1 } },
+      {
+        $facet: {
+          metadata: [
+            { $count: "total" },
+            { $addFields: { page: page, limit: limit } },
+          ],
+          data: [{ $skip: (page - 1) * limit }, { $limit: limit }],
+        },
+      },
+    ];
+    let users = await User.aggregate(aggregateQuery);
+    return res.json(users[0]);
+  });
 
   restify.serve(router, User, {
     name: "user",

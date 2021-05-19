@@ -143,4 +143,12 @@ describe("User routes", () => {
     expect(response.status).toBe(200);
     expect(response.body._id).toBe(userId);
   });
+  test("users can be searched", async () => {
+    let response = await request
+      .get(`/api/v1/user/search?text=test`)
+      .set("Authorization", "Bearer " + token1);
+    expect(response.status).toBe(200);
+
+    expect(response.body.data).toHaveLength(2);
+  });
 });

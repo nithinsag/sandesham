@@ -95,7 +95,6 @@ export function registerRoutes(router) {
           },
         },
       ];
-      console.log(aggregateQuery);
       let communities = await CommunityMembership.aggregate(aggregateQuery);
       return res.json(communities[0]);
     }
@@ -185,6 +184,46 @@ export function registerRoutes(router) {
     }
     next();
   }
+  router.get(
+    `${API_BASE_URL}search`,
+    authenticateFromHeader,
+    async (req, res) => {
+      if (!req.query.text)
+        return res.boom.badRequest("text required to search");
+
+      if (!req.user)
+        return res.boom.badRequest(
+          "user needs to be authenticated to join community"
+        );
+      let page = parseInt(String(req.query.page)) || 1;
+      let limit = parseInt(String(req.query.limit)) || 10;
+
+      let aggregateQuery = [
+        { $match: { name: { $regex: `${req.query.text}`, $options: "ig" } } },
+        {
+          $lookup: {
+            from: "communitymemberships",
+            localField: "_id",
+            foreignField: "community._id",
+            as: "memberCount",
+          },
+        },
+        { $addFields: { memberCount: { $size: "$memberCount" } } },
+        { $sort: { memberCount: -1 } },
+        {
+          $facet: {
+            metadata: [
+              { $count: "total" },
+              { $addFields: { page: page, limit: limit } },
+            ],
+            data: [{ $skip: (page - 1) * limit }, { $limit: limit }],
+          },
+        },
+      ];
+      let communities = await Community.aggregate(aggregateQuery);
+      return res.json(communities[0]);
+    }
+  );
   const communityUri = restify.serve(router, Community, {
     name: "community",
     preMiddleware: authenticateFromHeader,

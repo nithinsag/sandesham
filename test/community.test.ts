@@ -348,4 +348,12 @@ describe("Community routes", () => {
       .set("Authorization", "Bearer " + token2);
     expect(response.status).toBe(200);
   });
+  test("communities can be searched", async () => {
+    let response = await request
+      .get(`/api/v1/community/search?text=test`)
+      .set("Authorization", "Bearer " + token1);
+    expect(response.status).toBe(200);
+
+    expect(response.body.data).toHaveLength(2);
+  });
 });
