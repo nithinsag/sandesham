@@ -154,7 +154,7 @@ export function registerRoutes(router) {
       notification = {
         to: to._id,
         title: `You recieved an invite!`,
-        message: `${req.user.displayName} invited you to join ${community.name}`,
+        message: `${req.user.displayname} invited you to join ${community.name}`,
         data: { type: "community", link: `/community/${community._id}` },
       };
       await sendNotification(notification);
