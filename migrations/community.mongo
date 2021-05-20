@@ -1,0 +1,1 @@
+db.posts.updateMany({}, {$set: {"isRemoved": false, "community": { "name": "MalayalamMemes", "_id": ObjectId("60a63d38a5d31742f64a5aa2")}}})
