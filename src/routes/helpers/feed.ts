@@ -30,7 +30,7 @@ export const getFeedHandler = function (type) {
     let limit = 10;
     let page = 1; // first page as default
 
-    let matchQuery: any = { isDeleted: false, isRemoved: false };
+    let matchQuery: any = { isDeleted: false };
     if (req.query && req.query.page) {
       page = parseInt((req.query as any).page);
     }
