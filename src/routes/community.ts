@@ -36,6 +36,18 @@ export function registerRoutes(router) {
       } catch (e) {
         res.boom.badData("cannot create membership", e);
       }
+      let admin = await CommunityMembership.findOne({
+        isAdmin: true,
+        "community._id": community._id,
+      });
+      if (admin) {
+        sendNotification({
+          title: `${community.name} is growing`,
+          to: admin.member._id,
+          message: `${req.user.displayname} joined ${community.name}`,
+          data: { link: `/community/${community._id}`, type: "community" },
+        });
+      }
       res.json(communityMembership);
     }
   );
