@@ -1,6 +1,6 @@
 import { groupBy, includes, isArray, map, sortBy } from "lodash";
 import { logger } from "../../helpers/logger";
-import { Post, Comment, User } from "../../models";
+import { Post, Comment, User, CommunityMembership } from "../../models";
 import { getOGData } from "../../helpers/openGraphScraper";
 import { sendNotification } from "../../asyncJobs";
 import { PushMessageJob } from "../../asyncJobs/worker";
@@ -211,6 +211,22 @@ export async function postCreateUpdateAuthorKarmaPost(req, res, next) {
 }
 export async function postCreateUpdateAuthorKarmaComment(req, res, next) {
   await updateCommentKarma(req.erm.result.author._id, 1);
+  next();
+}
+export async function postCreateNotifyMods(req, res, next) {
+  let post = req.erm.result;
+  let admin = await CommunityMembership.findOne({
+    isAdmin: true,
+    "community._id": post.community._id,
+  });
+  if (admin && !req.user._id.equals(admin.member._id)) {
+    await sendNotification({
+      title: `New post on ${admin.community.name}!`,
+      to: admin.member._id,
+      message: `${req.user.displayname} posted ${admin.community.name}`,
+      data: { link: `/post/${post._id}`, type: "post" },
+    });
+  }
   next();
 }
 

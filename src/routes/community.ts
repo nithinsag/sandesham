@@ -41,7 +41,7 @@ export function registerRoutes(router) {
         "community._id": community._id,
       });
       if (admin) {
-        sendNotification({
+        await sendNotification({
           title: `${community.name} is growing`,
           to: admin.member._id,
           message: `${req.user.displayname} joined ${community.name}`,
