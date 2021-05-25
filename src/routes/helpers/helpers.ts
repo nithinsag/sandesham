@@ -221,9 +221,9 @@ export async function postCreateNotifyMods(req, res, next) {
   });
   if (admin && !req.user._id.equals(admin.member._id)) {
     await sendNotification({
-      title: `New post on ${admin.community.name}!`,
+      title: `New post in ${admin.community.name}!`,
       to: admin.member._id,
-      message: `${req.user.displayname} posted ${admin.community.name}`,
+      message: `${req.user.displayname} posted in ${admin.community.name}`,
       data: { link: `/post/${post._id}`, type: "post" },
     });
   }
