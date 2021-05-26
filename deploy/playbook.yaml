@@ -5,4 +5,3 @@
     git:
       repo: git@github.com:diadara/sandesham.git
       dest: /home/ubuntu/sandesham-staging
-    sudo_user: ubuntu
