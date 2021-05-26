@@ -31,5 +31,5 @@ jobs:
         env:
           ANSIBLE_SSH_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
         with:
-          args: ansible-playbook -i deploy/inventories/ci.yml deploy/playbook.yml
+          args: ansible-playbook -i deploy/inventories.yaml deploy/playbook.yaml
 
