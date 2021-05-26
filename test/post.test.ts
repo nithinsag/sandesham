@@ -214,7 +214,7 @@ describe("Post routes", () => {
       .set("Authorization", "Bearer " + token_anon);
     expect(response.status).toBe(200);
     expect(response.body.data).toHaveLength(1);
-    expect(response.body.data[0].userVote).toBe(0);
+    expect(response.body.data[0].userVote).toBeUndefined();
   });
 
   test("signed up user can upvote", async () => {
@@ -231,7 +231,7 @@ describe("Post routes", () => {
     expect(response.status).toBe(200);
     expect(response.body.data).toHaveLength(2);
     expect(response.body.data[0]._id).toBe(post2._id);
-    expect(response.body.data[0].userVote).toBe(0);
+    expect(response.body.data[0].userVote).toBeUndefined();
   });
 
   test("upvoted post to be shown in feed and sort to be working with upvotes showing", async () => {
