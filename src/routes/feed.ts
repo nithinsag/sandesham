@@ -88,6 +88,19 @@ export const getFeedHandler = function (type) {
           };
         }
       }
+      if (type == "all") {
+        if (req.user) {
+          let blacklistedCommunities = (
+            await Community.find({
+              $or: [{ isNSFW: true }, { skipPopular: true }],
+            })
+          ).map((community) => community._id);
+          matchQuery = {
+            ...matchQuery,
+            "community._id": { $nin: blacklistedCommunities },
+          };
+        }
+      }
       if (type == "community") {
         matchQuery = {
           ...matchQuery,

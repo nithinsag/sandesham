@@ -63,6 +63,8 @@ let CommunitySchema: Schema = new Schema({
   },
   created_at: { type: Date, default: Date.now },
   updated_at: { type: Date, default: Date.now },
+  isNSFW: { type: Boolean, default: false },
+  skipPopular: { type: Boolean, default: false },
 });
 CommunitySchema.index({ name: "text", description: "text" });
 export interface IPost extends Document {
