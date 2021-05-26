@@ -130,10 +130,18 @@ export const getFeedHandler = function (type) {
                 { $log: [{ $max: [{ $abs: "$voteCount" }, 1] }, 10] },
                 {
                   $multiply: [
+                    4,
+                    {
+                      $log: [{ $max: [{ $sum: ["$commentCount", 1] }, 1] }, 10],
+                    },
+                  ],
+                },
+                {
+                  $multiply: [
                     {
                       $divide: [
                         { $sum: [{ $toLong: "$created_at" }, -1613054140757] }, // to make log votes and time factor in the same
-                        4500000,
+                        25000000,
                       ],
                     },
                     {
