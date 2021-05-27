@@ -37,7 +37,7 @@ export interface ICommunityCategory extends Document {
   name: string;
 }
 let CommunityCategorySchema: Schema = new Schema({
-  name: { type: String, required: true },
+  name: { type: String, required: true, unique: true },
 });
 export interface ICommunity extends Document {
   name: string;
@@ -141,7 +141,7 @@ let CommunityMembershipSchema: Schema = new Schema({
 
 CommunityMembershipSchema.index(
   { "member._id": 1, "community._id": 1 },
-  { unique: true, required: true }
+  { unique: true }
 );
 
 // https://www.xuchao.org/docs/mongodb/use-cases/storing-comments.html#gsc.tab=0
