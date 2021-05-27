@@ -34,7 +34,7 @@ export function registerRoutes(router) {
       try {
         await communityMembership.save();
       } catch (e) {
-        res.boom.badData("cannot create membership", e);
+        return res.boom.badData("cannot create membership", e);
       }
       let admin = await CommunityMembership.findOne({
         isAdmin: true,
