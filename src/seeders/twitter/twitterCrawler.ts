@@ -77,7 +77,7 @@ function apiUrlTemplate(userId) {
 }
 let tweets: any[] = [];
 
-async function crawlTweets() {
+export async function crawlTweets() {
   await connectToMongo();
   await asyncForEach(accounts, async (account) => {
     let user_id = account.id;

@@ -15,13 +15,13 @@ let newsCommunity = {
   name: process.env.NEWS_COMMUNITY_NAME,
 };
 
-(async () => {
+export async function postTopTweets() {
   await connectToMongo();
-  const oneweekago = new Date();
-  oneweekago.setDate(oneweekago.getDate() - 1);
+  const onedayago = new Date();
+  onedayago.setDate(onedayago.getDate() - 1);
   let topTweets = await Tweet.find({
     alreadyPosted: false,
-    created_at: { $gt: oneweekago },
+    created_at: { $gt: onedayago },
   })
     .sort({
       "public_metrics.like_count": -1,
@@ -54,4 +54,4 @@ let newsCommunity = {
     }
   });
   mongoose.connection.close();
-})();
+}
