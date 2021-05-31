@@ -232,7 +232,7 @@ describe("Community routes", () => {
     response = await request
       .post(`/api/v1/community/${community2._id}/join`)
       .set("Authorization", "Bearer " + token2);
-    expect(response.status).toBe(200);
+    expect(response.status).toBe(422);
 
     response = await request
       .get(`/api/v1/feed/home`)
