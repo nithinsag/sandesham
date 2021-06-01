@@ -4,7 +4,9 @@ import cron from "node-cron";
 const job3 = cron.schedule(
   "0 */3 * * *",
   async () => {
+    console.log("executing crawler");
     await crawlTweets();
+    console.log("executing populator");
     await postTopTweets();
   },
   {
@@ -12,3 +14,5 @@ const job3 = cron.schedule(
     timezone: "Asia/Kolkata",
   }
 );
+
+job3.start();
