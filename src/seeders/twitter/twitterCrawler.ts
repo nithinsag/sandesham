@@ -12,12 +12,14 @@ let TweetSchema = new Schema({
   public_metrics: { type: Object },
   entities: { type: Object },
   created_at: { type: Date, default: Date.now },
+  account: { type: Object },
 });
 export interface ITweet extends Document {
   entities: { urls: [{ expanded_url: String }] };
   pureText: string;
   alreadyPosted: boolean;
   public_metrics: object;
+  account: object;
 }
 
 export const Tweet = mongoose.model<ITweet>("Tweet", TweetSchema);
@@ -70,6 +72,11 @@ let accounts = [
     name: "Kairali News Online",
     username: "kairalionline",
   },
+  {
+    id: "2227695199",
+    name: "The News Minute",
+    username: "thenewsminute",
+  },
 ];
 
 function apiUrlTemplate(userId) {
@@ -86,6 +93,7 @@ export async function crawlTweets() {
     let accountTweets = response.data.data.map((tweet) => {
       return { ...tweet, account: account };
     });
+
     tweets.push(...accountTweets);
   });
   console.log(tweets);

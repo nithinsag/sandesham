@@ -21,6 +21,7 @@ export async function postTopTweets() {
   onedayago.setDate(onedayago.getDate() - 1);
   let topTweets = await Tweet.find({
     alreadyPosted: false,
+    url: { $not: { $elemMatch: { expanded_url: /twitter.com/ } } },
     created_at: { $gt: onedayago },
   })
     .sort({
