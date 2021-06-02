@@ -27,7 +27,7 @@ export async function postTopTweets() {
     .sort({
       "public_metrics.like_count": -1,
     })
-    .limit(3);
+    .limit(1);
 
   await asyncForEach(topTweets, async (tweet) => {
     console.log(tweet);

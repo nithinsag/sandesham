@@ -2,7 +2,7 @@ import { crawlTweets } from "./twitterCrawler";
 import { postTopTweets } from "./TwitterPoster";
 import cron from "node-cron";
 const job3 = cron.schedule(
-  "0 */12 * * *",
+  "0 */3 * * *",
   async () => {
     console.log("executing crawler");
     await crawlTweets();
