@@ -316,6 +316,46 @@ describe("Community routes", () => {
 
     expect(posts).toHaveLength(2);
   });
+  test("admins can pin/unpin posts", async () => {
+    let response = await request
+      .post("/api/v1/post")
+      .send({
+        ...sample_post_2,
+        community: { _id: community2._id, name: community2.name },
+      })
+      .set("Authorization", "Bearer " + token1);
+    let post4 = response.body;
+    expect(response.status).toBe(201);
+
+    response = await request
+      .post(`/api/v1/post/${post4._id}/vote/-1`)
+      .set("Authorization", "Bearer " + token2);
+    expect(response.status).toBe(200);
+
+    response = await request
+      .post(`/api/v1/post/${post4._id}/pin`)
+      .set("Authorization", "Bearer " + token2);
+    expect(response.status).toBe(200);
+
+    response = await request
+      .get(`/api/v1/feed/community/${community2._id}`)
+      .set("Authorization", "Bearer " + token2);
+    expect(response.status).toBe(200);
+    let top_post = response.body.data[0];
+    expect(post4._id).toBe(top_post._id);
+
+    response = await request
+      .post(`/api/v1/post/${post4._id}/unpin`)
+      .set("Authorization", "Bearer " + token2);
+    expect(response.status).toBe(200);
+
+    response = await request
+      .get(`/api/v1/feed/community/${community2._id}`)
+      .set("Authorization", "Bearer " + token2);
+    expect(response.status).toBe(200);
+    top_post = response.body.data[0];
+    expect(top_post._id).not.toBe(post4._id);
+  });
   test("communities can be fetched", async () => {
     let response = await request
       .get(`/api/v1/community/${community1._id}`)

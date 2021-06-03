@@ -7,6 +7,7 @@ import restify from "express-restify-mongoose";
 import { authenticateFromHeader } from "../middlewares/authenticate";
 import { logger } from "../helpers/logger";
 import mongoose from "mongoose";
+import { query } from "winston";
 export function registerRoutes(router) {
   let API_BASE_URL = "/api/v1/feed/";
 
@@ -37,25 +38,18 @@ export function registerRoutes(router) {
 export const getFeedHandler = function (type) {
   return async (req, res) => {
     function getSortQuery(type, sort) {
+      let query: any = {
+        isPinned: -1,
+      };
       if (sort == "new") {
-        return {
-          $sort: {
-            created_at: -1,
-          },
-        };
+        query = { ...query, created_at: -1 };
       } else if (sort == "top") {
-        return {
-          $sort: {
-            voteCount: -1,
-          },
-        };
+        query = { ...query, voteCount: -1 };
       } else if (sort == "hot") {
-        return {
-          $sort: {
-            score: -1,
-          },
-        };
+        query = { ...query, score: -1 };
       }
+
+      return { $sort: query };
     }
 
     async function getMatchQuery(type) {
