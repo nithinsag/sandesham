@@ -156,6 +156,58 @@ export function registerRoutes(router: Router) {
       return res.json(post);
     }
   );
+  router.post(
+    `${postUri}/:id/pin`,
+    authenticateFromHeader,
+    async (req, res) => {
+      if (!req.user) {
+        return res.boom.unauthorized(
+          "User needs to be authenticated to remove!"
+        );
+      }
+      const user_id = req.user._id;
+      const reason = req.body.reason;
+      let post = await Post.findOne({ _id: req.params.id });
+      if (!post) return res.boom.badRequest("bad post Id");
+      let communityAdmins = await CommunityMembership.findOne({
+        "community._id": post?.community?._id,
+        "member._id": user_id,
+        isAdmin: true,
+      });
+      if (!communityAdmins)
+        return res.boom.unauthorized("You are not authorized to pin");
+
+      post.isPinned = true;
+      post = await post.save();
+      return res.json(post);
+    }
+  );
+  router.post(
+    `${postUri}/:id/unpin`,
+    authenticateFromHeader,
+    async (req, res) => {
+      if (!req.user) {
+        return res.boom.unauthorized(
+          "User needs to be authenticated to remove!"
+        );
+      }
+      const user_id = req.user._id;
+      const reason = req.body.reason;
+      let post = await Post.findOne({ _id: req.params.id });
+      if (!post) return res.boom.badRequest("bad post Id");
+      let communityAdmins = await CommunityMembership.findOne({
+        "community._id": post?.community?._id,
+        "member._id": user_id,
+        isAdmin: true,
+      });
+      if (!communityAdmins)
+        return res.boom.unauthorized("You are not authorized to unpin");
+
+      post.isPinned = false;
+      post = await post.save();
+      return res.json(post);
+    }
+  );
   router.get(
     `${postUri}/:post_id/comments`,
     authenticateFromHeader,
@@ -167,11 +219,7 @@ export function registerRoutes(router: Router) {
     findOneAndRemove: false, // delete is not atomic, we will read the document in to memory and then delete
     findOneAndUpdate: false,
     preMiddleware: authenticateFromHeader,
-    preCreate: [
-      preCreateCommentBlockBannedUsers,
-      addCreatedBy,
-      preCreateAddCommentMeta,
-    ],
+    preCreate: [addCreatedBy, preCreateAddCommentMeta],
     postCreate: [
       postCreateUpdatePostCommentCount,
       postCreateUpdateParentCommentCount,

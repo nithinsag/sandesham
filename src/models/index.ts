@@ -81,6 +81,7 @@ export interface IPost extends Document {
   created_at: Date;
   isDeleted: boolean;
   isRemoved: boolean;
+  isPinned: boolean;
   updated_at: Date;
 }
 let PostSchema: Schema = new Schema({
@@ -109,6 +110,7 @@ let PostSchema: Schema = new Schema({
   reports: [{ _id: Schema.Types.ObjectId, reason: String }],
   isDeleted: { type: Boolean, default: false },
   isRemoved: { type: Boolean, default: false },
+  isPinned: { type: Boolean, default: false },
   created_at: { type: Date, default: Date.now },
   updated_at: { type: Date, default: Date.now },
 });
