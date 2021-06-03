@@ -358,5 +358,13 @@ export function registerRoutes(router: Router) {
     postUpdate: postUserUpdateTriggerUpdates,
     preUpdate: preUpdateAuthorizeUserUpdate,
     postRead: postReadPopulateCommunityData,
+    private: [
+      "email",
+      "pushMessageToken",
+      "blockedUsers",
+      "name",
+      "picture",
+      "loggedout_at",
+    ],
   });
 }
