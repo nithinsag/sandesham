@@ -178,6 +178,53 @@ export function registerRoutes(router) {
       return res.json(true);
     }
   );
+  router.get(
+    `${API_BASE_URL}:id/searchMembersByName/:name`,
+    authenticateFromHeader,
+    async (req, res) => {
+      if (!req.user)
+        return res.boom.badRequest("user needs to be authenticated");
+      let community = await Community.findOne({ _id: req.params.id });
+      if (!community) return res.boom.badRequest("invalid community id");
+      let membership = await CommunityMembership.findOne({
+        "member._id": req.user._id,
+        isAdmin: true,
+      });
+      if (!membership)
+        return res.boom.badRequest(
+          "user need to be admin of a community to search users"
+        );
+
+      let page = parseInt(String(req.query.page)) || 1;
+      let limit = parseInt(String(req.query.limit)) || 10;
+
+      let aggregateQuery = [
+        {
+          $match: {
+            "member.displayname": {
+              $regex: `${req.params.name}`,
+              $options: "ig",
+            },
+            "community._id": community._id,
+          },
+        },
+        { $sort: { created_at: -1 } },
+        {
+          $facet: {
+            metadata: [
+              { $count: "total" },
+              { $addFields: { page: page, limit: limit } },
+            ],
+            data: [{ $skip: (page - 1) * limit }, { $limit: limit }],
+          },
+        },
+      ];
+      let communityMembers = await CommunityMembership.aggregate(
+        aggregateQuery
+      );
+      return res.json(communityMembers[0]);
+    }
+  );
   router.post(
     `${API_BASE_URL}:id/addAsAdmin/:user`,
     authenticateFromHeader,
