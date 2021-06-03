@@ -24,6 +24,8 @@ import {
   postCreateUpdateAuthorKarmaComment,
   postCreateUpdateAuthorKarmaPost,
   postCreateNotifyMods,
+  preCreateCommentBlockBannedUsers,
+  preCreatePostBlockBannedUser,
   getUserVote,
   getVoteQuery,
   sendCommentNotification,
@@ -57,6 +59,7 @@ export function registerRoutes(router: Router) {
       preCreateAddOGData,
       preCreateAutoUpvote,
       preCreateDefaultCommunity,
+      preCreatePostBlockBannedUser,
     ],
     preDelete: doSoftDelete,
     postRead: postReadPost,
@@ -164,7 +167,11 @@ export function registerRoutes(router: Router) {
     findOneAndRemove: false, // delete is not atomic, we will read the document in to memory and then delete
     findOneAndUpdate: false,
     preMiddleware: authenticateFromHeader,
-    preCreate: [addCreatedBy, preCreateAddCommentMeta],
+    preCreate: [
+      preCreateCommentBlockBannedUsers,
+      addCreatedBy,
+      preCreateAddCommentMeta,
+    ],
     postCreate: [
       postCreateUpdatePostCommentCount,
       postCreateUpdateParentCommentCount,
