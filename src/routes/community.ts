@@ -178,6 +178,122 @@ export function registerRoutes(router) {
       return res.json(true);
     }
   );
+  router.post(
+    `${API_BASE_URL}:id/addAsAdmin/:user`,
+    authenticateFromHeader,
+    async (req, res) => {
+      if (!req.user)
+        return res.boom.badRequest("user needs to be authenticated");
+      let community = await Community.findOne({ _id: req.params.id });
+      if (!community) return res.boom.badRequest("invalid community id");
+      let membership = await CommunityMembership.findOne({
+        "member._id": req.user._id,
+        isAdmin: true,
+      });
+      if (!membership)
+        return res.boom.badRequest(
+          "user need to be admin of a community to add another admin"
+        );
+
+      try {
+        let membership = await CommunityMembership.findOne({
+          "community._id": community._id,
+          "member._id": req.params.user,
+          isAdmin: false,
+        });
+
+        if (!membership) {
+          return res.boom.badRequest(
+            "Could not find non admin user to make admin"
+          );
+        }
+
+        membership.isAdmin = true;
+        await membership.save();
+      } catch (e) {
+        return res.boom.badData("cannot make admin", e);
+      }
+      res.json(true);
+
+      let admins = await CommunityMembership.find({
+        isAdmin: true,
+        "community._id": community._id,
+      });
+
+      admins.forEach(async (admin) => {
+        let to = await User.findById(req.params.user);
+        if (!to) return res.boom.badRequest("invalid user to invite");
+
+        let notification: PushMessageJob;
+        notification = {
+          to: to._id,
+          title: `You got promoted`,
+          message: `${req.user.displayname} invited you to join ${
+            community!.name
+          }`,
+          data: { type: "community", link: `/community/${community!._id}` },
+        };
+        await sendNotification(notification);
+      });
+    }
+  );
+
+  router.post(
+    `${API_BASE_URL}:id/ban/:user`,
+    authenticateFromHeader,
+    async (req, res) => {
+      if (!req.user)
+        return res.boom.badRequest("user needs to be authenticated");
+      let community = await Community.findOne({ _id: req.params.id });
+      if (!community) return res.boom.badRequest("invalid community id");
+      let membership = await CommunityMembership.findOne({
+        "member._id": req.user._id,
+        isAdmin: true,
+      });
+      if (!membership)
+        return res.boom.badRequest(
+          "user need to be admin of a community to ban another admin"
+        );
+
+      try {
+        let membership = await CommunityMembership.findOne({
+          "community._id": community._id,
+          "member._id": req.params.user,
+          isAdmin: false,
+        });
+        if (!membership) {
+          return res.boom.badRequest("Could not find non admin user to ban");
+        }
+
+        membership.isBanned = true;
+        await membership.save();
+      } catch (e) {
+        return res.boom.badData("cannot ban", e);
+      }
+      res.json(true);
+
+      let admins = await CommunityMembership.find({
+        isAdmin: true,
+        "community._id": community._id,
+      });
+
+      admins.forEach(async (admin) => {
+        let to = await User.findById(req.params.user);
+        if (!to) return;
+
+        let notification: PushMessageJob;
+        notification = {
+          to: to._id,
+          title: `Someone got banned`,
+          message: `${req.user.displayname} was bannerd by ${
+            req.user.displayname
+          } from ${community!.name}`,
+          data: { type: "community", link: `/community/${community!._id}` },
+        };
+        await sendNotification(notification);
+      });
+    }
+  );
   async function postCreateAutoAdmin(req, res, next) {
     let community = req.erm.result;
     let membership = new CommunityMembership({
