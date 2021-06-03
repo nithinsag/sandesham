@@ -131,6 +131,21 @@ describe("Community routes", () => {
       .set("Authorization", "Bearer " + token1);
     expect(response.status).toBe(200);
   });
+  test("admin user can make users admins of communities", async () => {
+    let response = await request
+      .post(`/api/v1/community/${community1._id}/addAsAdmin/${user2._id}`)
+      .set("Authorization", "Bearer " + token1);
+    expect(response.body).toBe(true);
+    expect(response.status).toBe(200);
+  });
+
+  test("admin user can ban user from communities", async () => {
+    let response = await request
+      .post(`/api/v1/community/${community2._id}/ban/${user1._id}`)
+      .set("Authorization", "Bearer " + token2);
+    expect(response.body).toBe(true);
+    expect(response.status).toBe(200);
+  });
   test("signed up user can leave community ", async () => {
     let response = await request
       .post(`/api/v1/community/${community1._id}/leave`)
@@ -232,7 +247,7 @@ describe("Community routes", () => {
     response = await request
       .post(`/api/v1/community/${community2._id}/join`)
       .set("Authorization", "Bearer " + token2);
-    expect(response.status).toBe(422);
+    expect(response.status).toBe(200);
 
     response = await request
       .get(`/api/v1/feed/home`)
@@ -351,6 +366,14 @@ describe("Community routes", () => {
   test("communities can be searched", async () => {
     let response = await request
       .get(`/api/v1/community/search?text=test`)
+      .set("Authorization", "Bearer " + token1);
+    expect(response.status).toBe(200);
+
+    expect(response.body.data).toHaveLength(2);
+  });
+  test("community admins can search members", async () => {
+    let response = await request
+      .get(`/api/v1/community/${community1._id}/searchMembersByName/test`)
       .set("Authorization", "Bearer " + token1);
     expect(response.status).toBe(200);
 
