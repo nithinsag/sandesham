@@ -27,6 +27,11 @@ export function registerRoutes(router) {
         );
       let community = await Community.findOne({ _id: req.params.id });
       if (!community) return res.boom.badRequest("invalid community id");
+      let membership = await CommunityMembership.findOne({
+        "community._id": community._id,
+        "member._id": req.user._id,
+      });
+      if (membership) return res.json(true);
       let communityMembership = new CommunityMembership({
         community: { name: community.name, _id: community._id },
         member: { displayname: req.user.displayname, _id: req.user._id },
