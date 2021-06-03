@@ -172,6 +172,13 @@ export function registerRoutes(router: Router) {
       return res.json(true);
     }
   );
+  router.get(`${userUri}/self`, authenticateFromHeader, async (req, res) => {
+    if (!req.user) {
+      return res.boom.unauthorized("User needs to be authenticated");
+    }
+    let user = req.user;
+    return res.json(user);
+  });
 
   router.get(
     `${userUri}/:user_id/posts`,

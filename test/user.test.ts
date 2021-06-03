@@ -151,4 +151,10 @@ describe("User routes", () => {
 
     expect(response.body.data).toHaveLength(2);
   });
+  test("user can fetch self", async () => {
+    let response = await request
+      .get(`/api/v1/user/self`)
+      .set("Authorization", "Bearer " + token1);
+    expect(response.status).toBe(200);
+  });
 });
