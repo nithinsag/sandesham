@@ -105,7 +105,16 @@ export function registerRoutes(router) {
         { $sort: { created_at: -1 } },
         {
           $replaceRoot: {
-            newRoot: { $mergeObjects: [{ membership_id: "$_id" }, "$member"] },
+            newRoot: {
+              $mergeObjects: [
+                {
+                  membership_id: "$_id",
+                  isAdmin: "$isAdmin",
+                  isBanned: "$isBanned",
+                },
+                "$member",
+              ],
+            },
           },
         },
         {
@@ -269,15 +278,72 @@ export function registerRoutes(router) {
 
       admins.forEach(async (admin) => {
         let to = await User.findById(req.params.user);
-        if (!to) return res.boom.badRequest("invalid user to invite");
+        if (!to) return;
 
         let notification: PushMessageJob;
         notification = {
           to: to._id,
-          title: `You got promoted`,
-          message: `${req.user.displayname} invited you to join ${
-            community!.name
-          }`,
+          title: `New admin alert`,
+          message: `${
+            membership?.member.displayname
+          } was promoted as an admin for ${community!.name}`,
+          data: { type: "community", link: `/community/${community!._id}` },
+        };
+        await sendNotification(notification);
+      });
+    }
+  );
+  router.post(
+    `${API_BASE_URL}:id/dismissAsAdmin/:user`,
+    authenticateFromHeader,
+    async (req, res) => {
+      if (!req.user)
+        return res.boom.badRequest("user needs to be authenticated");
+      let community = await Community.findOne({ _id: req.params.id });
+      if (!community) return res.boom.badRequest("invalid community id");
+      let membership = await CommunityMembership.findOne({
+        "member._id": req.user._id,
+        isAdmin: true,
+      });
+      if (!membership)
+        return res.boom.badRequest(
+          "user need to be admin of a community to dissmiss another admin"
+        );
+
+      try {
+        let membership = await CommunityMembership.findOne({
+          "community._id": community._id,
+          "member._id": req.params.user,
+          isAdmin: true,
+        });
+
+        if (!membership) {
+          return res.boom.badRequest("Could not find specified admin user");
+        }
+
+        membership.isAdmin = false;
+        await membership.save();
+      } catch (e) {
+        return res.boom.badData("could not dismiss as admin", e);
+      }
+      res.json(true);
+
+      let admins = await CommunityMembership.find({
+        isAdmin: true,
+        "community._id": community._id,
+      });
+
+      admins.forEach(async (admin) => {
+        let to = await User.findById(req.params.user);
+        if (!to) return;
+
+        let notification: PushMessageJob;
+        notification = {
+          to: to._id,
+          title: `User dismissed as admin`,
+          message: `${
+            membership?.member.displayname
+          } was dismissed as admin of ${community!.name}`,
           data: { type: "community", link: `/community/${community!._id}` },
         };
         await sendNotification(notification);
