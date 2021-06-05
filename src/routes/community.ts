@@ -299,7 +299,7 @@ export function registerRoutes(router) {
       });
       if (!membership)
         return res.boom.badRequest(
-          "user need to be admin of a community to ban another admin"
+          "user need to be admin of a community to ban another user"
         );
 
       try {
@@ -332,7 +332,64 @@ export function registerRoutes(router) {
         notification = {
           to: to._id,
           title: `Someone got banned`,
-          message: `${req.user.displayname} was bannerd by ${
+          message: `${req.user.displayname} was banned by ${
+            req.user.displayname
+          } from ${community!.name}`,
+          data: { type: "community", link: `/community/${community!._id}` },
+        };
+        await sendNotification(notification);
+      });
+    }
+  );
+
+  router.post(
+    `${API_BASE_URL}:id/unban/:user`,
+    authenticateFromHeader,
+    async (req, res) => {
+      if (!req.user)
+        return res.boom.badRequest("user needs to be authenticated");
+      let community = await Community.findOne({ _id: req.params.id });
+      if (!community) return res.boom.badRequest("invalid community id");
+      let membership = await CommunityMembership.findOne({
+        "member._id": req.user._id,
+        isAdmin: true,
+      });
+      if (!membership)
+        return res.boom.badRequest(
+          "user need to be admin of a community to unban another user"
+        );
+
+      try {
+        let membership = await CommunityMembership.findOne({
+          "community._id": community._id,
+          "member._id": req.params.user,
+          isBanned: true,
+        });
+        if (!membership) {
+          return res.boom.badRequest("Could not find banned user");
+        }
+
+        membership.isBanned = false;
+        await membership.save();
+      } catch (e) {
+        return res.boom.badData("cannot ban", e);
+      }
+      res.json(true);
+
+      let admins = await CommunityMembership.find({
+        isAdmin: true,
+        "community._id": community._id,
+      });
+
+      admins.forEach(async (admin) => {
+        let to = await User.findById(req.params.user);
+        if (!to) return;
+
+        let notification: PushMessageJob;
+        notification = {
+          to: to._id,
+          title: `Admin unbanned a user`,
+          message: `${req.user.displayname} was unbanned by ${
             req.user.displayname
           } from ${community!.name}`,
           data: { type: "community", link: `/community/${community!._id}` },
