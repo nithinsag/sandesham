@@ -102,7 +102,7 @@ export function registerRoutes(router) {
     return res.json(communities[0]);
   });
   router.get(
-    `${API_BASE_URL}:id/searchMembersByName/:name`,
+    `${API_BASE_URL}:id/searchMembersByName`,
     authenticateFromHeader,
     async (req, res) => {
       if (!req.user)
@@ -120,9 +120,11 @@ export function registerRoutes(router) {
 
       let page = parseInt(String(req.query.page)) || 1;
       let limit = parseInt(String(req.query.limit)) || 10;
+      let name = req.query.displayname || "";
+      console.log(name);
       let matchQuery = {
         "member.displayname": {
-          $regex: `${req.params.name}`,
+          $regex: `${name}`,
           $options: "ig",
         },
         "community._id": community._id,
@@ -132,6 +134,20 @@ export function registerRoutes(router) {
           $match: matchQuery,
         },
         { $sort: { created_at: -1 } },
+        {
+          $replaceRoot: {
+            newRoot: {
+              $mergeObjects: [
+                {
+                  membership_id: "$_id",
+                  isAdmin: "$isAdmin",
+                  isBanned: "$isBanned",
+                },
+                "$member",
+              ],
+            },
+          },
+        },
         {
           $facet: {
             metadata: [

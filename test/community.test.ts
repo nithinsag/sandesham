@@ -434,7 +434,17 @@ describe("Community routes", () => {
   });
   test("community admins can search members", async () => {
     let response = await request
-      .get(`/api/v1/community/${community1._id}/searchMembersByName/test`)
+      .get(
+        `/api/v1/community/${community1._id}/searchMembersByName?displayname=test`
+      )
+      .set("Authorization", "Bearer " + token1);
+    expect(response.status).toBe(200);
+
+    expect(response.body.data).toHaveLength(2);
+    response = await request
+      .get(
+        `/api/v1/community/${community1._id}/searchMembersByName?displayname=`
+      )
       .set("Authorization", "Bearer " + token1);
     expect(response.status).toBe(200);
 
