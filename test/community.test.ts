@@ -138,6 +138,13 @@ describe("Community routes", () => {
     expect(response.body).toBe(true);
     expect(response.status).toBe(200);
   });
+  test("admin user can dismiss other admins of communities", async () => {
+    let response = await request
+      .post(`/api/v1/community/${community1._id}/dismissAsAdmin/${user2._id}`)
+      .set("Authorization", "Bearer " + token1);
+    expect(response.body).toBe(true);
+    expect(response.status).toBe(200);
+  });
 
   test("admin user can ban user from communities", async () => {
     let response = await request
