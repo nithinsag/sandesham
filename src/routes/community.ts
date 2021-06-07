@@ -451,28 +451,7 @@ export function registerRoutes(router) {
       } catch (e) {
         return res.boom.badData("cannot ban", e);
       }
-      res.json(true);
-
-      let admins = await CommunityMembership.find({
-        isAdmin: true,
-        "community._id": community._id,
-      });
-
-      admins.forEach(async (admin) => {
-        let to = await User.findById(req.params.user);
-        if (!to) return;
-
-        let notification: PushMessageJob;
-        notification = {
-          to: to._id,
-          title: `Someone got banned`,
-          message: `${req.user.displayname} was banned by ${
-            req.user.displayname
-          } from ${community!.name}`,
-          data: { type: "community", link: `/community/${community!._id}` },
-        };
-        await sendNotification(notification);
-      });
+      return res.json(true);
     }
   );
 
@@ -508,28 +487,7 @@ export function registerRoutes(router) {
       } catch (e) {
         return res.boom.badData("cannot ban", e);
       }
-      res.json(true);
-
-      let admins = await CommunityMembership.find({
-        isAdmin: true,
-        "community._id": community._id,
-      });
-
-      admins.forEach(async (admin) => {
-        let to = await User.findById(req.params.user);
-        if (!to) return;
-
-        let notification: PushMessageJob;
-        notification = {
-          to: to._id,
-          title: `Admin unbanned a user`,
-          message: `${req.user.displayname} was unbanned by ${
-            req.user.displayname
-          } from ${community!.name}`,
-          data: { type: "community", link: `/community/${community!._id}` },
-        };
-        await sendNotification(notification);
-      });
+      return res.json(true);
     }
   );
   async function postCreateAutoAdmin(req, res, next) {
