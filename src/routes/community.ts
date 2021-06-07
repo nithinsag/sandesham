@@ -21,8 +21,11 @@ export function registerRoutes(router) {
     `${API_BASE_URL}byName/:name`,
     authenticateFromHeader,
     async (req, res) => {
-      let community = await Community.findOne({ name: req.params.name });
-      res.json(community);
+      let community = await Community.findOne({
+        name: { $regex: new RegExp(`${req.params.name}$`, "i") },
+      });
+      if (community) return res.json(community);
+      else res.boom.notFound("community not found");
     }
   );
   router.post(
