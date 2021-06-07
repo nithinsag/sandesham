@@ -17,6 +17,14 @@ import mongoose from "mongoose";
 export function registerRoutes(router) {
   let API_BASE_URL = "/api/v1/community/";
 
+  router.get(
+    `${API_BASE_URL}byName/:name`,
+    authenticateFromHeader,
+    async (req, res) => {
+      let community = await Community.findOne({ name: req.params.name });
+      res.json(community);
+    }
+  );
   router.post(
     `${API_BASE_URL}:id/join`,
     authenticateFromHeader,
