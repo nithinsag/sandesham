@@ -305,7 +305,7 @@ export function registerRoutes(router: Router) {
   async function postReadPopulateCommunityData(req, res, next) {
     let result = req.erm.result; // unfiltered document, object or array
     if (!Array.isArray(result)) {
-      result = populateCommunityDataOnUser(result);
+      req.erm.result = await populateCommunityDataOnUser(result);
     }
     next();
   }
