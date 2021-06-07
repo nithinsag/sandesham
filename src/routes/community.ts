@@ -309,17 +309,18 @@ export function registerRoutes(router) {
         return res.boom.badRequest("user needs to be authenticated");
       let community = await Community.findOne({ _id: req.params.id });
       if (!community) return res.boom.badRequest("invalid community id");
-      let membership = await CommunityMembership.findOne({
+      let adminship = await CommunityMembership.findOne({
         "member._id": req.user._id,
         isAdmin: true,
       });
-      if (!membership)
+      if (!adminship)
         return res.boom.badRequest(
           "user need to be admin of a community to add another admin"
         );
+      let membership;
 
       try {
-        let membership = await CommunityMembership.findOne({
+        membership = await CommunityMembership.findOne({
           "community._id": community._id,
           "member._id": req.params.user,
         });
