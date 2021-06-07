@@ -131,6 +131,49 @@ export function registerRoutes(router) {
       return res.json(communities[0]);
     }
   );
+  router.get(
+    `${API_BASE_URL}:id/bannedMembers`,
+    authenticateFromHeader,
+    async (req, res) => {
+      let page = parseInt(req.query.page) || 1;
+      let limit = parseInt(req.query.limit) || 10;
+
+      let aggregateQuery = [
+        {
+          $match: {
+            "community._id": mongoose.Types.ObjectId(req.params.id),
+            isBanned: true,
+          },
+        },
+        { $sort: { created_at: -1 } },
+        {
+          $replaceRoot: {
+            newRoot: {
+              $mergeObjects: [
+                {
+                  membership_id: "$_id",
+                  isAdmin: "$isAdmin",
+                  isBanned: "$isBanned",
+                },
+                "$member",
+              ],
+            },
+          },
+        },
+        {
+          $facet: {
+            metadata: [
+              { $count: "total" },
+              { $addFields: { page: page, limit: limit } },
+            ],
+            data: [{ $skip: (page - 1) * limit }, { $limit: limit }],
+          },
+        },
+      ];
+      let communities = await CommunityMembership.aggregate(aggregateQuery);
+      return res.json(communities[0]);
+    }
+  );
 
   router.post(
     `${API_BASE_URL}:id/leave`,

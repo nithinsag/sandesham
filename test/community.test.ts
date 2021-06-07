@@ -440,10 +440,28 @@ describe("Community routes", () => {
 
     expect(response.body.data).toHaveLength(2);
   });
+  test("community admins can see banned members", async () => {
+    let response = await request
+      .post(`/api/v1/community/${community1._id}/ban/${user2._id}`)
+      .set("Authorization", "Bearer " + token1);
+    response = await request
+      .get(`/api/v1/community/${community1._id}/bannedMembers`)
+      .set("Authorization", "Bearer " + token1);
+    expect(response.status).toBe(200);
+
+    expect(response.body.data).toHaveLength(1);
+  });
   test("community categories can be fetched", async () => {
     let response = await request
       .get(`/api/v1/community/category`)
       .set("Authorization", "Bearer " + token1);
     expect(response.status).toBe(200);
+  });
+  test("community can be fetched by name", async () => {
+    let response = await request
+      .get(`/api/v1/community/byName/${community1.name}`)
+      .set("Authorization", "Bearer " + token1);
+    expect(response.status).toBe(200);
+    expect(response.body._id).toBe(community1._id);
   });
 });
