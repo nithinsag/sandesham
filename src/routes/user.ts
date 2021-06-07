@@ -174,7 +174,7 @@ export function registerRoutes(router: Router) {
   );
   router.get(`${userUri}/self`, authenticateFromHeader, async (req, res) => {
     if (!req.user) {
-      return res.boom.unauthorized("User needs to be authenticated");
+      return res.json({});
     }
     let user = req.user.toJSON();
     user = await populateCommunityDataOnUser(user);
