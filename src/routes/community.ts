@@ -121,7 +121,6 @@ export function registerRoutes(router) {
       let page = parseInt(String(req.query.page)) || 1;
       let limit = parseInt(String(req.query.limit)) || 10;
       let name = req.query.displayname || "";
-      console.log(name);
       let matchQuery = {
         "member.displayname": {
           $regex: `${name}`,
