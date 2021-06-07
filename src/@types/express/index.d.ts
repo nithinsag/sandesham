@@ -12,7 +12,8 @@ declare global {
   namespace Express {
     interface Request {
       user: any;
-      is_anonymous: boolean
+      is_anonymous: boolean;
+      erm: any;
     }
 
     interface Response {

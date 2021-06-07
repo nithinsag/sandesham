@@ -176,8 +176,9 @@ export function registerRoutes(router: Router) {
     if (!req.user) {
       return res.boom.unauthorized("User needs to be authenticated");
     }
-    let user = req.user;
-    return res.json(user);
+    let user = req.user.toJSON();
+    user = await populateCommunityDataOnUser(user);
+    res.json(user);
   });
 
   router.get(
@@ -302,26 +303,30 @@ export function registerRoutes(router: Router) {
   }
 
   async function postReadPopulateCommunityData(req, res, next) {
-    const result = req.erm.result; // unfiltered document, object or array
-    const statusCode = req.erm.statusCode; // 200
+    let result = req.erm.result; // unfiltered document, object or array
     if (!Array.isArray(result)) {
-      let communities = (
-        await CommunityMembership.find({ "member._id": result._id })
-      ).map((o) => o.community._id);
-      let adminCommunities = (
-        await CommunityMembership.find({
-          "member._id": result._id,
-          isAdmin: true,
-        })
-      ).map((o) => o.community._id.toString());
-      let communityFull = await Community.find({ _id: { $in: communities } });
-      result.joinedCommunities = communityFull;
-      result.adminCommunities = communityFull.filter((c) =>
-        adminCommunities.includes(c._id.toString())
-      );
-      // result.adminCommunities = adminCommunities;
+      result = populateCommunityDataOnUser(result);
     }
     next();
+  }
+  async function populateCommunityDataOnUser(user) {
+    let result = user;
+    let communities = (
+      await CommunityMembership.find({ "member._id": result._id })
+    ).map((o) => o.community._id);
+    let adminCommunities = (
+      await CommunityMembership.find({
+        "member._id": result._id,
+        isAdmin: true,
+      })
+    ).map((o) => o.community._id.toString());
+    let communityFull = await Community.find({ _id: { $in: communities } });
+    result.joinedCommunities = communityFull;
+    result.adminCommunities = communityFull.filter((c) =>
+      adminCommunities.includes(c._id.toString())
+    );
+    // result.adminCommunities = adminCommunities;
+    return result;
   }
   // TODO: use common pattern for base uri
   router.get(`${userUri}/search`, authenticateFromHeader, async (req, res) => {
