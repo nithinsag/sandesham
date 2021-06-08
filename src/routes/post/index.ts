@@ -219,7 +219,11 @@ export function registerRoutes(router: Router) {
     findOneAndRemove: false, // delete is not atomic, we will read the document in to memory and then delete
     findOneAndUpdate: false,
     preMiddleware: authenticateFromHeader,
-    preCreate: [addCreatedBy, preCreateAddCommentMeta],
+    preCreate: [
+      addCreatedBy,
+      preCreateCommentBlockBannedUsers,
+      preCreateAddCommentMeta,
+    ],
     postCreate: [
       postCreateUpdatePostCommentCount,
       postCreateUpdateParentCommentCount,

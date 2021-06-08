@@ -44,6 +44,9 @@ const sample_post_link = {
   slug: "sadaasdfvsadf",
   description: "discription for first post",
 };
+const test_comment = {
+  text: "some random reply comment",
+};
 
 beforeAll(async () => {
   // let mockedaddJobs = addJobs as jest.Mock;
@@ -146,50 +149,6 @@ describe("Community routes", () => {
     expect(response.status).toBe(200);
   });
 
-  test("admin user can ban user from communities", async () => {
-    let response = await request
-      .post(`/api/v1/community/${community2._id}/ban/${user1._id}`)
-      .set("Authorization", "Bearer " + token2);
-    expect(response.body).toBe(true);
-    expect(response.status).toBe(200);
-
-    response = await request
-      .post("/api/v1/post")
-      .send({
-        ...sample_post_1,
-        community: { _id: community2._id, name: community2.name },
-      })
-      .set("Authorization", "Bearer " + token1);
-    expect(response.status).toBe(401);
-    response = await request
-      .post(`/api/v1/community/${community2._id}/ban/${user1._id}`)
-      .set("Authorization", "Bearer " + token2);
-    expect(response.body).toBe(true);
-    expect(response.status).toBe(200);
-    response = await request
-      .post(`/api/v1/community/${community2._id}/unban/${user1._id}`)
-      .set("Authorization", "Bearer " + token2);
-    expect(response.body).toBe(true);
-    expect(response.status).toBe(200);
-    response = await request
-      .post(`/api/v1/community/${community2._id}/unban/${user1._id}`)
-      .set("Authorization", "Bearer " + token2);
-    expect(response.status).toBe(400);
-  });
-  test("signed up user can leave community ", async () => {
-    let response = await request
-      .post(`/api/v1/community/${community1._id}/leave`)
-      .set("Authorization", "Bearer " + token2);
-    expect(response.status).toBe(200);
-    expect(response.body).toBe(true);
-
-    response = await request
-      .post(`/api/v1/community/${community1._id}/leave`)
-      .set("Authorization", "Bearer " + token2);
-    expect(response.status).toBe(200);
-    expect(response.body).toBe(false);
-  });
-
   test("authorized user can fetch community feed ", async () => {
     let response = await request
       .post("/api/v1/post")
@@ -225,6 +184,56 @@ describe("Community routes", () => {
     expect(response.status).toBe(200);
     posts = response.body.data;
     expect(posts).toHaveLength(1);
+  });
+  test("admin user can ban user from communities", async () => {
+    let response = await request
+      .post(`/api/v1/community/${community2._id}/ban/${user1._id}`)
+      .set("Authorization", "Bearer " + token2);
+    expect(response.body).toBe(true);
+    expect(response.status).toBe(200);
+
+    response = await request
+      .post("/api/v1/post")
+      .send({
+        ...sample_post_1,
+        community: { _id: community2._id, name: community2.name },
+      })
+      .set("Authorization", "Bearer " + token1);
+    expect(response.status).toBe(401);
+
+    response = await request
+      .post(`/api/v1/comment`)
+      .send({ post: post2._id, ...test_comment })
+      .set("Authorization", "Bearer " + token1);
+    expect(response.status).toBe(401);
+
+    response = await request
+      .post(`/api/v1/community/${community2._id}/ban/${user1._id}`)
+      .set("Authorization", "Bearer " + token2);
+    expect(response.body).toBe(true);
+    expect(response.status).toBe(200);
+    response = await request
+      .post(`/api/v1/community/${community2._id}/unban/${user1._id}`)
+      .set("Authorization", "Bearer " + token2);
+    expect(response.body).toBe(true);
+    expect(response.status).toBe(200);
+    response = await request
+      .post(`/api/v1/community/${community2._id}/unban/${user1._id}`)
+      .set("Authorization", "Bearer " + token2);
+    expect(response.status).toBe(400);
+  });
+  test("signed up user can leave community ", async () => {
+    let response = await request
+      .post(`/api/v1/community/${community1._id}/leave`)
+      .set("Authorization", "Bearer " + token2);
+    expect(response.status).toBe(200);
+    expect(response.body).toBe(true);
+
+    response = await request
+      .post(`/api/v1/community/${community1._id}/leave`)
+      .set("Authorization", "Bearer " + token2);
+    expect(response.status).toBe(200);
+    expect(response.body).toBe(false);
   });
 
   test("admins can remove posts from community", async () => {
