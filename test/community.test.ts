@@ -152,6 +152,15 @@ describe("Community routes", () => {
       .set("Authorization", "Bearer " + token2);
     expect(response.body).toBe(true);
     expect(response.status).toBe(200);
+
+    response = await request
+      .post("/api/v1/post")
+      .send({
+        ...sample_post_1,
+        community: { _id: community2._id, name: community2.name },
+      })
+      .set("Authorization", "Bearer " + token1);
+    expect(response.status).toBe(401);
     response = await request
       .post(`/api/v1/community/${community2._id}/ban/${user1._id}`)
       .set("Authorization", "Bearer " + token2);

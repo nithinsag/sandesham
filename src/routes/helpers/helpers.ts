@@ -36,7 +36,7 @@ export async function preCreateDefaultCommunity(req, res, next) {
   return next();
 }
 export async function preCreateCommentBlockBannedUsers(req, res, next) {
-  if (!req.body?.post) {
+  if (req.body?.post) {
     let post = await Post.findOne({ _id: req.body.post });
     let membership = await CommunityMembership.findOne({
       "member._id": req.user._id,
@@ -48,7 +48,7 @@ export async function preCreateCommentBlockBannedUsers(req, res, next) {
   return next();
 }
 export async function preCreatePostBlockBannedUser(req, res, next) {
-  if (!req.body?.community?._id) {
+  if (req.body?.community?._id) {
     let membership = await CommunityMembership.findOne({
       "member._id": req.user._id,
       "community._id": req.body.community._id,
