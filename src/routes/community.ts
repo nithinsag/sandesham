@@ -24,8 +24,7 @@ export function registerRoutes(router) {
       let community = await Community.findOne({
         name: { $regex: new RegExp(`${req.params.name}$`, "i") },
       });
-      if (community) return res.json(community);
-      else res.boom.notFound("community not found");
+      return res.json(community);
     }
   );
   router.post(
