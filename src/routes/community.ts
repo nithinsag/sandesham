@@ -538,7 +538,7 @@ export function registerRoutes(router) {
     next();
   }
   async function postReadPopulateCommunityData(req, res, next) {
-    const result = req.erm.result; // unfiltered document, object or array
+    let result = req.erm.result; // unfiltered document, object or array
     const statusCode = req.erm.statusCode; // 200
     if (!Array.isArray(result)) {
       let memberCount = await CommunityMembership.countDocuments({
@@ -551,8 +551,19 @@ export function registerRoutes(router) {
           isAdmin: true,
         })
       ).map((o) => o.member);
+      if (req.user) {
+        let membership = await CommunityMembership.findOne({
+          "community._id": result._id,
+          "member._id": req.user._id,
+        });
+        if (membership) {
+          let { member, community, ...rest } = membership;
+          result.membership = rest;
+        }
+      }
       result.memberCount = memberCount;
       result.admins = adminCommunities;
+      req.erm.result = result;
     }
     next();
   }
