@@ -537,7 +537,7 @@ export function registerRoutes(router) {
     await membership.save();
     next();
   }
-  async function postReadPopulateCommunityData(req, res, next) {
+  async function postReadPopulateMembershipData(req, res, next) {
     let result = req.erm.result; // unfiltered document, object or array
     const statusCode = req.erm.statusCode; // 200
     if (!Array.isArray(result)) {
@@ -635,6 +635,6 @@ export function registerRoutes(router) {
     preMiddleware: authenticateFromHeader,
     preCreate: addCreatedBy,
     postCreate: postCreateAutoAdmin,
-    postRead: postReadPopulateCommunityData,
+    postRead: postReadPopulateMembershipData,
   });
 }
