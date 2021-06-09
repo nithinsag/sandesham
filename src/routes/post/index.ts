@@ -46,8 +46,6 @@ export function registerRoutes(router: Router) {
     authenticateFromHeader,
     getFeedHandler("popular")
   );
-  router.get(`/api/v1/post/new`, authenticateFromHeader, getFeedHandler("new"));
-  router.get(`/api/v1/post/top`, authenticateFromHeader, getFeedHandler("top"));
 
   const postUri = restify.serve(router, Post, {
     name: "post",
