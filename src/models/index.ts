@@ -1,4 +1,5 @@
 import { text } from "body-parser";
+import { SchemaMetaFieldDef } from "graphql";
 import mongoose, { Schema, Document } from "mongoose";
 import slug from "mongoose-slug-generator";
 mongoose.plugin(slug);
@@ -121,6 +122,7 @@ export interface ICommunityMembership extends Document {
   community: { _id: string; name: string };
   isAdmin: boolean;
   isBanned: boolean;
+  subscribeToAdminNotification: boolean;
 }
 
 let CommunityMembershipSchema: Schema = new Schema({
@@ -137,6 +139,7 @@ let CommunityMembershipSchema: Schema = new Schema({
   },
   isAdmin: { type: Schema.Types.Boolean, default: false },
   isBanned: { type: Schema.Types.Boolean, default: false },
+  subscribeToAdminNotification: { type: Schema.Types.Boolean, default: true },
   created_at: { type: Date, default: Date.now },
   updated_at: { type: Date, default: Date.now },
 });

@@ -465,6 +465,18 @@ describe("Community routes", () => {
 
     expect(response.body.data).toHaveLength(1);
   });
+  test("community admins can toggle notifications", async () => {
+    let response = await request
+      .post(`/api/v1/community/${community2._id}/toggleAdminNotifications`)
+      .set("Authorization", "Bearer " + token2);
+    expect(response.status).toBe(200);
+    expect(response.body).toBe(false);
+    response = await request
+      .post(`/api/v1/community/${community2._id}/toggleAdminNotifications`)
+      .set("Authorization", "Bearer " + token2);
+    expect(response.status).toBe(200);
+    expect(response.body).toBe(true);
+  });
   test("community categories can be fetched", async () => {
     let response = await request
       .get(`/api/v1/community/category`)

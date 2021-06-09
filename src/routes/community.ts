@@ -277,6 +277,38 @@ export function registerRoutes(router) {
     }
   );
   router.post(
+    `${API_BASE_URL}:id/toggleAdminNotifications`,
+    authenticateFromHeader,
+    async (req, res) => {
+      if (!req.user)
+        return res.boom.badRequest(
+          "user needs to be authenticated to toggle notifications"
+        );
+
+      try {
+        let communityMembership = await CommunityMembership.findOne({
+          "community._id": req.params.id,
+          "member._id": req.user._id,
+          isAdmin: true,
+          isBanned: false,
+        });
+        // if member is banned we don't do anything and return false
+        // banned members will not see join and leave buttons
+        if (communityMembership) {
+          communityMembership.subscribeToAdminNotification =
+            !communityMembership.subscribeToAdminNotification;
+          await communityMembership.save();
+          return res.json(communityMembership.subscribeToAdminNotification);
+        } else {
+          return res.boom.badRequest("user is not an admin of the community");
+        }
+      } catch (e) {
+        logger.debug(e);
+        return res.json(false);
+      }
+    }
+  );
+  router.post(
     `${API_BASE_URL}:id/invite/:user`,
     authenticateFromHeader,
     async (req, res) => {
