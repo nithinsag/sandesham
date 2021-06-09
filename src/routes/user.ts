@@ -312,12 +312,16 @@ export function registerRoutes(router: Router) {
   async function populateCommunityDataOnUser(user) {
     let result = user;
     let communities = (
-      await CommunityMembership.find({ "member._id": result._id })
+      await CommunityMembership.find({
+        "member._id": result._id,
+        isBanned: false,
+      })
     ).map((o) => o.community._id);
     let adminCommunities = (
       await CommunityMembership.find({
         "member._id": result._id,
         isAdmin: true,
+        isBanned: false,
       })
     ).map((o) => o.community._id.toString());
     let communityFull = await Community.find({ _id: { $in: communities } });
