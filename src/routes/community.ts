@@ -557,7 +557,7 @@ export function registerRoutes(router) {
           "member._id": req.user._id,
         });
         if (membership) {
-          let { member, community, ...rest } = membership;
+          let { member, community, ...rest } = membership.toObject();
           result.membership = rest;
         }
       }
