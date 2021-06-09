@@ -41,6 +41,7 @@ export function registerRoutes(router) {
         "community._id": community._id,
         "member._id": req.user._id,
       });
+      // if user is banned then membership already exists and we don't do anything
       if (membership) return res.json(true);
       let communityMembership = new CommunityMembership({
         community: { name: community.name, _id: community._id },
@@ -59,7 +60,7 @@ export function registerRoutes(router) {
         await sendNotification({
           title: `${community.name} is growing!`,
           to: admin.member._id,
-          message: `${req.user.displayname} joined ${community.name}`,
+          message: `${req.user.displayname} joined #${community.name}`,
           data: { link: `/community/${community._id}`, type: "community" },
         });
       }
@@ -260,7 +261,10 @@ export function registerRoutes(router) {
         let communityMembership = await CommunityMembership.findOneAndDelete({
           "community._id": req.params.id,
           "member._id": req.user._id,
+          isBanned: false,
         });
+        // if member is banned we don't do anything and return false
+        // banned members will not see join and leave buttons
         if (communityMembership) {
           return res.json(true);
         } else {
@@ -295,7 +299,7 @@ export function registerRoutes(router) {
       notification = {
         to: to._id,
         title: `You recieved an invite!`,
-        message: `${req.user.displayname} invited you to join ${community.name}`,
+        message: `${req.user.displayname} invited you to join #${community.name}`,
         data: { type: "community", link: `/community/${community._id}` },
       };
       await sendNotification(notification);
@@ -355,7 +359,7 @@ export function registerRoutes(router) {
           title: `New admin alert`,
           message: `${
             membership?.member.displayname
-          } was promoted as an admin for ${community!.name}`,
+          } was promoted as an admin for #${community!.name}`,
           data: { type: "community", link: `/community/${community!._id}` },
         };
         await sendNotification(notification);
@@ -412,7 +416,7 @@ export function registerRoutes(router) {
           title: `User dismissed as admin`,
           message: `${
             membership?.member.displayname
-          } was dismissed as admin of ${community!.name}`,
+          } was dismissed as admin of #${community!.name}`,
           data: { type: "community", link: `/community/${community!._id}` },
         };
         await sendNotification(notification);

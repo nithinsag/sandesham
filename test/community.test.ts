@@ -331,9 +331,10 @@ describe("Community routes", () => {
     expect(posts).toHaveLength(2);
   });
   test("all posts can be fetched in all feed", async () => {
-    let response = await request
+    let response;
+    response = await request
       .get(`/api/v1/feed/all?sort=hot`)
-      .set("Authorization", "Bearer " + token1);
+      .set("Authorization", "Bearer " + token2);
     expect(response.status).toBe(200);
     let posts = response.body.data;
 
@@ -407,21 +408,6 @@ describe("Community routes", () => {
       .set("Authorization", "Bearer " + token1);
     expect(response.status).toBe(200);
     expect(response.body._id).toBe(community1._id);
-  });
-  test("top communities can be fetched", async () => {
-    let response = await request
-      .get(`/api/v1/community/top`)
-      .set("Authorization", "Bearer " + token_anon);
-    expect(response.status).toBe(400);
-
-    response = await request
-      .get(`/api/v1/community/top`)
-      .set("Authorization", "Bearer " + token1);
-    expect(response.status).toBe(200);
-    response = await request
-      .get(`/api/v1/community/top`)
-      .set("Authorization", "Bearer " + token2);
-    expect(response.status).toBe(200);
   });
   test("community members can be fetched", async () => {
     let response = await request

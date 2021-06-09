@@ -73,8 +73,12 @@ export const getFeedHandler = function (type) {
       }
       if (type == "home") {
         if (req.user) {
+          // fetch all non banned communities
           let communities = (
-            await CommunityMembership.find({ "member._id": req.user._id })
+            await CommunityMembership.find({
+              "member._id": req.user._id,
+              isBanned: false,
+            })
           ).map((communityMembership) => communityMembership.community._id);
           matchQuery = {
             ...matchQuery,
@@ -84,6 +88,12 @@ export const getFeedHandler = function (type) {
       }
       if (type == "all") {
         if (req.user) {
+          let bannedCommunities = (
+            await CommunityMembership.find({
+              "member._id": req.user._id,
+              isBanned: true,
+            })
+          ).map((communityMembership) => communityMembership.community._id);
           let blacklistedCommunities = (
             await Community.find({
               $or: [{ isNSFW: true }, { skipPopular: true }],
@@ -91,7 +101,9 @@ export const getFeedHandler = function (type) {
           ).map((community) => community._id);
           matchQuery = {
             ...matchQuery,
-            "community._id": { $nin: blacklistedCommunities },
+            "community._id": {
+              $nin: [...blacklistedCommunities, ...bannedCommunities],
+            },
           };
         }
       }
