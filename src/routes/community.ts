@@ -379,6 +379,7 @@ export function registerRoutes(router) {
       let admins = await CommunityMembership.find({
         isAdmin: true,
         "community._id": community._id,
+        subscribeToAdminNotification: true,
       });
 
       admins.forEach(async (admin) => {
@@ -436,6 +437,7 @@ export function registerRoutes(router) {
       let admins = await CommunityMembership.find({
         isAdmin: true,
         "community._id": community._id,
+        subscribeToAdminNotification: true,
       });
 
       admins.forEach(async (admin) => {
