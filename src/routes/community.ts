@@ -21,10 +21,10 @@ export function registerRoutes(router) {
     `${API_BASE_URL}byName`,
     authenticateFromHeader,
     async (req, res) => {
-      if (!req.query.name)
+      if (!req.params.name)
         return res.boom.badRequest("name is a required parameter");
       let community = await Community.findOne({
-        name: { $regex: new RegExp(`${req.query.name}$`, "i") },
+        name: { $regex: new RegExp(`^${req.query.name}$`, "i") },
       });
       return res.json(community);
     }
