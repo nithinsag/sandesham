@@ -18,11 +18,13 @@ export function registerRoutes(router) {
   let API_BASE_URL = "/api/v1/community/";
 
   router.get(
-    `${API_BASE_URL}byName/:name`,
+    `${API_BASE_URL}byName`,
     authenticateFromHeader,
     async (req, res) => {
+      if (!req.query.name)
+        return res.boom.badRequest("name is a required parameter");
       let community = await Community.findOne({
-        name: { $regex: new RegExp(`${req.params.name}$`, "i") },
+        name: { $regex: new RegExp(`${req.query.name}$`, "i") },
       });
       return res.json(community);
     }
@@ -55,6 +57,7 @@ export function registerRoutes(router) {
       let admin = await CommunityMembership.findOne({
         isAdmin: true,
         "community._id": community._id,
+        subscribeToAdminNotification: true,
       });
       if (admin) {
         await sendNotification({
@@ -383,12 +386,9 @@ export function registerRoutes(router) {
       });
 
       admins.forEach(async (admin) => {
-        let to = await User.findById(req.params.user);
-        if (!to) return;
-
         let notification: PushMessageJob;
         notification = {
-          to: to._id,
+          to: admin._id,
           title: `New admin alert`,
           message: `${
             membership?.member.displayname
@@ -407,17 +407,17 @@ export function registerRoutes(router) {
         return res.boom.badRequest("user needs to be authenticated");
       let community = await Community.findOne({ _id: req.params.id });
       if (!community) return res.boom.badRequest("invalid community id");
-      let membership = await CommunityMembership.findOne({
+      let adminship = await CommunityMembership.findOne({
         "member._id": req.user._id,
         isAdmin: true,
       });
-      if (!membership)
+      if (!adminship)
         return res.boom.badRequest(
           "user need to be admin of a community to dissmiss another admin"
         );
-
+      let membership;
       try {
-        let membership = await CommunityMembership.findOne({
+        membership = await CommunityMembership.findOne({
           "community._id": community._id,
           "member._id": req.params.user,
           isAdmin: true,
@@ -441,12 +441,9 @@ export function registerRoutes(router) {
       });
 
       admins.forEach(async (admin) => {
-        let to = await User.findById(req.params.user);
-        if (!to) return;
-
         let notification: PushMessageJob;
         notification = {
-          to: to._id,
+          to: admin._id,
           title: `User dismissed as admin`,
           message: `${
             membership?.member.displayname
