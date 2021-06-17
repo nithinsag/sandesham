@@ -330,6 +330,26 @@ describe("Community routes", () => {
 
     expect(posts).toHaveLength(2);
   });
+
+  test("top post feed can be filtered from created at", async () => {
+    let posts;
+    let response = await request
+      .get(`/api/v1/feed/home?sort=top&from=${Date.now()}`)
+      .set("Authorization", "Bearer " + token2);
+    expect(response.status).toBe(200);
+    posts = response.body.data;
+
+    expect(posts).toHaveLength(0);
+
+    response = await request
+      .get(`/api/v1/feed/home?sort=top&from=${Date.now() - 10000}`)
+      .set("Authorization", "Bearer " + token2);
+    expect(response.status).toBe(200);
+    posts = response.body.data;
+
+    expect(posts).toHaveLength(2);
+  });
+
   test("all posts can be fetched in all feed", async () => {
     let response;
     response = await request

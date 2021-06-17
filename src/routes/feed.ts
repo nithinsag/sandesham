@@ -122,7 +122,10 @@ export const getFeedHandler = function (type) {
           "author._id": mongoose.Types.ObjectId(req.params.id),
         };
       }
-
+      if (req.query.from) {
+        let from = new Date(parseInt(req.query.from));
+        matchQuery = { created_at: { $gte: from }, ...matchQuery };
+      }
       return matchQuery;
     }
 
