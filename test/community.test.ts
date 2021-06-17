@@ -485,7 +485,7 @@ describe("Community routes", () => {
   });
   test("community can be fetched by name", async () => {
     let response = await request
-      .get(`/api/v1/community/byName/${community1.name}`)
+      .get(`/api/v1/community/byName?name=${community1.name}`)
       .set("Authorization", "Bearer " + token1);
     expect(response.status).toBe(200);
     expect(response.body._id).toBe(community1._id);
