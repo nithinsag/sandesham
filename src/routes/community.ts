@@ -1,5 +1,6 @@
 import {
   Post,
+  Comment,
   Community,
   CommunityMembership,
   User,
@@ -179,7 +180,12 @@ export function registerRoutes(router) {
       console.log(req.params);
       let community = await Community.findOne({ _id: req.params.id });
       if (!community) return res.boom.badRequest("invalid community id");
-
+      let sort = req.query.sort || "postVote";
+      const validSorts = ["comment", "post", "postVote", "commentVote"];
+      if (!validSorts.includes(sort))
+        return res.boom.badRequest(
+          `sort should be one of ${validSorts.join(", ")}.`
+        );
       let page = parseInt(String(req.query.page)) || 1;
       let limit = parseInt(String(req.query.limit)) || 10;
       let matchQuery: any = {
@@ -201,11 +207,11 @@ export function registerRoutes(router) {
           $group: {
             _id: "$author._id",
             voteCount: { $sum: "$voteCount" },
-            commentCount: { $sum: "commentCount" },
+            count: { $sum: 1 },
             displayname: { $first: "$author.displayname" },
           },
         },
-        { $sort: { voteCount: -1 } },
+        { $sort: { [sort.includes("Vote") ? "voteCount" : "count"]: -1 } },
         {
           $facet: {
             metadata: [
@@ -216,7 +222,20 @@ export function registerRoutes(router) {
           },
         },
       ];
-      let leaderboard = await Post.aggregate(aggregateQuery);
+
+      let commentGroupQuery = {
+        $group: {
+          _id: "$author._id",
+          voteCount: { $sum: "$voteCount" },
+          commentCount: { $sum: "commentCount" },
+          displayname: { $first: "$author.displayname" },
+        },
+      };
+      let leaderboard;
+
+      if (sort.startsWith("post"))
+        leaderboard = await Post.aggregate(aggregateQuery);
+      else leaderboard = await Comment.aggregate(aggregateQuery);
       return res.json(leaderboard[0]);
     }
   );
