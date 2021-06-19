@@ -123,7 +123,7 @@ export const getFeedHandler = function (type) {
         };
       }
       if (req.query.from) {
-        let from = new Date(parseInt(req.query.from));
+        let from = new Date(parseInt(req.query.from) * 1000);
         matchQuery = { created_at: { $gte: from }, ...matchQuery };
       }
       return matchQuery;

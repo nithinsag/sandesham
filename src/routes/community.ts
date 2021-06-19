@@ -170,6 +170,57 @@ export function registerRoutes(router) {
     }
   );
   router.get(
+    `${API_BASE_URL}:id/leaderboard`,
+    authenticateFromHeader,
+    async (req, res) => {
+      if (!req.user)
+        return res.boom.badRequest("user needs to be authenticated");
+
+      console.log(req.params);
+      let community = await Community.findOne({ _id: req.params.id });
+      if (!community) return res.boom.badRequest("invalid community id");
+
+      let page = parseInt(String(req.query.page)) || 1;
+      let limit = parseInt(String(req.query.limit)) || 10;
+      let matchQuery: any = {
+        "community._id": community._id,
+      };
+      if (req.query.from) {
+        matchQuery = {
+          created_at: { $gte: new Date(parseInt(req.query.from) * 1000) },
+          ...matchQuery,
+        };
+      }
+      // allow leaderboard by postkarma, commenkarma, commentcount
+      console.log(matchQuery);
+      let aggregateQuery = [
+        {
+          $match: matchQuery,
+        },
+        {
+          $group: {
+            _id: "$author._id",
+            voteCount: { $sum: "$voteCount" },
+            commentCount: { $sum: "commentCount" },
+            displayname: { $first: "$author.displayname" },
+          },
+        },
+        { $sort: { voteCount: -1 } },
+        {
+          $facet: {
+            metadata: [
+              { $count: "total" },
+              { $addFields: { page: page, limit: limit } },
+            ],
+            data: [{ $skip: (page - 1) * limit }, { $limit: limit }],
+          },
+        },
+      ];
+      let leaderboard = await Post.aggregate(aggregateQuery);
+      return res.json(leaderboard[0]);
+    }
+  );
+  router.get(
     `${API_BASE_URL}:id/members`,
     authenticateFromHeader,
     async (req, res) => {
