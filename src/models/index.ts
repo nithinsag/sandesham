@@ -158,6 +158,10 @@ let CommentSchema: Schema = new Schema({
     _id: { type: Schema.Types.ObjectId, ref: "User" },
     displayname: String,
   },
+  community: {
+    _id: { type: Schema.Types.ObjectId, ref: "Community", required: true },
+    name: String,
+  },
   slug: { type: String, slug: ["parent", "text"], unique: true },
   voteCount: { type: Schema.Types.Number, default: 1 },
   upvotes: [Schema.Types.ObjectId],
@@ -176,6 +180,7 @@ export interface IComment extends Document {
   text: string;
   parent: string;
   post: string;
+  community?: { _id: string; name: string };
   author: { _id: string; displayname: string };
   slug: string;
   voteCount: number;

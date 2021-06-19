@@ -183,6 +183,7 @@ export function preCreateAddCommentMeta(req, res, next) {
 
     req.parentComment = parentComment;
     req.parentPost = parentPost;
+    req.community = parentPost.community;
 
     next();
   }
