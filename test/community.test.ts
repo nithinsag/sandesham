@@ -334,11 +334,7 @@ describe("Community routes", () => {
   test("top post feed can be filtered from created at", async () => {
     let posts;
     let response = await request
-      .get(
-        `/api/v1/feed/home?sort=top&from=${
-          Math.floor(Date.now() / 1000) + 1000
-        }`
-      )
+      .get(`/api/v1/feed/home?sort=top&from=${Date.now() + 1000000}`)
       .set("Authorization", "Bearer " + token2);
     expect(response.status).toBe(200);
     posts = response.body.data;
@@ -346,11 +342,7 @@ describe("Community routes", () => {
     expect(posts).toHaveLength(0);
 
     response = await request
-      .get(
-        `/api/v1/feed/home?sort=top&from=${Math.floor(
-          Date.now() / 1000 - 100000
-        )}`
-      )
+      .get(`/api/v1/feed/home?sort=top&from=${Date.now() - 100000000}`)
       .set("Authorization", "Bearer " + token2);
     expect(response.status).toBe(200);
     posts = response.body.data;
