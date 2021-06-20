@@ -183,8 +183,7 @@ export function preCreateAddCommentMeta(req, res, next) {
 
     req.parentComment = parentComment;
     req.parentPost = parentPost;
-    req.community = parentPost.community;
-
+    req.body.community = parentPost.community;
     next();
   }
   wrapper(); //  wrapping to use async await
