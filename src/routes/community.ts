@@ -174,10 +174,6 @@ export function registerRoutes(router) {
     `${API_BASE_URL}:id/leaderboard`,
     authenticateFromHeader,
     async (req, res) => {
-      if (!req.user)
-        return res.boom.badRequest("user needs to be authenticated");
-
-      console.log(req.params);
       let community = await Community.findOne({ _id: req.params.id });
       if (!community) return res.boom.badRequest("invalid community id");
       let sort = req.query.sort || "postVote";
