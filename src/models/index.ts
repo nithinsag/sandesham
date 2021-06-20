@@ -257,6 +257,10 @@ export async function connectToMongo() {
 
   return connection;
 }
+
+export async function closeConnection() {
+  await mongoose.connection.close();
+}
 export {
   User,
   Community,
