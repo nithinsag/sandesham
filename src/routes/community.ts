@@ -189,7 +189,7 @@ export function registerRoutes(router) {
       };
       if (req.query.from) {
         matchQuery = {
-          created_at: { $gte: new Date(parseInt(req.query.from) * 1000) },
+          created_at: { $gte: new Date(parseInt(req.query.from)) },
           ...matchQuery,
         };
       }
