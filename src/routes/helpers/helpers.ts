@@ -247,7 +247,7 @@ export async function postCreateNotifyMods(req, res, next) {
     await sendNotification({
       title: `New post in ${admin.community.name}!`,
       to: admin.member._id,
-      message: `${req.user.displayname} posted in #${admin.community.name}`,
+      message: `${req.user.displayname} posted in ${admin.community.name}`,
       data: { link: `/post/${post._id}`, type: "post" },
     });
   }

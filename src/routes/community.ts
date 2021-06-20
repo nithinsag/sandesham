@@ -64,7 +64,7 @@ export function registerRoutes(router) {
         await sendNotification({
           title: `${community.name} is growing!`,
           to: admin.member._id,
-          message: `${req.user.displayname} joined #${community.name}`,
+          message: `${req.user.displayname} joined ${community.name}`,
           data: { link: `/community/${community._id}`, type: "community" },
         });
       }
@@ -404,7 +404,7 @@ export function registerRoutes(router) {
       notification = {
         to: to._id,
         title: `You recieved an invite!`,
-        message: `${req.user.displayname} invited you to join #${community.name}`,
+        message: `${req.user.displayname} invited you to join ${community.name}`,
         data: { type: "community", link: `/community/${community._id}` },
       };
       await sendNotification(notification);
@@ -462,7 +462,7 @@ export function registerRoutes(router) {
           title: `New admin alert`,
           message: `${
             membership?.member.displayname
-          } was promoted as an admin for #${community!.name}`,
+          } was promoted as an admin for ${community!.name}`,
           data: { type: "community", link: `/community/${community!._id}` },
         };
         await sendNotification(notification);
@@ -517,7 +517,7 @@ export function registerRoutes(router) {
           title: `User dismissed as admin`,
           message: `${
             membership?.member.displayname
-          } was dismissed as admin of #${community!.name}`,
+          } was dismissed as admin of ${community!.name}`,
           data: { type: "community", link: `/community/${community!._id}` },
         };
         await sendNotification(notification);
