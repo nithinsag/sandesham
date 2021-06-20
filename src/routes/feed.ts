@@ -38,9 +38,11 @@ export function registerRoutes(router) {
 export const getFeedHandler = function (type) {
   return async (req, res) => {
     function getSortQuery(type, sort) {
-      let query: any = {
-        isPinned: -1,
-      };
+      let query: any = {};
+      if (type == "community") {
+        //  pinned post only in community feed
+        query = { ...query, isPinned: -1 };
+      }
       if (sort == "new") {
         query = { ...query, created_at: -1 };
       } else if (sort == "top") {
