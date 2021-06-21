@@ -186,6 +186,8 @@ export function registerRoutes(router) {
       let limit = parseInt(String(req.query.limit)) || 10;
       let matchQuery: any = {
         "community._id": community._id,
+        isDeleted: false,
+        isRemoved: false,
       };
       if (req.query.from) {
         matchQuery = {
