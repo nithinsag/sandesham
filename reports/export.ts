@@ -15,7 +15,7 @@ const creds = require("../config/ulkka-in-6cafb44e98cd.json"); // the file saved
   console.log(doc.title);
 
   const postSheet = doc.sheetsByTitle["posts"]; // or use doc.sheetsById[id] or doc.sheetsByTitle[title]
-  postSheet.clear();
+  await postSheet.clear();
 
   let posts = await Post.find();
   let postRows = posts.map((post) => {
@@ -49,6 +49,7 @@ const creds = require("../config/ulkka-in-6cafb44e98cd.json"); // the file saved
 
   console.log(postRows.length);
   const commentSheet = doc.sheetsByTitle["comments"]; // or use doc.sheetsById[id] or doc.sheetsByTitle[title]
+  await commentSheet.clear();
   let comments = await Comment.find();
   let commentRows = comments.map((comment) => {
     return [
