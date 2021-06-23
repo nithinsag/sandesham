@@ -71,6 +71,8 @@ CommunitySchema.index({ name: "text", description: "text" });
 export interface IPost extends Document {
   title: string;
   slug?: string;
+  link?: string;
+  type: string;
   description?: string;
   author: { _id: string; displayname: string };
   community?: { _id: string; name: string };

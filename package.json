@@ -52,6 +52,7 @@
     "express-boom": "^3.0.0",
     "express-restify-mongoose": "^6.1.2",
     "firebase-admin": "^9.2.0",
+    "google-spreadsheet": "^3.1.15",
     "graphql": "^15.3.0",
     "graphql-compose": "^7.21.1",
     "graphql-compose-mongoose": "^8.0.3",
