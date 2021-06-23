@@ -44,8 +44,8 @@ const creds = require("../config/ulkka-in-6cafb44e98cd.json"); // the file saved
     "commentCount",
     "createdAt",
   ];
-  postSheet.setHeaderRow(postHeaders);
-  postSheet.addRows([postHeaders, ...postRows]);
+  await postSheet.setHeaderRow(postHeaders);
+  await postSheet.addRows(postRows);
 
   console.log(postRows.length);
   const commentSheet = doc.sheetsByTitle["comments"]; // or use doc.sheetsById[id] or doc.sheetsByTitle[title]
@@ -70,8 +70,8 @@ const creds = require("../config/ulkka-in-6cafb44e98cd.json"); // the file saved
     "community",
     "createdAt",
   ];
-  commentSheet.setHeaderRow(commentHeaders);
-  commentSheet.addRows([commentHeaders, ...commentRows]);
+  await commentSheet.setHeaderRow(commentHeaders);
+  await commentSheet.addRows(commentRows);
   // adding / removing sheets
   //console.log(sheet.rowCount);
   await closeConnection();
