@@ -29,6 +29,7 @@ const creds = require("../config/ulkka-in-6cafb44e98cd.json"); // the file saved
       post.description,
       post.community?.name,
       post.commentCount,
+      post.created_at,
     ];
   });
   let postHeaders = [
@@ -41,10 +42,12 @@ const creds = require("../config/ulkka-in-6cafb44e98cd.json"); // the file saved
     "description",
     "community",
     "commentCount",
+    "createdAt",
   ];
   postSheet.setHeaderRow(postHeaders);
   postSheet.addRows([postHeaders, ...postRows]);
 
+  console.log(postRows.length);
   const commentSheet = doc.sheetsByTitle["comments"]; // or use doc.sheetsById[id] or doc.sheetsByTitle[title]
   let comments = await Comment.find();
   let commentRows = comments.map((comment) => {
@@ -54,9 +57,18 @@ const creds = require("../config/ulkka-in-6cafb44e98cd.json"); // the file saved
       comment.voteCount,
       comment.text,
       comment.community?.name,
+      comment.created_at,
     ];
   });
-  let commentHeaders = ["commentId", "author", "votes", "text", "community"];
+  console.log(commentRows.length);
+  let commentHeaders = [
+    "commentId",
+    "author",
+    "votes",
+    "text",
+    "community",
+    "createdAt",
+  ];
   commentSheet.setHeaderRow(commentHeaders);
   commentSheet.addRows([commentHeaders, ...commentRows]);
   // adding / removing sheets
