@@ -2,12 +2,17 @@ import { GoogleSpreadsheet } from "google-spreadsheet";
 import { Post, Comment, connectToMongo, closeConnection } from "../src/models";
 import dotenv from "dotenv";
 import { post } from "request-promise-native";
+import cron from "node-cron";
 // Initialize the sheet - doc ID is the long id in the sheets URL
 const doc = new GoogleSpreadsheet(
   "1cCd0e9DDlqX8CUJAdzlyy14sP_cMWlahjJv0GnswzEE"
 );
 const creds = require("../config/ulkka-in-6cafb44e98cd.json"); // the file saved above
-(async () => {
+const job1 = cron.schedule("*/10 * * * *", populateSheet, {
+  scheduled: false,
+  timezone: "Asia/Kolkata",
+});
+async function populateSheet() {
   dotenv.config();
   await doc.useServiceAccountAuth(creds);
   await connectToMongo();
@@ -75,4 +80,6 @@ const creds = require("../config/ulkka-in-6cafb44e98cd.json"); // the file saved
   // adding / removing sheets
   //console.log(sheet.rowCount);
   await closeConnection();
-})();
+}
+
+job1.start();
