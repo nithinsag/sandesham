@@ -78,7 +78,7 @@ export async function commentTreeBuilder(req, res) {
   let comments: IComment[] = await Comment.find(baseQuery)
     .limit(limit)
     .skip((page - 1) * limit)
-    .sort("voteCount")
+    .sort({ voteCount: -1 })
     .lean();
 
   let topComments = comments.map((o) => o._id);
@@ -95,7 +95,7 @@ export async function commentTreeBuilder(req, res) {
   }
   childrenQuery = { ...childrenQuery };
   let children: IComment[] = await Comment.find(childrenQuery)
-    .sort("voteCount")
+    .sort({ voteCount: -1 })
     .lean();
 
   let allComments = [...comments, ...children];
