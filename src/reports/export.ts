@@ -1,5 +1,5 @@
 import { GoogleSpreadsheet } from "google-spreadsheet";
-import { Post, Comment, connectToMongo, closeConnection } from "../src/models";
+import { Post, Comment, connectToMongo, closeConnection } from "../models";
 import dotenv from "dotenv";
 import { post } from "request-promise-native";
 import cron from "node-cron";
@@ -7,7 +7,7 @@ import cron from "node-cron";
 const doc = new GoogleSpreadsheet(
   "1cCd0e9DDlqX8CUJAdzlyy14sP_cMWlahjJv0GnswzEE"
 );
-const creds = require("../config/ulkka-in-6cafb44e98cd.json"); // the file saved above
+const creds = require("../../config/ulkka-in-6cafb44e98cd.json"); // the file saved above
 const job1 = cron.schedule("*/30 * * * *", populateSheet, {
   scheduled: false,
   timezone: "Asia/Kolkata",
