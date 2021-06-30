@@ -55,12 +55,12 @@ export function registerRoutes(router) {
       } catch (e) {
         return res.boom.badData("cannot create membership", e);
       }
-      let admin = await CommunityMembership.findOne({
+      let admins = await CommunityMembership.find({
         isAdmin: true,
         "community._id": community._id,
         subscribeToAdminNotification: true,
       });
-      if (admin) {
+      for (let admin of admins) {
         await sendNotification({
           title: `${community.name} is growing!`,
           to: admin.member._id,
@@ -92,8 +92,41 @@ export function registerRoutes(router) {
           as: "memberCount",
         },
       },
-      { $addFields: { memberCount: { $size: "$memberCount" } } },
-      { $sort: { memberCount: -1 } },
+      {
+        $lookup: {
+          from: "posts",
+          let: { communityId: "$_id" },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $and: [
+                    {
+                      $eq: ["$community._id", "$$communityId"],
+                    },
+                    {
+                      $gte: [
+                        "$created_at",
+                        new Date(
+                          new Date().getTime() - 50 * 24 * 60 * 60 * 1000
+                        ),
+                      ],
+                    },
+                  ],
+                },
+              },
+            },
+          ],
+          as: "postCount",
+        },
+      },
+      {
+        $addFields: {
+          memberCount: { $size: "$memberCount" },
+          postCount: { $size: "$postCount" },
+        },
+      },
+      { $sort: { score: -1 } },
       {
         $facet: {
           metadata: [
@@ -104,7 +137,7 @@ export function registerRoutes(router) {
         },
       },
     ];
-
+    console.log(JSON.stringify(aggregateQuery));
     let communities = await Community.aggregate(aggregateQuery);
     return res.json(communities[0]);
   });

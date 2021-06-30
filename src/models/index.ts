@@ -43,6 +43,7 @@ let CommunityCategorySchema: Schema = new Schema({
 export interface ICommunity extends Document {
   name: string;
   _id: string;
+  score: number;
 }
 let CommunitySchema: Schema = new Schema({
   name: { type: String, required: true, unique: true },
@@ -66,6 +67,7 @@ let CommunitySchema: Schema = new Schema({
   updated_at: { type: Date, default: Date.now },
   isNSFW: { type: Boolean, default: false },
   skipPopular: { type: Boolean, default: false },
+  score: { type: Number, default: 0 },
 });
 CommunitySchema.index({ name: "text", description: "text" });
 export interface IPost extends Document {

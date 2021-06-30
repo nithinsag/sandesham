@@ -22,6 +22,10 @@ const job4 = cron.schedule("0 20 * * *", getSchedulerContributor(4), {
   timezone: "Asia/Kolkata",
 });
 
+const job5 = cron.schedule("*/30 * * * *", populateCommunityRank, {
+  scheduled: false,
+  timezone: "Asia/Kolkata",
+});
 function getSchedulerFunction(period) {
   return function () {
     PromoteTopPost(period);
@@ -39,4 +43,5 @@ function getSchedulerContributor(period) {
   job2.start();
   job3.start();
   job4.start();
+  job5.start();
 })();
