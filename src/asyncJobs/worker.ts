@@ -4,6 +4,7 @@ import { Worker, Job } from "bullmq";
 import { send } from "process";
 import { User, connectToMongo } from "../models";
 import { sendNotification } from "../modules/firebase";
+import { logger } from "../helpers/logger";
 
 export interface PushMessageJob {
   to: string;
@@ -24,13 +25,18 @@ export interface PushMessageJob {
       //let fromUser = await User.findOne({ _id: job.from });
       //
       console.log("processing job", job.name, job.data);
-
-      await sendNotification(
-        toUser,
-        job.data.title,
-        job.data.message,
-        job.data.data
-      );
+      if (toUser?.pushMessageToken) {
+        await sendNotification(
+          toUser,
+          job.data.title,
+          job.data.message,
+          job.data.data
+        );
+      } else {
+        logger.info(
+          `skipping notificatino as no push token available for ${toUser?.name}: ${toUser?._id}`
+        );
+      }
       // Get the Messaging service for the default app
     }
   );
