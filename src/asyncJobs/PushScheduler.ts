@@ -1,44 +1,20 @@
 import dotenv from "dotenv";
 dotenv.config();
-import { User, connectToMongo, Post } from "../models";
+import {
+  User,
+  Community,
+  closeConnection,
+  connectToMongo,
+  Post,
+} from "../models";
 import {
   sendMulticastNotification,
   sendNotification,
 } from "../modules/firebase";
 import _ from "lodash";
-import mongoose from "mongoose";
-import cron from "node-cron";
-import { PossibleTypeExtensionsRule } from "graphql";
+import { updateOne } from "graphql-compose-mongoose";
 
-const job1 = cron.schedule("0 20 * * *", getSchedulerFunction(4), {
-  scheduled: false,
-  timezone: "Asia/Kolkata",
-});
-const job2 = cron.schedule("0 14 * * *", getSchedulerFunction(8), {
-  scheduled: false,
-  timezone: "Asia/Kolkata",
-});
-const job3 = cron.schedule("0 16 * * *", getSchedulerContributor(12), {
-  scheduled: false,
-  timezone: "Asia/Kolkata",
-});
-const job4 = cron.schedule("0 20 * * *", getSchedulerContributor(4), {
-  scheduled: false,
-  timezone: "Asia/Kolkata",
-});
-
-function getSchedulerFunction(period) {
-  return function () {
-    PromoteTopPost(period);
-  };
-}
-
-function getSchedulerContributor(period) {
-  return function () {
-    notifyTopContributor(period);
-  };
-}
-async function PromoteTopPost(period) {
+export async function PromoteTopPost(period) {
   let users = await User.find();
   let tokens = users.map((user) => user.pushMessageToken).filter(Boolean);
   let promotionalMessage = await getPromotionalMessage(period);
@@ -55,7 +31,7 @@ async function PromoteTopPost(period) {
   }
 }
 
-async function notifyTopContributor(hours) {
+export async function notifyTopContributor(hours) {
   let aggregateQuery = [
     {
       isDeleted: false,
@@ -80,12 +56,12 @@ async function notifyTopContributor(hours) {
     await sendNotification(
       post.author._id,
       `Your post in ${post.community.name} is on fire!🔥🔥🔥🚒`,
-      `${post.community.name} members are loving your post`,
+      `${post.community.name} members are loving your post!`,
       { type: "post", link: `/post/${post._id}` }
     );
   }
 }
-async function getPromotionalMessage(period) {
+export async function getPromotionalMessage(period) {
   let topPosts = await Post.find({
     created_at: { $gt: new Date(Date.now() - period * 60 * 60 * 1000) },
   })
@@ -94,10 +70,75 @@ async function getPromotionalMessage(period) {
   console.log(topPosts);
   return topPosts[0];
 }
-(async () => {
-  await connectToMongo();
-  job1.start();
-  job2.start();
-  job3.start();
-  job4.start();
-})();
+
+export async function populateCommunityRank() {
+  let aggregateQuery = [
+    { $match: {} },
+    {
+      $lookup: {
+        from: "communitymemberships",
+        localField: "_id",
+        foreignField: "community._id",
+        as: "memberCount",
+      },
+    },
+    {
+      $lookup: {
+        from: "posts",
+        let: { communityId: "$_id" },
+        pipeline: [
+          {
+            $match: {
+              $expr: {
+                $and: [
+                  {
+                    $eq: ["$community._id", "$$communityId"],
+                  },
+                  {
+                    $gte: [
+                      "$created_at",
+                      new Date(new Date().getTime() - 7 * 24 * 60 * 60 * 1000),
+                    ],
+                  },
+                ],
+              },
+            },
+          },
+        ],
+        as: "postCount",
+      },
+    },
+    {
+      $addFields: {
+        memberCount: { $size: "$memberCount" },
+        postCount: { $size: "$postCount" },
+      },
+    },
+  ];
+  console.log(JSON.stringify(aggregateQuery));
+  let communities = await Community.aggregate(aggregateQuery);
+  console.log(communities.length);
+
+  let minMembers = 1;
+  let minPost = 0;
+  let maxMemeber = _.max(communities.map((c) => c.memberCount));
+  let maxPost = _.max(communities.map((c) => c.postCount));
+  _.sortBy(communities, "memberCount").forEach((community, i) => {
+    community.memberCountRank =
+      (community.memberCount - minMembers) / (maxMemeber - minMembers);
+  });
+  _.sortBy(communities, "$postCount").forEach((community, i) => {
+    community.postCountRank =
+      (community.postCount - minPost) / (maxPost - minPost);
+  });
+
+  communities.forEach((c) => {
+    c.score = (c.memberCountRank + c.postCountRank) / 2;
+  });
+
+  let bulkQuery = communities.map((c) => ({
+    updateOne: { filter: { _id: c._id }, update: { $set: { score: c.score } } },
+  }));
+
+  await Community.bulkWrite(bulkQuery);
+}
