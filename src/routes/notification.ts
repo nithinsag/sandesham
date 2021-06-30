@@ -94,13 +94,19 @@ export function registerRoutes(router) {
         return res.boom.unauthorized(
           "User needs to be authenticated to get messages"
         );
-      let notification: any = await Notification.findOne({
-        _id: req.params.id,
-        to: req.user._id,
-      });
-      if (!notification) return res.boom.badRequest("Invalid notification");
-      notification.read = true;
-      return res.json(await notification.save());
+      try {
+        let notification: any = await Notification.findOne({
+          _id: req.params.id,
+          to: req.user._id,
+        });
+        if (!notification) return res.boom.badRequest("Invalid notification");
+        notification.read = true;
+        return res.json(await notification.save());
+      } catch (e) {
+        return res.boom.badRequest(
+          "Could not complete your request, check params`"
+        );
+      }
     }
   );
   router.post(
