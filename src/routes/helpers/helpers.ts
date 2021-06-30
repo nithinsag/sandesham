@@ -287,7 +287,11 @@ export async function sendCommentNotification(req, res, next) {
     message: `${author.displayname} replied to your ${
       parent ? "comment" : "post"
     }`,
-    data: { type: "comment", link: postLink },
+    data: {
+      type: "comment",
+      link: postLink,
+      detailedLink: `${postLink}/comment/${req.erm._id}`,
+    },
   };
   await sendNotification(notification);
   next();
