@@ -12,7 +12,6 @@ import {
   sendNotification,
 } from "../modules/firebase";
 import _ from "lodash";
-import { updateOne } from "graphql-compose-mongoose";
 
 export async function PromoteTopPost(period) {
   let users = await User.find();
