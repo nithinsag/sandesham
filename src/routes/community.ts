@@ -431,6 +431,14 @@ export function registerRoutes(router) {
       let to = await User.findById(req.params.user);
       if (!to) return res.boom.badRequest("invalid user to invite");
 
+      let inviteeMemebership = await CommunityMembership.findOne({
+        "member._id": to._id,
+        "community._id": community._id,
+      });
+      if (inviteeMemebership) {
+        // return early if already member
+        return res.json(true);
+      }
       let notification: PushMessageJob;
       notification = {
         to: to._id,
