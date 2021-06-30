@@ -234,6 +234,14 @@ export async function postCreateUpdateAuthorKarmaPost(req, res, next) {
 }
 export async function postCreateUpdateAuthorKarmaComment(req, res, next) {
   await updateCommentKarma(req.erm.result.author._id, 1);
+  // add + 1 comment karma to the parent and post authors
+  let parent = req.erm.result.parent;
+  if (parent) {
+    let parentComment = await Comment.findOne({ _id: parent });
+    await updateCommentKarma(parentComment?.author._id, 1);
+  }
+  let post = await Post.findOne({ _id: req.erm.result.post });
+  await updatePostKarma(post?.author._id, 1);
   next();
 }
 export async function postCreateNotifyMods(req, res, next) {
