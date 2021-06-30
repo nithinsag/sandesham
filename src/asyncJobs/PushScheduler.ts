@@ -57,7 +57,11 @@ export async function notifyTopContributor(hours) {
       post.author._id,
       `Your post in ${post.community.name} is on fire!🔥🔥🔥🚒`,
       `${post.community.name} members are loving your post!`,
-      { type: "post", link: `/post/${post._id}` }
+      {
+        type: "post",
+        link: `/post/${post._id}`,
+        notification_id: "dummyhotfix",
+      }
     );
   }
 }
