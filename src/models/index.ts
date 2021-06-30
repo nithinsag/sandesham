@@ -67,7 +67,7 @@ let CommunitySchema: Schema = new Schema({
   updated_at: { type: Date, default: Date.now },
   isNSFW: { type: Boolean, default: false },
   skipPopular: { type: Boolean, default: false },
-  score: { type: Number, default: 0 },
+  score: { type: Schema.Types.Number, default: 0 },
 });
 CommunitySchema.index({ name: "text", description: "text" });
 export interface IPost extends Document {
