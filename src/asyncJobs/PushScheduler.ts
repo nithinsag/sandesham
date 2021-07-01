@@ -35,11 +35,13 @@ export async function PromoteTopPost(period) {
 export async function notifyTopContributor(hours) {
   let aggregateQuery = [
     {
-      isDeleted: false,
-      isRemoved: false,
-      voteCount: { $gte: 5 },
-      created_at: {
-        $gte: new Date(new Date().getTime() - hours * 60 * 60 * 1000),
+      $match: {
+        isDeleted: false,
+        isRemoved: false,
+        voteCount: { $gte: 5 },
+        created_at: {
+          $gte: new Date(new Date().getTime() - hours * 60 * 60 * 1000),
+        },
       },
     },
     { sort: { voteCount: -1 } },
