@@ -23,7 +23,7 @@ import { Post, Comment, User, IComment } from "../../models";
 export async function commentTreeBuilder(req, res) {
   const schema = Joi.object({
     post_id: Joi.string().required(),
-    comment_id: Joi.string(),
+    root_comment_id: Joi.string(),
     limit: Joi.number().default(100),
     depth: Joi.number().default(15),
     page: Joi.number().default(1),
@@ -47,7 +47,7 @@ export async function commentTreeBuilder(req, res) {
   if (error) {
     return res.boom.badRequest(error);
   }
-  let { limit, depth, page, post_id, comment_id } = value;
+  let { limit, depth, page, post_id, root_comment_id } = value;
 
   if (limit > 100) limit = 100;
   if (depth > 15) depth = 15;
@@ -57,8 +57,8 @@ export async function commentTreeBuilder(req, res) {
   let baseQuery;
   let allComments: any = [];
 
-  if (comment_id) {
-    rootComment = await Comment.findOne({ _id: comment_id }).lean();
+  if (root_comment_id) {
+    rootComment = await Comment.findOne({ _id: root_comment_id }).lean();
     if (!rootComment) {
       return res.boom.badRequest("invalid parent comment");
     }
@@ -124,7 +124,7 @@ export async function commentTreeBuilder(req, res) {
     comment.replies = replies;
   }
   let rootComments;
-  if (comment_id) {
+  if (root_comment_id) {
     rootComments = [rootComment];
   } else {
     rootComments = comments;
