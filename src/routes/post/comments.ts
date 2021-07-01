@@ -53,14 +53,16 @@ export async function commentTreeBuilder(req, res) {
   if (depth > 15) depth = 15;
   let maxDepth = depth;
   logger.debug(`creating comment tree for ${post_id}`);
-
+  let rootComment;
   let baseQuery;
-  if (comment_id) {
-    let rootComment = await Comment.findOne({ _id: comment_id });
+  let allComments: any = [];
 
+  if (comment_id) {
+    rootComment = await Comment.findOne({ _id: comment_id }).lean();
     if (!rootComment) {
       return res.boom.badRequest("invalid parent comment");
     }
+    allComments = [rootComment, ...allComments];
     maxDepth = rootComment.level + depth;
     baseQuery = { parent: rootComment?._id };
   } else {
@@ -98,7 +100,7 @@ export async function commentTreeBuilder(req, res) {
     .sort({ voteCount: -1 })
     .lean();
 
-  let allComments = [...comments, ...children];
+  allComments = [...allComments, ...comments, ...children];
   let commentIndex = {};
   // building comment lookup table
   allComments.forEach((o) => {
@@ -121,9 +123,14 @@ export async function commentTreeBuilder(req, res) {
     }
     comment.replies = replies;
   }
-
-  let commentTree = comments.forEach((o) => {
+  let rootComments;
+  if (comment_id) {
+    rootComments = [rootComment];
+  } else {
+    rootComments = comments;
+  }
+  let commentTree = rootComments.forEach((o) => {
     buildCommentTree(o);
   });
-  return res.json(comments);
+  return res.json(rootComments);
 }
