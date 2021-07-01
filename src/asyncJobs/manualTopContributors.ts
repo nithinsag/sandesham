@@ -3,6 +3,6 @@ import { notifyTopContributor } from "./PushScheduler";
 
 (async () => {
   await connectToMongo();
-  await notifyTopContributor(8000);
+  await notifyTopContributor(8);
   await closeConnection();
 })();

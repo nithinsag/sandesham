@@ -13,6 +13,9 @@ import {
 } from "../modules/firebase";
 import _ from "lodash";
 import { logger } from "../helpers/logger";
+function truncateWithEllipses(text, max) {
+  return text.substr(0, max - 1) + (text.length > max ? "&hellip;" : "");
+}
 
 export async function PromoteTopPost(period) {
   let users = await User.find();
@@ -60,16 +63,19 @@ export async function notifyTopContributor(hours) {
 
   for (let post of topTopPosts) {
     logger.info(`sending notificatino to ${post.author.displayname}`);
-    /* await sendNotification(
+    await sendNotification(
       post.author._id,
       `Your post in ${post.community.name} is on fire!🔥🔥🔥🚒`,
-      `${post.community.name} members are loving your post!`,
+      `${post.community.name} members are loving "${truncateWithEllipses(
+        post.title,
+        20
+      )}"! `,
       {
         type: "post",
         link: `/post/${post._id}`,
         notification_id: "dummyhotfix",
       }
-    );*/
+    );
   }
 }
 export async function getPromotionalMessage(period) {
