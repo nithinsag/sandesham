@@ -1,4 +1,5 @@
 import * as admin from "firebase-admin";
+import { logger } from "../helpers/logger";
 
 let serviceAccount = require("../../config/google-services.json");
 
@@ -41,7 +42,7 @@ export async function sendNotification(
   if (deviceToken) {
     return admin.messaging().sendToDevice(deviceToken, payload);
   }
-  throw Error("Device token does not exist");
+  logger.debug(`Device token does not exist for ${user.displayname}`);
 }
 
 export async function sendMulticastNotification(
