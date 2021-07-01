@@ -42,7 +42,7 @@ export async function sendNotification(
   if (deviceToken) {
     return admin.messaging().sendToDevice(deviceToken, payload);
   }
-  logger.debug(`Device token does not exist for ${user.displayname}`);
+  logger.info(`Device token does not exist for ${user.displayname}`);
 }
 
 export async function sendMulticastNotification(

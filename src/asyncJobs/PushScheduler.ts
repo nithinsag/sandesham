@@ -63,8 +63,9 @@ export async function notifyTopContributor(hours) {
 
   for (let post of topTopPosts) {
     logger.info(`sending notificatino to ${post.author.displayname}`);
+    let user = User.findOne({ _id: post.author._id });
     await sendNotification(
-      post.author._id,
+      user,
       `Your post in ${post.community.name} is on fire!🔥🔥🔥🚒`,
       `${post.community.name} members are loving "${truncateWithEllipses(
         post.title,
