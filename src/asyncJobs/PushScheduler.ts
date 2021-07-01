@@ -12,6 +12,7 @@ import {
   sendNotification,
 } from "../modules/firebase";
 import _ from "lodash";
+import { logger } from "../helpers/logger";
 
 export async function PromoteTopPost(period) {
   let users = await User.find();
@@ -25,6 +26,7 @@ export async function PromoteTopPost(period) {
       await sendMulticastNotification(batch, title, text, {
         type: "post",
         link: postLink,
+        notification_id: "dummyidforhotfix",
       });
     });
   }
@@ -35,6 +37,7 @@ export async function notifyTopContributor(hours) {
     {
       isDeleted: false,
       isRemoved: false,
+      voteCount: { $gte: 5 },
       created_at: {
         $gte: new Date(new Date().getTime() - hours * 60 * 60 * 1000),
       },
@@ -51,8 +54,11 @@ export async function notifyTopContributor(hours) {
 
   let topTopPosts = await Post.aggregate(aggregateQuery);
 
+  logger.info(`sending top contribution for ${topTopPosts.length}`);
+
   for (let post of topTopPosts) {
-    await sendNotification(
+    logger.info(`sending notificatino to ${post.author.displayname}`);
+    /* await sendNotification(
       post.author._id,
       `Your post in ${post.community.name} is on fire!🔥🔥🔥🚒`,
       `${post.community.name} members are loving your post!`,
@@ -61,7 +67,7 @@ export async function notifyTopContributor(hours) {
         link: `/post/${post._id}`,
         notification_id: "dummyhotfix",
       }
-    );
+    );*/
   }
 }
 export async function getPromotionalMessage(period) {
