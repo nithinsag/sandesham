@@ -41,7 +41,7 @@ const job3 = cron.schedule(
   }
 );
 const job4 = cron.schedule(
-  "30 19 * * *",
+  "0 19 * * *",
   cronMonitorWrapper(
     getSchedulerContributor(4),
     "https://hc-ping.com/1cd75e55-8605-438e-8190-5575fbd259b8"
