@@ -2,7 +2,7 @@ import { groupBy, includes, isArray, map, sortBy } from "lodash";
 import { logger } from "../../helpers/logger";
 import { Post, Comment, User, CommunityMembership } from "../../models";
 import { getOGData } from "../../helpers/openGraphScraper";
-import { sendNotification } from "../../asyncJobs";
+import { createNotification } from "../../asyncJobs";
 import { PushMessageJob } from "../../asyncJobs/worker";
 export async function preCreateAddOGData(req, res, next) {
   if (req.body.type === "link") {
@@ -251,7 +251,7 @@ export async function postCreateNotifyMods(req, res, next) {
     "community._id": post.community._id,
   });
   if (admin && !req.user._id.equals(admin.member._id)) {
-    await sendNotification({
+    await createNotification({
       title: `New post in ${admin.community.name}!`,
       to: admin.member._id,
       message: `${req.user.displayname} posted in ${admin.community.name}`,
@@ -293,7 +293,7 @@ export async function sendCommentNotification(req, res, next) {
       detailedLink: `${postLink}/comment/${req.erm._id}`,
     },
   };
-  await sendNotification(notification);
+  await createNotification(notification);
   next();
 }
 
@@ -313,7 +313,7 @@ export async function sendVoteNotificationPost(doc, vote, from) {
     } on your post`,
     data: { type: "vote", link: postLink },
   };
-  await sendNotification(notification);
+  await createNotification(notification);
 }
 export async function sendVoteNotificationComment(doc, vote, from) {
   // don't notify cancellations
@@ -330,7 +330,7 @@ export async function sendVoteNotificationComment(doc, vote, from) {
     } on your comment`,
     data: { type: "vote", link: postLink },
   };
-  await sendNotification(notification);
+  await createNotification(notification);
 }
 
 export async function doSoftDelete(req, res, next) {

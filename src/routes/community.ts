@@ -12,7 +12,7 @@ import { addCreatedBy } from "../middlewares/mongoose/author";
 import restify from "express-restify-mongoose";
 import { authenticateFromHeader } from "../middlewares/authenticate";
 import { logger } from "../helpers/logger";
-import { sendNotification } from "../asyncJobs";
+import { createNotification } from "../asyncJobs";
 import { PushMessageJob } from "../asyncJobs/worker";
 import mongoose from "mongoose";
 export function registerRoutes(router) {
@@ -61,7 +61,7 @@ export function registerRoutes(router) {
         subscribeToAdminNotification: true,
       });
       for (let admin of admins) {
-        await sendNotification({
+        await createNotification({
           title: `${community.name} is growing!`,
           to: admin.member._id,
           message: `${req.user.displayname} joined ${community.name}`,
@@ -446,7 +446,7 @@ export function registerRoutes(router) {
         message: `${req.user.displayname} invited you to join ${community.name}`,
         data: { type: "community", link: `/community/${community._id}` },
       };
-      await sendNotification(notification);
+      await createNotification(notification);
       return res.json(true);
     }
   );
@@ -504,7 +504,7 @@ export function registerRoutes(router) {
           } was promoted as an admin for ${community!.name}`,
           data: { type: "community", link: `/community/${community!._id}` },
         };
-        await sendNotification(notification);
+        await createNotification(notification);
       });
     }
   );
@@ -559,7 +559,7 @@ export function registerRoutes(router) {
           } was dismissed as admin of ${community!.name}`,
           data: { type: "community", link: `/community/${community!._id}` },
         };
-        await sendNotification(notification);
+        await createNotification(notification);
       });
     }
   );

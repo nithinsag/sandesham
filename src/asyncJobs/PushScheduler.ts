@@ -9,7 +9,7 @@ import {
 } from "../models";
 import {
   sendMulticastNotification,
-  sendNotification,
+  firebaseSendNotification,
 } from "../modules/firebase";
 import _ from "lodash";
 import { logger } from "../helpers/logger";
@@ -64,7 +64,7 @@ export async function notifyTopContributor(hours) {
   for (let post of topTopPosts) {
     logger.info(`sending notificatino to ${post.author.displayname}`);
     let user = await User.findOne({ _id: post.author._id });
-    await sendNotification(
+    await firebaseSendNotification(
       user,
       `Your post in ${post.community.name} is on fire!🔥🔥🔥🚒`,
       `${post.community.name} members are loving "${truncateWithEllipses(

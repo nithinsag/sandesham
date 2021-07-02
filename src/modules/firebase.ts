@@ -24,7 +24,7 @@ export async function validateToken(
   // ...
 }
 
-export async function sendNotification(
+export async function firebaseSendNotification(
   user: any,
   title: string,
   body: string,

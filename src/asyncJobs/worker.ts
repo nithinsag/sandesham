@@ -3,7 +3,7 @@ dotenv.config();
 import { Worker, Job } from "bullmq";
 import { send } from "process";
 import { User, connectToMongo } from "../models";
-import { sendNotification } from "../modules/firebase";
+import { firebaseSendNotification } from "../modules/firebase";
 import { logger } from "../helpers/logger";
 
 export interface PushMessageJob {
@@ -26,7 +26,7 @@ export interface PushMessageJob {
       //
       console.log("processing job", job.name, job.data);
       if (toUser?.pushMessageToken) {
-        await sendNotification(
+        await firebaseSendNotification(
           toUser,
           job.data.title,
           job.data.message,

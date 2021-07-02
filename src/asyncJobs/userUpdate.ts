@@ -9,7 +9,6 @@ import {
   Comment,
   CommunityMembership,
 } from "../models";
-import { sendNotification } from "../modules/firebase";
 
 export interface userUpdate {
   updatedUser: string;
