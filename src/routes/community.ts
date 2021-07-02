@@ -79,7 +79,7 @@ export function registerRoutes(router) {
     let memberCommunities = (
       await CommunityMembership.find({ "member._id": req.user._id })
     ).map((m) => m.community._id);
-    let page = req.query.page || 1;
+    let page = parseInt(req.query.page) || 1;
     let limit = parseInt(req.query.limit) || 10;
 
     let aggregateQuery = [
