@@ -18,6 +18,7 @@ function truncateWithEllipses(text, max) {
 }
 
 export async function PromoteTopPost(period) {
+  logger.info("runnnig promo job");
   let users = await User.find();
   let tokens = users.map((user) => user.pushMessageToken).filter(Boolean);
   let promotionalMessage = await getPromotionalMessage(period);
@@ -33,9 +34,11 @@ export async function PromoteTopPost(period) {
       });
     });
   }
+  logger.info("done promo job");
 }
 
 export async function notifyTopContributor(hours) {
+  logger.info("runnnig top contributor job");
   let aggregateQuery = [
     {
       $match: {
@@ -78,6 +81,7 @@ export async function notifyTopContributor(hours) {
       }
     );
   }
+  logger.info("done top contributor job");
 }
 export async function getPromotionalMessage(period) {
   let topPosts = await Post.find({
@@ -90,6 +94,7 @@ export async function getPromotionalMessage(period) {
 }
 
 export async function populateCommunityRank() {
+  logger.info("start community rank job");
   let aggregateQuery = [
     { $match: {} },
     {
@@ -159,4 +164,5 @@ export async function populateCommunityRank() {
   }));
 
   await Community.bulkWrite(bulkQuery);
+  logger.info("done community rank job");
 }
