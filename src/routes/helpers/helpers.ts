@@ -290,7 +290,7 @@ export async function sendCommentNotification(req, res, next) {
     data: {
       type: "comment",
       link: postLink,
-      detailedLink: `${postLink}/comment/${req.erm._id}`,
+      detailedLink: `${postLink}/${req.erm._id}`,
     },
   };
   await createNotification(notification);
