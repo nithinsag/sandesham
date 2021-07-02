@@ -1,6 +1,8 @@
 import { connectToMongo, closeConnection, User } from "../models";
 import { notifyTopContributor } from "./PushScheduler";
 import { firebaseSendNotification } from "../modules/firebase";
+import dotenv from "dotenv";
+dotenv.config();
 (async () => {
   await connectToMongo();
   let user = await User.findOne({ displayname: "manavalan" });
