@@ -116,8 +116,8 @@ async function populateSheet() {
   let postRows = posts.map((post) => {
     return [
       post._id,
-      post.post.post.user.displayname,
-      post.post.post.user.email,
+      post.post.post.user[0].displayname,
+      post.post.post.user[0].email,
       post.post.voteCount,
       post.post.post.title,
       post.post.post.created_at,
