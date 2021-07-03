@@ -54,10 +54,10 @@ export async function notifyTopContributor(hours) {
     {
       $group: {
         _id: "$community._id",
-        post: { $first: "$$ROOT" },
+        post: { $max: { voteCount: "$voteCount", post: "$$ROOT" } },
       },
     },
-    { $replaceRoot: { newRoot: "$post" } },
+    { $replaceRoot: { newRoot: "$post.post" } },
   ];
 
   let topTopPosts = await Post.aggregate(aggregateQuery);
