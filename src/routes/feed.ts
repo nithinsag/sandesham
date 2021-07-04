@@ -138,7 +138,18 @@ export const getFeedHandler = function (type) {
             score: {
               // https://medium.com/hacking-and-gonzo/how-reddit-ranking-algorithms-work-ef111e33d0d9
               $sum: [
-                { $log: [{ $max: [{ $abs: "$voteCount" }, 1] }, 10] },
+                {
+                  $multiply: [
+                    { $log: [{ $max: [{ $abs: "$voteCount" }, 1] }, 10] },
+                    { $sum: [1, "$feedWeight"] },
+                  ],
+                },
+                {
+                  $multiply: [
+                    { $log: [{ $max: [{ $abs: "$commentCount" }, 1] }, 10] },
+                    { $sum: [1, "$feedWeight"] },
+                  ],
+                },
                 {
                   $log: [{ $max: [{ $sum: ["$commentCount", 1] }, 1] }, 10],
                 },

@@ -68,6 +68,7 @@ let CommunitySchema: Schema = new Schema({
   isNSFW: { type: Boolean, default: false },
   skipPopular: { type: Boolean, default: false },
   score: { type: Schema.Types.Number, default: 0 },
+  feedWeight: { type: Number, default: 0 },
 });
 CommunitySchema.index({ name: "text", description: "text" });
 export interface IPost extends Document {
