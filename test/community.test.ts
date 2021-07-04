@@ -510,4 +510,28 @@ describe("Community routes", () => {
     expect(response.status).toBe(200);
     expect(response.body._id).toBe(community1._id);
   });
+  test("community recommendations can be fetched", async () => {
+    let response = await request
+      .get(`/api/v1/community/top`)
+      .set("Authorization", "Bearer " + token1);
+    expect(response.status).toBe(200);
+  });
+  test("community filter can be fetched", async () => {
+    let response = await request
+      .get(`/api/v1/community/filter`)
+      .set("Authorization", "Bearer " + token1);
+    expect(response.status).toBe(200);
+    response = await request
+      .get(`/api/v1/community/filter?context=popular`)
+      .set("Authorization", "Bearer " + token1);
+    expect(response.status).toBe(200);
+    response = await request
+      .get(`/api/v1/community/filter?context=home`)
+      .set("Authorization", "Bearer " + token1);
+    expect(response.status).toBe(200);
+    response = await request
+      .get(`/api/v1/community/filter?context=home`)
+      .set("Authorization", "Bearer " + token_anon);
+    expect(response.status).toBe(200);
+  });
 });

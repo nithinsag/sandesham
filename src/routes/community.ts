@@ -71,6 +71,81 @@ export function registerRoutes(router) {
       res.json(communityMembership);
     }
   );
+  router.get(
+    `${API_BASE_URL}filter`,
+    authenticateFromHeader,
+    async (req, res) => {
+      let page = parseInt(req.query.page) || 1;
+      let limit = parseInt(req.query.limit) || 10;
+      let matchQuery: any = {};
+      let context = req.query.context || "popular";
+      if (req.user && context == "home") {
+        let memberCommunities = (
+          await CommunityMembership.find({ "member._id": req.user._id })
+        ).map((m) => m.community._id);
+
+        matchQuery = { _id: { $in: memberCommunities } };
+      }
+      let aggregateQuery = [
+        { $match: matchQuery },
+        {
+          $lookup: {
+            from: "communitymemberships",
+            localField: "_id",
+            foreignField: "community._id",
+            as: "memberCount",
+          },
+        },
+        {
+          $lookup: {
+            from: "posts",
+            let: { communityId: "$_id" },
+            pipeline: [
+              {
+                $match: {
+                  $expr: {
+                    $and: [
+                      {
+                        $eq: ["$community._id", "$$communityId"],
+                      },
+                      {
+                        $gte: [
+                          "$created_at",
+                          new Date(
+                            new Date().getTime() - 7 * 24 * 60 * 60 * 1000
+                          ),
+                        ],
+                      },
+                    ],
+                  },
+                },
+              },
+            ],
+            as: "postCount",
+          },
+        },
+        {
+          $addFields: {
+            memberCount: { $size: "$memberCount" },
+            postCount: { $size: "$postCount" },
+          },
+        },
+        { $sort: { score: -1 } },
+        {
+          $facet: {
+            metadata: [
+              { $count: "total" },
+              { $addFields: { page: page, limit: limit } },
+            ],
+            data: [{ $skip: (page - 1) * limit }, { $limit: limit }],
+          },
+        },
+      ];
+      console.log(JSON.stringify(aggregateQuery));
+      let communities = await Community.aggregate(aggregateQuery);
+      return res.json(communities[0]);
+    }
+  );
   router.get(`${API_BASE_URL}top`, authenticateFromHeader, async (req, res) => {
     if (!req.user)
       return res.boom.badRequest(
@@ -108,7 +183,7 @@ export function registerRoutes(router) {
                       $gte: [
                         "$created_at",
                         new Date(
-                          new Date().getTime() - 50 * 24 * 60 * 60 * 1000
+                          new Date().getTime() - 7 * 24 * 60 * 60 * 1000
                         ),
                       ],
                     },
@@ -137,7 +212,6 @@ export function registerRoutes(router) {
         },
       },
     ];
-    console.log(JSON.stringify(aggregateQuery));
     let communities = await Community.aggregate(aggregateQuery);
     return res.json(communities[0]);
   });
