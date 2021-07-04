@@ -54,7 +54,7 @@ async function populateSheet() {
     { $group: { _id: "$creationDate", count: { $sum: 1 } } },
     { $sort: { _id: 1 } },
   ]);
-  let commentRows = daily.map((d) => [d._id, d.count]);
+  let commentRows = dailyComment.map((d) => [d._id, d.count]);
   let commentHeaders = ["date", "count"];
   await commentSheet.setHeaderRow(commentHeaders);
   await commentSheet.addRows(commentRows);
@@ -73,7 +73,7 @@ async function populateSheet() {
     { $group: { _id: "$creationDate", count: { $sum: 1 } } },
     { $sort: { _id: 1 } },
   ]);
-  let userRows = daily.map((d) => [d._id, d.count]);
+  let userRows = dailyUsers.map((d) => [d._id, d.count]);
   let userHeaders = ["date", "count"];
   await userSheet.setHeaderRow(userHeaders);
   await userSheet.addRows(userRows);
