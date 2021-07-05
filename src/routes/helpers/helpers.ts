@@ -290,7 +290,7 @@ export async function sendCommentNotification(req, res, next) {
     data: {
       type: "comment",
       link: postLink,
-      detailedLink: `${postLink}/${req.erm._id}`,
+      detailedLink: `${postLink}/${req.erm.result._id}`,
     },
   };
   await createNotification(notification);
@@ -328,7 +328,11 @@ export async function sendVoteNotificationComment(doc, vote, from) {
     message: `You received ${
       vote > 0 ? "an upvote" : "a downvote"
     } on your comment`,
-    data: { type: "vote", link: postLink },
+    data: {
+      type: "vote",
+      link: postLink,
+      detailedLink: `${postLink}/${doc._id}`,
+    },
   };
   await createNotification(notification);
 }
