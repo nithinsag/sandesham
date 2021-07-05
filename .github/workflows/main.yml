@@ -33,6 +33,7 @@ jobs:
             cd sandesham
             git pull
             yarn
+            yarn test
             yarn tsc
             pm2 reload prod-cluster --time
 
