@@ -38,7 +38,6 @@ export async function firebaseSendNotification(
     data: data,
   };
   const deviceToken = user.pushMessageToken;
-  console.log(`sending message to ${deviceToken}`);
   if (deviceToken) {
     return admin.messaging().sendToDevice(deviceToken, payload);
   }

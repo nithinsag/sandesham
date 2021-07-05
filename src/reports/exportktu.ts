@@ -18,7 +18,6 @@ async function populateSheet() {
   await doc.useServiceAccountAuth(creds);
   await connectToMongo();
   await doc.loadInfo(); // loads document properties and worksheets
-  console.log(doc.title);
 
   const postSheet = doc.sheetsByTitle["winners"]; // or use doc.sheetsById[id] or doc.sheetsByTitle[title]
   await postSheet.clear();
@@ -136,7 +135,6 @@ async function populateSheet() {
   await postSheet.setHeaderRow(postHeaders);
   await postSheet.addRows(postRows);
 
-  console.log(postRows.length);
   // adding / removing sheets
   //console.log(sheet.rowCount);
   await closeConnection();

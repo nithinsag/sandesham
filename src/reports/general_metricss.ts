@@ -23,7 +23,6 @@ async function populateSheet() {
   await doc.useServiceAccountAuth(creds);
   await connectToMongo();
   await doc.loadInfo(); // loads document properties and worksheets
-  console.log(doc.title);
 
   const postSheet = doc.sheetsByTitle["posts"]; // or use doc.sheetsById[id] or doc.sheetsByTitle[title]
   await postSheet.clear();

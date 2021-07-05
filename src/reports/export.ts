@@ -17,7 +17,6 @@ async function populateSheet() {
   await doc.useServiceAccountAuth(creds);
   await connectToMongo();
   await doc.loadInfo(); // loads document properties and worksheets
-  console.log(doc.title);
 
   const postSheet = doc.sheetsByTitle["posts"]; // or use doc.sheetsById[id] or doc.sheetsByTitle[title]
   await postSheet.clear();
@@ -52,7 +51,6 @@ async function populateSheet() {
   await postSheet.setHeaderRow(postHeaders);
   await postSheet.addRows(postRows);
 
-  console.log(postRows.length);
   const commentSheet = doc.sheetsByTitle["comments"]; // or use doc.sheetsById[id] or doc.sheetsByTitle[title]
   await commentSheet.clear();
   let comments = await Comment.find();
@@ -66,7 +64,6 @@ async function populateSheet() {
       comment.created_at,
     ];
   });
-  console.log(commentRows.length);
   let commentHeaders = [
     "commentId",
     "author",

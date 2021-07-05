@@ -141,7 +141,6 @@ export function registerRoutes(router) {
           },
         },
       ];
-      console.log(JSON.stringify(aggregateQuery));
       let communities = await Community.aggregate(aggregateQuery);
       return res.json(communities[0]);
     }
@@ -303,7 +302,6 @@ export function registerRoutes(router) {
         };
       }
       // allow leaderboard by postkarma, commenkarma, commentcount
-      console.log(matchQuery);
       let aggregateQuery = [
         {
           $match: matchQuery,

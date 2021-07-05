@@ -93,7 +93,6 @@ export async function getPromotionalMessage(period) {
   })
     .sort({ voteCount: -1, commentCount: -1 })
     .limit(1);
-  console.log(topPosts);
   return topPosts[0];
 }
 
@@ -142,9 +141,7 @@ export async function populateCommunityRank() {
       },
     },
   ];
-  console.log(JSON.stringify(aggregateQuery));
   let communities = await Community.aggregate(aggregateQuery);
-  console.log(communities.length);
 
   let minMembers = 1;
   let minPost = 0;
