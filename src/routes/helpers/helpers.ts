@@ -279,6 +279,7 @@ export async function sendCommentNotification(req, res, next) {
   let type;
   let message;
   let author = req.erm.result.author;
+
   if (parent) {
     let parentComment = await Comment.findById(parent);
     to = parentComment?.author._id;
@@ -291,6 +292,7 @@ export async function sendCommentNotification(req, res, next) {
     detailedLink = `${postLink}/${req.erm.result._id}`;
     message = postDoc?.title;
   }
+  if (to.equals(author._id)) return next(); // dont' notify yourself
   let notification: PushMessageJob = {
     to: to,
     title: `You have a comment!`,
@@ -327,7 +329,7 @@ export async function sendVoteNotificationPost(doc, vote, from) {
 }
 export async function sendVoteNotificationComment(doc, vote, from) {
   // don't notify cancellations
-  if (vote == 0) return;
+  if (vote <= 0) return;
   // don't notify yourself
   let to = doc.author._id;
   if (to.equals(from)) return;
