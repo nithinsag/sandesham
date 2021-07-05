@@ -1,5 +1,11 @@
 import { GoogleSpreadsheet } from "google-spreadsheet";
-import { Post, Comment, connectToMongo, closeConnection } from "../models";
+import {
+  Post,
+  Comment,
+  connectToMongo,
+  closeConnection,
+  User,
+} from "../models";
 import dotenv from "dotenv";
 import { post } from "request-promise-native";
 import cron from "node-cron";
@@ -61,7 +67,7 @@ async function populateSheet() {
   const userSheet = doc.sheetsByTitle["users"]; // or use doc.sheetsById[id] or doc.sheetsByTitle[title]
   await userSheet.clear();
 
-  let dailyUsers = await Comment.aggregate([
+  let dailyUsers = await User.aggregate([
     { $match: {} },
     {
       $addFields: {
