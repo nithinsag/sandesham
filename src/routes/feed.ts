@@ -141,13 +141,13 @@ export const getFeedHandler = function (type) {
                 {
                   $multiply: [
                     { $log: [{ $max: [{ $abs: "$voteCount" }, 1] }, 10] },
-                    { $sum: [1, "$feedWeight"] },
+                    { $sum: [1, "$community.feedWeight"] },
                   ],
                 },
                 {
                   $multiply: [
                     { $log: [{ $max: [{ $abs: "$commentCount" }, 1] }, 10] },
-                    { $sum: [1, "$feedWeight"] },
+                    { $sum: [1, "$community.feedWeight"] },
                   ],
                 },
                 {

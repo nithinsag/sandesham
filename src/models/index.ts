@@ -44,6 +44,7 @@ export interface ICommunity extends Document {
   name: string;
   _id: string;
   score: number;
+  feedWeight: number;
 }
 let CommunitySchema: Schema = new Schema({
   name: { type: String, required: true, unique: true },
