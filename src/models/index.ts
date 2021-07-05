@@ -221,6 +221,7 @@ let NotificationSchema: Schema = new Schema({
   text: { type: String },
   to: { type: Schema.Types.ObjectId, ref: "User" },
   link: { type: String },
+  detailedLink: { type: String },
   read: { type: Schema.Types.Boolean, default: false },
   created_at: { type: Date, default: Date.now },
 });

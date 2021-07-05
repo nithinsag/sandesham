@@ -11,6 +11,7 @@ export async function createNotification(data: PushMessageJob) {
     text: data.message,
     title: data.title,
     link: data?.data?.link,
+    detailedLink: data?.data?.detailedLink,
   });
   notification = await notification.save();
   data.data.notification_id = notification._id;
