@@ -298,7 +298,7 @@ export async function sendCommentNotification(req, res, next) {
     title: `You have a comment!`,
     message: `${
       author.displayname
-    } replied to your ${type}, "${truncateWithEllipses(message, 30)}" `,
+    } replied to your ${type} - "${truncateWithEllipses(message, 30)}" `,
     data: {
       type: type,
       link: postLink,
@@ -322,7 +322,7 @@ export async function sendVoteNotificationPost(doc, vote, from) {
     title: `Your post is getting noticed!`,
     message: `You received ${
       vote > 0 ? "an upvote" : "a downvote"
-    } on your post, "${truncateWithEllipses(doc.title, 30)}"`,
+    } on your post - "${truncateWithEllipses(doc.title, 30)}"`,
     data: { type: "vote", link: postLink },
   };
   await createNotification(notification);
@@ -339,7 +339,7 @@ export async function sendVoteNotificationComment(doc, vote, from) {
     title: `Your comment is getting noticed!`,
     message: `You received ${
       vote > 0 ? "an upvote" : "a downvote"
-    } on your comment, "${truncateWithEllipses(doc.text, 30)}"`,
+    } on your comment - "${truncateWithEllipses(doc.text, 30)}"`,
     data: {
       type: "vote",
       link: postLink,
