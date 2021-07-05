@@ -4,6 +4,7 @@ import { Post, Comment, User, CommunityMembership } from "../../models";
 import { getOGData } from "../../helpers/openGraphScraper";
 import { createNotification } from "../../asyncJobs";
 import { PushMessageJob } from "../../asyncJobs/worker";
+import { truncateWithEllipses } from "../../helpers/utils";
 export async function preCreateAddOGData(req, res, next) {
   if (req.body.type === "link") {
     // returning early as we don't want to block return
@@ -274,23 +275,32 @@ export async function sendCommentNotification(req, res, next) {
   let postLink = `/post/${post._id}`;
   let parent = req.erm.result.parent;
   let to;
+  let detailedLink;
+  let type;
+  let message;
   let author = req.erm.result.author;
   if (parent) {
     let parentComment = await Comment.findById(parent);
     to = parentComment?.author._id;
+    detailedLink = `${postLink}/${req.erm.result.parent}`;
+    type = "comment";
+    message = req.erm.result.text;
   } else {
     to = postDoc?.author._id;
+    type = "post";
+    detailedLink = `${postLink}/${req.erm.result._id}`;
+    message = postDoc?.title;
   }
   let notification: PushMessageJob = {
     to: to,
     title: `You have a comment!`,
-    message: `${author.displayname} replied to your ${
-      parent ? "comment" : "post"
-    }`,
+    message: `${
+      author.displayname
+    } replied to your ${type}, "${truncateWithEllipses(message, 30)}" `,
     data: {
-      type: "comment",
+      type: type,
       link: postLink,
-      detailedLink: `${postLink}/${req.erm.result._id}`,
+      detailedLink: detailedLink,
     },
   };
   await createNotification(notification);
@@ -310,7 +320,7 @@ export async function sendVoteNotificationPost(doc, vote, from) {
     title: `Your post is getting noticed!`,
     message: `You received ${
       vote > 0 ? "an upvote" : "a downvote"
-    } on your post`,
+    } on your post, "${truncateWithEllipses(doc.title, 30)}"`,
     data: { type: "vote", link: postLink },
   };
   await createNotification(notification);
@@ -327,7 +337,7 @@ export async function sendVoteNotificationComment(doc, vote, from) {
     title: `Your comment is getting noticed!`,
     message: `You received ${
       vote > 0 ? "an upvote" : "a downvote"
-    } on your comment`,
+    } on your comment, ${truncateWithEllipses(doc.text, 30)}`,
     data: {
       type: "vote",
       link: postLink,

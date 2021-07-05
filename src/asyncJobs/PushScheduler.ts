@@ -13,10 +13,7 @@ import {
 } from "../modules/firebase";
 import _ from "lodash";
 import { logger } from "../helpers/logger";
-function truncateWithEllipses(text, max) {
-  return text.substr(0, max - 1) + (text.length > max ? "&hellip;" : "");
-}
-
+import { truncateWithEllipses } from "../helpers/utils";
 export async function PromoteTopPost(period) {
   logger.info("runnnig promo job");
   let users = await User.find();
