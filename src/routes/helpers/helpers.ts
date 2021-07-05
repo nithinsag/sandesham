@@ -339,7 +339,7 @@ export async function sendVoteNotificationComment(doc, vote, from) {
     title: `Your comment is getting noticed!`,
     message: `You received ${
       vote > 0 ? "an upvote" : "a downvote"
-    } on your comment, ${truncateWithEllipses(doc.text, 30)}`,
+    } on your comment, "${truncateWithEllipses(doc.text, 30)}"`,
     data: {
       type: "vote",
       link: postLink,
