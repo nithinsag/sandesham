@@ -449,7 +449,7 @@ export function registerRoutes(router) {
           return res.json(false);
         }
       } catch (e) {
-        logger.debug(e);
+        logger.error(e);
         return res.json(false);
       }
     }
@@ -481,7 +481,7 @@ export function registerRoutes(router) {
           return res.boom.badRequest("user is not an admin of the community");
         }
       } catch (e) {
-        logger.debug(e);
+        logger.error(e);
         return res.json(false);
       }
     }
