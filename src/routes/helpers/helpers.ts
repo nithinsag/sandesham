@@ -285,7 +285,7 @@ export async function sendCommentNotification(req, res, next) {
     to = parentComment?.author._id;
     detailedLink = `${postLink}/${req.erm.result.parent}`;
     type = "comment";
-    message = req.erm.result.text;
+    message = parentComment?.text;
   } else {
     to = postDoc?.author._id;
     type = "post";
