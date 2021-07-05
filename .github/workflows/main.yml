@@ -28,7 +28,11 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
           port: 22
+          script_stop: true
           script: |
-            whoami
-            ls -al
+            cd sandesham
+            git pull
+            yarn
+            yarn tsc
+            pm2 reload prod-cluster --time
 
