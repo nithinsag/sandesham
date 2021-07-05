@@ -16,7 +16,7 @@ export function getDate_yyyy_mm_dd(now?: Date) {
   return year + "-" + month + "-" + day;
 }
 export function truncateWithEllipses(text, max) {
-  return text.substr(0, max - 1) + (text.length > max ? "&hellip;" : "");
+  return text.substr(0, max - 1) + (text.length > max ? "..." : "");
 }
 
 export function getDate_yyyymmdd(now?: Date) {
