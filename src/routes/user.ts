@@ -85,16 +85,16 @@ export function registerRoutes(router: Router) {
           created_at: Date.now(),
           displayname,
         });
-        logger.debug("user in signup not exist " + JSON.stringify(user));
+        logger.info("user in signup not exist " + JSON.stringify(user));
       }
       try {
         logger.info("creating new user");
         await user.save();
         //res.json(user);
       } catch (e) {
-        logger.debug("failed to create user");
-        logger.debug(e);
-        return res.boom(e);
+        logger.error("failed to create user");
+        logger.error(e.message);
+        return res.boom.badRequest(e);
       }
       res.json(user);
     } else {

@@ -13,4 +13,5 @@ let winstonLogger = winston.createLogger({
 export const logger = {
   info: (message: string) => winstonLogger.log("info", message),
   debug: (message: string) => winstonLogger.log("debug", message),
+  error: (message: string) => winstonLogger.log("error", message),
 };
