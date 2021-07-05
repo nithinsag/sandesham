@@ -90,6 +90,7 @@ export interface IPost extends Document {
   isRemoved: boolean;
   isPinned: boolean;
   updated_at: Date;
+  reports: [Object];
 }
 let PostSchema: Schema = new Schema({
   slug: { type: String, slug: "title", unique: true },
@@ -199,6 +200,7 @@ export interface IComment extends Document {
   isRemoved: boolean;
   created_at: Date;
   updated_at: Date;
+  reports: [Object];
 }
 
 let MessageSchema: Schema = new Schema({
