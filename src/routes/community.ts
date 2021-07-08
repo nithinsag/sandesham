@@ -146,13 +146,12 @@ export function registerRoutes(router) {
     }
   );
   router.get(`${API_BASE_URL}top`, authenticateFromHeader, async (req, res) => {
-    if (!req.user)
-      return res.boom.badRequest(
-        "user needs to be authenticated to join community"
-      );
-    let memberCommunities = (
-      await CommunityMembership.find({ "member._id": req.user._id })
-    ).map((m) => m.community._id);
+    let memberCommunities: any = [];
+    if (req.user) {
+      memberCommunities = (
+        await CommunityMembership.find({ "member._id": req.user._id })
+      ).map((m) => m.community._id);
+    }
     let page = parseInt(req.query.page) || 1;
     let limit = parseInt(req.query.limit) || 10;
 
