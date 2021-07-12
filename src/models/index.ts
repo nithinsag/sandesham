@@ -82,6 +82,7 @@ export interface IPost extends Document {
   community?: { _id: string; name: string };
   voteCount?: number;
   commentCount?: number;
+  uniqueCommentors?: number;
   upvotes?: string[];
   downvotes?: string[];
   userVote?: number;
@@ -111,6 +112,7 @@ let PostSchema: Schema = new Schema({
   },
   voteCount: { type: Schema.Types.Number, default: 1 },
   commentCount: { type: Schema.Types.Number, default: 0 },
+  uniqueCommentors: { type: Schema.Types.Number, default: 0 },
   tags: [String],
   // default upvote from creator
   upvotes: [Schema.Types.ObjectId],

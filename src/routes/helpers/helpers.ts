@@ -212,9 +212,15 @@ export function getUserVote(document, user) {
  */
 export async function postCreateUpdatePostCommentCount(req, res, next) {
   const post_id = req.erm.result.post;
+  let uniqueCommentors = (
+    await await Comment.aggregate([
+      { $match: { post: post_id } },
+      { $group: { _id: "$author._id", count: { $sum: 1 } } },
+    ])
+  ).length;
   let updatedPost = await Post.findOneAndUpdate(
     { _id: post_id },
-    { $inc: { commentCount: 1 } },
+    { $inc: { commentCount: 1 }, $set: { uniqueCommentors: uniqueCommentors } },
     { new: true }
   );
 
