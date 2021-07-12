@@ -9,7 +9,7 @@ const doc = new GoogleSpreadsheet(
   "1-CV_suh6CdQttEEMh17YaVf5WqCJTujEqIeuKzCepPo"
 );
 const creds = require("../../config/ulkka-in-6cafb44e98cd.json"); // the file saved above
-const job1 = cron.schedule("0 */6 * * *", populateSheet, {
+const job1 = cron.schedule("0 */1 * * *", populateSheet, {
   scheduled: false,
   timezone: "Asia/Kolkata",
 });
