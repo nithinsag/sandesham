@@ -316,8 +316,8 @@ export async function sendCommentNotification(req, res, next) {
 }
 
 export async function sendVoteNotificationPost(doc, vote, from) {
-  // don't notify cancellations
-  if (vote == 0) return;
+  // don't notify cancellations and downvotes
+  if (vote < 1) return;
   let to = doc.author._id;
 
   // don't notify yourself
