@@ -134,6 +134,21 @@ describe("Community routes", () => {
       .set("Authorization", "Bearer " + token1);
     expect(response.status).toBe(200);
   });
+  test("members can favorite communities community ", async () => {
+    let response = await request
+      .post(`/api/v1/community/${community1._id}/favorite`)
+      .set("Authorization", "Bearer " + token2);
+    expect(response.status).toBe(200);
+
+    response = await request
+      .post(`/api/v1/community/${community1._id}/favorite`)
+      .set("Authorization", "Bearer " + token2);
+    expect(response.status).toBe(200);
+    response = await request
+      .post(`/api/v1/community/${community2._id}/favorite`)
+      .set("Authorization", "Bearer " + token1);
+    expect(response.status).toBe(200);
+  });
   test("admin user can make users admins of communities", async () => {
     let response = await request
       .post(`/api/v1/community/${community1._id}/addAsAdmin/${user2._id}`)
