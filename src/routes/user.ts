@@ -289,6 +289,49 @@ export function registerRoutes(router: Router) {
     }
   );
 
+  router.get(
+    `${userUri}/self/communities`,
+    authenticateFromHeader,
+    async (req, res) => {
+      if (!req.user) {
+        return res.boom.unauthorized(
+          "User needs to be authenticated to fetch communities"
+        );
+      }
+      let matchQuery: any = {
+        "member._id": req.user._id,
+        isBanned: false,
+      };
+
+      let aggregateQuery = [
+        { $match: matchQuery },
+        {
+          $lookup: {
+            from: "communities",
+            localField: "community._id",
+            foreignField: "_id",
+            as: "communityDetail",
+          },
+        },
+        {
+          $set: {
+            postDetail: { $arrayElemAt: ["$communityDetail", 0] },
+          },
+        },
+        {
+          $sort: {
+            created_at: -1,
+          },
+        },
+      ];
+
+      let communityMemberships = await CommunityMembership.aggregate(
+        aggregateQuery
+      );
+      res.json(communityMemberships);
+    }
+  );
+
   async function postUserUpdateTriggerUpdates(req, res, next) {
     const result = req.erm.result;
     await updateUser({ updatedUser: result._id });
