@@ -433,6 +433,7 @@ export function registerRoutes(router) {
         );
 
       try {
+        // TODO: do soft delete
         let communityMembership = await CommunityMembership.findOneAndDelete({
           "community._id": req.params.id,
           "member._id": req.user._id,
@@ -444,6 +445,38 @@ export function registerRoutes(router) {
           return res.json(true);
         } else {
           return res.json(false);
+        }
+      } catch (e) {
+        logger.error(e);
+        return res.json(false);
+      }
+    }
+  );
+  router.post(
+    `${API_BASE_URL}:id/favorite`,
+    authenticateFromHeader,
+    async (req, res) => {
+      if (!req.user)
+        return res.boom.badRequest(
+          "user needs to be authenticated to favorite community"
+        );
+
+      try {
+        let communityMembership = await CommunityMembership.findOne({
+          "community._id": req.params.id,
+          "member._id": req.user._id,
+          isBanned: false,
+        });
+        // if member is banned we don't do anything and return false
+        // banned members will not see join and leave buttons
+        if (communityMembership) {
+          communityMembership.isFavorite = true;
+          await communityMembership.save();
+          return res.json(true);
+        } else {
+          return res.boom.badRequest(
+            "User needs to be member of community to favorite"
+          );
         }
       } catch (e) {
         logger.error(e);
