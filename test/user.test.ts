@@ -157,4 +157,10 @@ describe("User routes", () => {
       .set("Authorization", "Bearer " + token1);
     expect(response.status).toBe(200);
   });
+  test("user can fetch communities", async () => {
+    let response = await request
+      .get(`/api/v1/user/self/communities`)
+      .set("Authorization", "Bearer " + token1);
+    expect(response.status).toBe(200);
+  });
 });
