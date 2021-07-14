@@ -315,7 +315,7 @@ export function registerRoutes(router: Router) {
         },
         {
           $set: {
-            postDetail: { $arrayElemAt: ["$communityDetail", 0] },
+            communityDetail: { $arrayElemAt: ["$communityDetail", 0] },
           },
         },
         {
