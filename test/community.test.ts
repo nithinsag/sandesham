@@ -145,6 +145,10 @@ describe("Community routes", () => {
       .set("Authorization", "Bearer " + token2);
     expect(response.status).toBe(200);
     response = await request
+      .post(`/api/v1/community/${community1._id}/unfavorite`)
+      .set("Authorization", "Bearer " + token2);
+    expect(response.status).toBe(200);
+    response = await request
       .post(`/api/v1/community/${community2._id}/favorite`)
       .set("Authorization", "Bearer " + token1);
     expect(response.status).toBe(200);

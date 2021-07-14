@@ -453,6 +453,37 @@ export function registerRoutes(router) {
     }
   );
   router.post(
+    `${API_BASE_URL}:id/unfavorite`,
+    authenticateFromHeader,
+    async (req, res) => {
+      if (!req.user)
+        return res.boom.badRequest(
+          "user needs to be authenticated to unfavorite community"
+        );
+
+      try {
+        let communityMembership = await CommunityMembership.findOne({
+          "community._id": req.params.id,
+          "member._id": req.user._id,
+          isFavorite: true,
+        });
+        // if member is banned we don't do anything and return false
+        // banned members will not see join and leave buttons
+        if (communityMembership) {
+          communityMembership.isFavorite = false;
+          await communityMembership.save();
+          return res.json(true);
+        } else {
+          // community is not favorited
+          return res.json(true);
+        }
+      } catch (e) {
+        logger.error(e);
+        return res.json(false);
+      }
+    }
+  );
+  router.post(
     `${API_BASE_URL}:id/favorite`,
     authenticateFromHeader,
     async (req, res) => {
