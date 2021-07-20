@@ -53,7 +53,13 @@ async function populateSheet() {
 
   const commentSheet = doc.sheetsByTitle["comments"]; // or use doc.sheetsById[id] or doc.sheetsByTitle[title]
   await commentSheet.clear();
-  let comments = await Comment.find();
+  let comments = await Comment.aggregate([{ $match: {} },
+     { $lookup: {
+      from: "posts",
+      localField: "post",
+      foreignField: "_id",
+      as: "post",
+     } }]);
   let commentRows = comments.map((comment) => {
     return [
       comment._id,
@@ -61,6 +67,7 @@ async function populateSheet() {
       comment.voteCount,
       comment.text,
       comment.community?.name,
+      comment.post.author.displayname,
       comment.created_at,
     ];
   });
@@ -70,6 +77,7 @@ async function populateSheet() {
     "votes",
     "text",
     "community",
+    "post_author",
     "createdAt",
   ];
   await commentSheet.setHeaderRow(commentHeaders);
