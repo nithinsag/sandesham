@@ -1,5 +1,5 @@
 import { GoogleSpreadsheet } from "google-spreadsheet";
-import { Post, Comment, connectToMongo, closeConnection } from "../models";
+import { Post, Comment, connectToMongo, closeConnection, CommunityMembership } from "../models";
 import dotenv from "dotenv";
 import { post } from "request-promise-native";
 import cron from "node-cron";
@@ -82,6 +82,34 @@ async function populateSheet() {
   ];
   await commentSheet.setHeaderRow(commentHeaders);
   await commentSheet.addRows(commentRows);
+  
+
+  const membershipSheet = doc.sheetsByTitle["memberships"]; // or use doc.sheetsById[id] or doc.sheetsByTitle[title]
+  await membershipSheet.clear();
+  let memeberships = await CommunityMembership.aggregate([{ $match: {} },
+    {$addFields: { "creationDate":  {$dateToString:{format: "%Y-%m-%d", date: "$created_at"}}}},
+    {$group: {_id: { creation_date: "$creationDate",community: "$community.name" },  count: { $sum: 1}}},
+    {$addFields: {community: "$_id.community", date: "$_id.creation_date"}},
+    {$sort: { community:1, _id: 1}}
+    
+    ]);
+  let membershipRows = memeberships.map((membership) => {
+    return [
+      membership.date,
+      membership.community,
+      membership.count,
+    ];
+  });
+  let membershipHeaders = [
+    "date",
+    "community",
+    "count",
+  ];
+  await membershipSheet.setHeaderRow(membershipHeaders);
+  await membershipSheet.addRows(membershipRows);
+  
+
+
   // adding / removing sheets
   //console.log(sheet.rowCount);
   await closeConnection();
