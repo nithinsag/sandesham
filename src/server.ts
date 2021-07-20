@@ -9,6 +9,7 @@ import { messageQue, userUpdateQue } from "./asyncJobs";
 import { router as bullBoard } from "bull-board";
 import { connectToMongo } from "./models";
 import "./tracer";
+import cors from 'cors'
 const { setQueues, BullMQAdapter } = require("bull-board");
 
 export class Server {
@@ -59,6 +60,7 @@ export class Server {
     this.app.use(bodyParser.json());
     this.app.use(methodOverride());
     this.app.use(boom()); // for error handling
+    this.app.use(cors()); // for error handling
     this.app.use(morgan("combined")); // for logs
     if (process.env.DEPLOY_ENV !== "TEST") {
       setQueues([
