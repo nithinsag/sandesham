@@ -64,7 +64,7 @@ async function populateSheet() {
   },
   {
     $set: {
-      post: { $arrayElemAt: ["post", 0] },
+      post: { $arrayElemAt: ["$post", 0] },
     },
   }
   ]);
