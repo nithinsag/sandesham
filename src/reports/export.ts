@@ -54,12 +54,20 @@ async function populateSheet() {
   const commentSheet = doc.sheetsByTitle["comments"]; // or use doc.sheetsById[id] or doc.sheetsByTitle[title]
   await commentSheet.clear();
   let comments = await Comment.aggregate([{ $match: {} },
-     { $lookup: {
+  {
+    $lookup: {
       from: "posts",
       localField: "post",
       foreignField: "_id",
       as: "post",
-     } }]);
+    }
+  },
+  {
+    $set: {
+      post: { $arrayElemAt: ["post", 0] },
+    },
+  }
+  ]);
   let commentRows = comments.map((comment) => {
     return [
       comment._id,
@@ -82,17 +90,17 @@ async function populateSheet() {
   ];
   await commentSheet.setHeaderRow(commentHeaders);
   await commentSheet.addRows(commentRows);
-  
+
 
   const membershipSheet = doc.sheetsByTitle["memberships"]; // or use doc.sheetsById[id] or doc.sheetsByTitle[title]
   await membershipSheet.clear();
   let memeberships = await CommunityMembership.aggregate([{ $match: {} },
-    {$addFields: { "creationDate":  {$dateToString:{format: "%Y-%m-%d", date: "$created_at"}}}},
-    {$group: {_id: { creation_date: "$creationDate",community: "$community.name" },  count: { $sum: 1}}},
-    {$addFields: {community: "$_id.community", date: "$_id.creation_date"}},
-    {$sort: { community:1, _id: 1}}
-    
-    ]);
+  { $addFields: { "creationDate": { $dateToString: { format: "%Y-%m-%d", date: "$created_at" } } } },
+  { $group: { _id: { creation_date: "$creationDate", community: "$community.name" }, count: { $sum: 1 } } },
+  { $addFields: { community: "$_id.community", date: "$_id.creation_date" } },
+  { $sort: { community: 1, _id: 1 } }
+
+  ]);
   let membershipRows = memeberships.map((membership) => {
     return [
       membership.date,
@@ -107,7 +115,7 @@ async function populateSheet() {
   ];
   await membershipSheet.setHeaderRow(membershipHeaders);
   await membershipSheet.addRows(membershipRows);
-  
+
 
 
   // adding / removing sheets
