@@ -117,6 +117,48 @@ async function populateSheet() {
   await membershipSheet.addRows(membershipRows);
 
 
+  const communitySheet = doc.sheetsByTitle["communities"]; // or use doc.sheetsById[id] or doc.sheetsByTitle[title]
+  await communitySheet.clear();
+  let communities = await CommunityMembership.aggregate(
+    [{$match: {isAdmin: true}},
+      {$group: {_id: "$community.name",
+      admin_id:  {$push: "$member._id"},
+      admin: {$push: "$member.displayname"},
+      community_id: {$first: "$community._id"}
+      }},
+      {
+               $lookup: {
+                 from: "communitymemberships",
+                 localField: "community_id",
+                 foreignField: "community._id",
+                 as: "memberCount",
+               },
+             },
+             {
+               $addFields: {
+                 memberCount: { $size: "$memberCount" },
+     
+               },
+             },
+             {
+             $sort: {memberCount: -1}
+             }
+     
+      ]);
+  let communityRows = communities.map((c) => {
+    return [
+      c.community.name,
+      c.admin.join(','),
+      c.memberCount,
+    ];
+  });
+  let communityHeaders = [
+    "community",
+    "admin",
+    "memberCount",
+  ];
+  await communitySheet.setHeaderRow(communityHeaders);
+  await communitySheet.addRows(communityRows)
 
   // adding / removing sheets
   //console.log(sheet.rowCount);
