@@ -26,12 +26,13 @@ export interface PushMessageJob {
       //
       console.log("processing job", job.name, job.data);
       if (toUser?.pushMessageToken) {
-        await firebaseSendNotification(
+       let response =  await firebaseSendNotification(
           toUser,
           job.data.title,
           job.data.message,
           job.data.data
         );
+        console.log(response)
       } else {
         logger.info(
           `skipping notificatino as no push token available for ${toUser?.name}: ${toUser?._id}`
