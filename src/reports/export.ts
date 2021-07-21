@@ -147,7 +147,7 @@ async function populateSheet() {
       ]);
   let communityRows = communities.map((c) => {
     return [
-      c.community.name,
+      c._id,
       c.admin.join(','),
       c.memberCount,
     ];
