@@ -67,7 +67,7 @@ async function populateSheet() {
       comment.voteCount,
       comment.text,
       comment.community?.name,
-      comment.post.author.displayname,
+      comment.post?.author?.displayname,
       comment.created_at,
     ];
   });
