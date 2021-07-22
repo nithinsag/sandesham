@@ -49,6 +49,9 @@ async function populateSheet() {
         post: { $max: { voteCount: "$voteCount", post: "$$ROOT" } },
       },
     },
+    {
+      $sort: {_id: -1}
+    }
   ];
   /**
    * {
