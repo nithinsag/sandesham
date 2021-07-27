@@ -157,7 +157,7 @@ export async function populateCommunityRank() {
   });
 
   communities.forEach((c) => {
-    c.score = (c.memberCountRank + c.postCountRank) / 2;
+    c.score = (c.memberCountRank + 2*c.postCountRank) / 2;
   });
 
   let bulkQuery = communities.map((c) => ({
