@@ -34,6 +34,7 @@ import {
   doSoftDelete,
   redactDeletedPost,
   authorizeWrites,
+  postCreateGenerateDynamicLink
 } from "../helpers/helpers";
 import Joi from "joi";
 
@@ -62,7 +63,7 @@ export function registerRoutes(router: Router) {
     preDelete: doSoftDelete,
     postRead: postReadPost,
     preUpdate: authorizeWrites,
-    postCreate: [postCreateUpdateAuthorKarmaPost, postCreateNotifyMods],
+    postCreate: [postCreateUpdateAuthorKarmaPost, postCreateGenerateDynamicLink, postCreateNotifyMods],
   });
   router.post(
     `${postUri}/:id/vote/:type`,

@@ -6,7 +6,7 @@ let serviceAccount = require("../../config/google-services.json");
 interface DecodedToken extends admin.auth.DecodedIdToken {
   name?: string;
 }
-admin.initializeApp({
+export const firebaseAdmin = admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
   databaseURL: "https://vellarikka-pattanam.firebaseio.com",
 });
