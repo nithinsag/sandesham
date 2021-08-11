@@ -1,7 +1,11 @@
 import { connectToMongo, closeConnection, Post } from "../models";
 import { createDynamicLinkFromPost } from "../helpers/shortlink";
+import dotenv from 'dotenv'
+
+
 
 (async () => {
+  dotenv.config()
   await connectToMongo();
   let posts = await Post.find({ isDeleted: false, dynamicLink: { $exists: false } })
 
