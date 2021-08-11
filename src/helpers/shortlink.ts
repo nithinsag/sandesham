@@ -1,0 +1,58 @@
+
+import { generateShortLink } from '../modules/firebaseDynamicLinks'
+function getImageLinkFromPost(post) {
+    if (post.type == "image") {
+        return post.mediaMetadata?.secure_url
+    }
+    else if (post.type == "video") {
+        let mediaUrl = post.mediaMetadata?.secure_url
+        return mediaUrl.substring(0, mediaUrl.lastIndexOf(".")) + ".jpg"
+    }
+    else if (post.type == "gif") {
+        let mediaUrl = post.mediaMetadata?.secure_url
+        return mediaUrl.split(".gif")[0] + ".png"
+    }
+    else if (post.type == "link") {
+        return post.ogData?.ogImage?.url
+    } else {
+        return ''
+    }
+
+}
+
+export async function createDynamicLinkFromPost(post) {
+
+    let link = `https://ulkka.in/post/${post._id}`
+    const shareTitle = post.title.substring(0, 150)
+
+    const socialTitle = `Posted by ${post.author.displayName} on ${post.community.name} : "${shareTitle}"`
+    const socialDescription = `Ulkka - Kerala's Own Community!\n ${post.voteCount} votes, ${post.commentCount} comments - ${socialTitle}`;
+    const config = {
+        dynamicLinkInfo: {
+            link: link,
+            androidInfo: {
+                androidPackageName: "in.ulkka",
+                androidFallbackLink: link
+
+            },
+            iosInfo: {
+                iosBundleId: "in.ulkka",
+                iosAppStoreId: "1563474580",
+                iosFallbackLink: link
+            },
+            // domainUriPrefix is created in your Firebase console
+            domainUriPrefix: "https://link.ulkka.in",
+            // optional setup which updates Firebase analytics campaign
+            socialMetaTagInfo: {
+                socialTitle: socialTitle,
+                socialDescription: socialDescription,
+                socialImageLink: getImageLinkFromPost(post),
+            },
+        },
+        suffix: {
+            option: "SHORT"
+        }
+    }
+    let shortLink = (await generateShortLink(config)).shortLink
+    return shortLink
+}

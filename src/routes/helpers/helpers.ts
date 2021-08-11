@@ -5,7 +5,8 @@ import { getOGData } from "../../helpers/openGraphScraper";
 import { createNotification } from "../../asyncJobs";
 import { PushMessageJob } from "../../asyncJobs/worker";
 import { truncateWithEllipses } from "../../helpers/utils";
-import { generateShortLink } from '../../modules/firebaseDynamicLinks'
+import { createDynamicLinkFromPost } from '../../helpers/shortlink'
+
 export async function preCreateAddOGData(req, res, next) {
   if (req.body.type === "link") {
     // returning early as we don't want to block return
@@ -238,34 +239,7 @@ export async function postCreateUpdateParentCommentCount(req, res, next) {
 
 
 export async function postCreateGenerateDynamicLink(req, res, next) {
-  let link = `https://ulkka.in/post/${req.erm.result._id}`
-  let post = req.erm.result
-  const shareTitle = post.title.substring(0, 150)
-
-  const socialTitle = `Posted by ${post.author.displayName} on ${post.community.name} : "${shareTitle}"`
-  const socialDescription = `Ulkka - Kerala's Own Community!\n ${post.voteCount} votes, ${post.commentCount} comments - ${socialTitle}`;
-  const config = {
-    dynamicLinkInfo: {
-      link: link,
-      androidInfo: {
-        androidPackageName: "in.ulkka",
-      },
-      iosInfo: {
-        iosBundleId: "in.ulkka",
-        iosAppStoreId: "1563474580",
-      },
-      // domainUriPrefix is created in your Firebase console
-      domainUriPrefix: "https://link.ulkka.in",
-      // optional setup which updates Firebase analytics campaign
-      socialMetaTagInfo: {
-        socialTitle: socialTitle,
-        socialDescription: socialDescription,
-        socialImageLink: 'https://media.ulkka.in/image/upload/q_80/v1628267526/image/2021-08-06T16:32:04.960Z.jpg',
-      },
-    }
-  }
-  let shortLink = (await generateShortLink(config)).shortLink
-  console.log("generated dynamic link:", shortLink)
+  let shortLink = await createDynamicLinkFromPost(req.erm.result)
   req.erm.result.dynamicLink = shortLink
   await req.erm.result.save();
   next();
