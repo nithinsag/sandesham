@@ -1,22 +1,28 @@
 
 import { generateShortLink } from '../modules/firebaseDynamicLinks'
 function getImageLinkFromPost(post) {
+    let url = 'https://media.ulkka.in/image/upload/v1622024421/image/2021-05-26T10:20:19.136Z.png'
     if (post.type == "image") {
-        return post.mediaMetadata?.secure_url
+        url = post.mediaMetadata?.secure_url
     }
     else if (post.type == "video") {
         let mediaUrl = post.mediaMetadata?.secure_url
-        return mediaUrl.substring(0, mediaUrl.lastIndexOf(".")) + ".jpg"
+        url = mediaUrl.substring(0, mediaUrl.lastIndexOf(".")) + ".jpg"
     }
     else if (post.type == "gif") {
         let mediaUrl = post.mediaMetadata?.secure_url
-        return mediaUrl.split(".gif")[0] + ".png"
+        url = mediaUrl.split(".gif")[0] + ".png"
     }
     else if (post.type == "link") {
-        return post.ogData?.ogImage?.url
-    } else {
-        return ''
+        url = post.ogData?.ogImage?.url
     }
+
+    if (url.includes('https://media.ullka.in')) {
+        let parts = url.split('upload/')
+        url = parts.join('upload/w_300,q_80/')
+    }
+
+    return url
 
 }
 
