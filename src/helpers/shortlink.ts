@@ -31,7 +31,7 @@ export async function createDynamicLinkFromPost(post) {
     let link = `https://ulkka.in/post/${post._id}`
     const shareTitle = post.title.substring(0, 150)
 
-    const socialTitle = `Posted by ${post.author.displayName} on ${post.community.name} : "${shareTitle}"`
+    const socialTitle = `Posted by ${post.author.displayname} on ${post.community.name} : "${shareTitle}"`
     const socialDescription = `Ulkka - Kerala's Own Community!\n ${post.voteCount} votes, ${post.commentCount} comments - ${socialTitle}`;
     const config = {
         dynamicLinkInfo: {
