@@ -62,6 +62,7 @@ export class Server {
     this.app.use(boom()); // for error handling
     this.app.use(cors()); // for error handling
     this.app.use(morgan("combined")); // for logs
+    this.app.use(express.static('sitemap'))
     if (process.env.DEPLOY_ENV !== "TEST") {
       setQueues([
         new BullMQAdapter(messageQue),
