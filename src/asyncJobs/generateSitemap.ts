@@ -15,6 +15,7 @@ const job1 = cron.schedule(
   ),
   {
     timezone: "Asia/Kolkata",
+    schedule: false
   }
 )
 function cronMonitorWrapper(f, url) {
@@ -92,4 +93,4 @@ export async function generateSitemap() {
 
   console.log("completed running job")
   await closeConnection();
-}) ();
+}
