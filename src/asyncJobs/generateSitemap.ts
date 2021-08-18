@@ -33,6 +33,8 @@ export async function generateSitemap() {
 
   siteUrls.push({ url: '/', changeFrequency: 'hourly' })
   siteUrls.push({ url: '/popular', changeFrequency: 'hourly' })
+  siteUrls.push({ url: '/terms.html', changeFrequency: 'daily' })
+  siteUrls.push({ url: '/privacy-policy.html', changeFrequency: 'daily' })
   siteUrls.push(...communities.map(p => ({ url: `/community/${p._id}`, changeFrequency: 'hourly' })))
   siteUrls.push(...posts.map(p => ({ url: `/post/${p._id}`, changeFrequency: 'hourly' })))
   siteUrls.push(...users.map(p => ({ url: `/user/${p._id}`, changeFrequency: 'hourly' })))
