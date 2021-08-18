@@ -86,6 +86,7 @@ export async function generateSitemap() {
     archive.directory('./sitemap/source/', false);
     archive.finalize();
     console.log(sitemap)
+    axios.get('https://api.vercel.com/v1/integrations/deploy/prj_afRw1573zc9bGn49pQbwK7avC4az/ASPLo8F8QL')
   }
   catch (e) {
     console.log(e)
