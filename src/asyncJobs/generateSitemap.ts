@@ -15,7 +15,6 @@ const job1 = cron.schedule(
   ),
   {
     timezone: "Asia/Kolkata",
-    schedule: false
   }
 )
 function cronMonitorWrapper(f, url) {
@@ -45,7 +44,8 @@ export async function generateSitemap() {
     let sitemap = await simpleSitemapAndIndex({
       hostname: 'https://ulkka.in', destinationDir: './sitemap/source',
       sourceData: siteUrls,
-      gzip: false
+      gzip: false,
+      publicBasePath: '/sitemap'
     })
 
     const output = fs.createWriteStream('./sitemap/sitemap.zip');
