@@ -403,6 +403,20 @@ export function registerRoutes(router: Router) {
     return res.json(users[0]);
   });
 
+
+  router.get(
+    `${userUri}/byName`,
+    authenticateFromHeader,
+    async (req, res) => {
+      if (!req.query.name)
+        return res.boom.badRequest("name is a required parameter");
+      let user = await User.findOne({
+        displayname: { $regex: new RegExp(`^${req.query.name}$`, "i") },
+      });
+      return res.json(user);
+    }
+  )
+
   restify.serve(router, User, {
     name: "user",
     findOneAndUpdate: false,

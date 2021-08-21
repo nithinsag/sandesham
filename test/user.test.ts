@@ -157,6 +157,13 @@ describe("User routes", () => {
       .set("Authorization", "Bearer " + token1);
     expect(response.status).toBe(200);
   });
+  test("user can be fetched by name", async () => {
+    let response = await request
+      .get(`/api/v1/user/byName?name=${user1.displayname}`)
+      .set("Authorization", "Bearer " + token1);
+    expect(response.status).toBe(200);
+    expect(response.body._id).toBe(user1._id);
+  });
   test("user can fetch communities", async () => {
     let response = await request
       .get(`/api/v1/user/self/communities`)
