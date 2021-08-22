@@ -548,6 +548,36 @@ export function registerRoutes(router) {
     }
   );
   router.post(
+    `${API_BASE_URL}:id/togglePostNotification`,
+    authenticateFromHeader,
+    async (req, res) => {
+      if (!req.user)
+        return res.boom.badRequest(
+          "user needs to be authenticated to toggle notifications"
+        );
+
+      try {
+        let communityMembership = await CommunityMembership.findOne({
+          "community._id": req.params.id,
+          "member._id": req.user._id,
+        });
+        // if member is banned we don't do anything and return false
+        // banned members will not see join and leave buttons
+        if (communityMembership) {
+          communityMembership.disablePostNotification =
+            !communityMembership.disablePostNotification;
+          await communityMembership.save();
+          return res.json(communityMembership.disablePostNotification);
+        } else {
+          return res.boom.badRequest("user is not subscribed to the community");
+        }
+      } catch (e) {
+        logger.error(e);
+        return res.json(false);
+      }
+    }
+  );
+  router.post(
     `${API_BASE_URL}:id/invite/:user`,
     authenticateFromHeader,
     async (req, res) => {

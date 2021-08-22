@@ -134,6 +134,7 @@ export interface ICommunityMembership extends Document {
   isAdmin: boolean;
   isBanned: boolean;
   isFavorite: boolean;
+  disablePostNotification: boolean,
   subscribeToAdminNotification: boolean;
 }
 
@@ -152,6 +153,7 @@ let CommunityMembershipSchema: Schema = new Schema({
   isAdmin: { type: Schema.Types.Boolean, default: false },
   isBanned: { type: Schema.Types.Boolean, default: false },
   isFavorite: { type: Schema.Types.Boolean, default: false },
+  disablePostNotification: { type: Schema.Types.Boolean, default: false },
   subscribeToAdminNotification: { type: Schema.Types.Boolean, default: true },
   created_at: { type: Date, default: Date.now },
   updated_at: { type: Date, default: Date.now },
