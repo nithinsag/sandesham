@@ -518,15 +518,15 @@ describe("Community routes", () => {
   });
   test("community members can toggle post notification", async () => {
     let response = await request
-      .post(`/api/v1/community/${community2._id}/togglePostNotification`)
+      .post(`/api/v1/community/${community2._id}/enablePostNotification`)
       .set("Authorization", "Bearer " + token2);
     expect(response.status).toBe(200);
-    expect(response.body).toBe(true);
+    expect(response.body.disablePostNotification).toBe(false);
     response = await request
-      .post(`/api/v1/community/${community2._id}/togglePostNotification`)
+      .post(`/api/v1/community/${community2._id}/disablePostNotification`)
       .set("Authorization", "Bearer " + token2);
     expect(response.status).toBe(200);
-    expect(response.body).toBe(false);
+    expect(response.body.disablePostNotification).toBe(true);
   });
   test("community categories can be fetched", async () => {
     let response = await request
