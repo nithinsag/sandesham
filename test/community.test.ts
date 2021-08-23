@@ -521,12 +521,12 @@ describe("Community routes", () => {
       .post(`/api/v1/community/${community2._id}/togglePostNotification`)
       .set("Authorization", "Bearer " + token2);
     expect(response.status).toBe(200);
-    expect(response.body).toBe(false);
+    expect(response.body).toBe(true);
     response = await request
       .post(`/api/v1/community/${community2._id}/togglePostNotification`)
       .set("Authorization", "Bearer " + token2);
     expect(response.status).toBe(200);
-    expect(response.body).toBe(true);
+    expect(response.body).toBe(false);
   });
   test("community categories can be fetched", async () => {
     let response = await request
