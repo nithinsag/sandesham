@@ -44,7 +44,27 @@ export function authenticateFromHeader(req, res, next) {
           };
         }
       } else {
-        decodedToken = await validateToken(token);
+
+        if (token.startsWith("ssr")) {
+          if (token == process.env.SSR_TOKEN) {
+
+            decodedToken = {
+              name: "SSR User",
+              picture: "http://example.com/picure.jpg",
+              email: token,
+              email_verified: true,
+            };
+          }
+          else {
+            return res.boom.unauthorized("invalid ssr token");
+          }
+        }
+        else {
+
+          decodedToken = await validateToken(token);
+        }
+
+
         if (decodedToken == false) {
           logger.info("invalid token");
           return res.boom.unauthorized("token expired"); // return early if cannot decode token
