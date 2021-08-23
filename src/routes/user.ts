@@ -413,7 +413,11 @@ export function registerRoutes(router: Router) {
       let user = await User.findOne({
         displayname: { $regex: new RegExp(`^${req.query.name}$`, "i") },
       });
-      return res.json(user);
+      if (user) {
+        return res.json({ displayname: user.displayname, _id: user._id });
+      } else {
+        return res.json(user)
+      }
     }
   )
 

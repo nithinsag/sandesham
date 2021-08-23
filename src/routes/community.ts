@@ -27,7 +27,13 @@ export function registerRoutes(router) {
       let community = await Community.findOne({
         name: { $regex: new RegExp(`^${req.query.name}$`, "i") },
       });
-      return res.json(community);
+      if (community) {
+
+        return res.json({ name: community.name, _id: community._id });
+      }
+      else {
+        return res.json(community);
+      }
     }
   );
   router.post(
@@ -664,9 +670,8 @@ export function registerRoutes(router) {
         notification = {
           to: admin._id,
           title: `New admin alert`,
-          message: `${
-            membership?.member.displayname
-          } was promoted as an admin for ${community!.name}`,
+          message: `${membership?.member.displayname
+            } was promoted as an admin for ${community!.name}`,
           data: { type: "community", link: `/community/${community!._id}` },
         };
         await createNotification(notification);
@@ -719,9 +724,8 @@ export function registerRoutes(router) {
         notification = {
           to: admin._id,
           title: `User dismissed as admin`,
-          message: `${
-            membership?.member.displayname
-          } was dismissed as admin of ${community!.name}`,
+          message: `${membership?.member.displayname
+            } was dismissed as admin of ${community!.name}`,
           data: { type: "community", link: `/community/${community!._id}` },
         };
         await createNotification(notification);
