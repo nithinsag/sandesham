@@ -6,6 +6,7 @@ import { createNotification } from "../../asyncJobs";
 import { PushMessageJob } from "../../asyncJobs/worker";
 import { truncateWithEllipses } from "../../helpers/utils";
 import { createDynamicLinkFromPost } from '../../helpers/shortlink'
+import _ from 'lodash'
 
 export async function preCreateAddOGData(req, res, next) {
   if (req.body.type === "link") {
@@ -308,7 +309,34 @@ export async function sendCommentNotification(req, res, next) {
     detailedLink = `${postLink}/${req.erm.result._id}`;
     message = postDoc?.title;
   }
+
+  // check if there is a tag
+  const commentBody = req.erm.result.text;
+  const users = commentBody.match(/@\w+/g);
+
+  const mentionedUsers = await User.find({ displayname: { $in: [users] } })
+  let mentionedUserIds: any = []
+  for (let mentionedUser of mentionedUsers) {
+    mentionedUserIds.push(mentionedUser._id.toString())
+    let mentionNotification: PushMessageJob = {
+      to: mentionedUser._id,
+      title: `You were mentioned in a  comment by @${author.diplayname}`,
+      message: `${author.displayname
+        } mentioned you ${type} - "${truncateWithEllipses(message, 30)}" `,
+      data: {
+        type: type,
+        link: postLink,
+        detailedLink: detailedLink,
+      },
+    };
+    await createNotification(mentionNotification);
+  }
+
   if (to.equals(author._id)) return next(); // dont' notify yourself
+
+  if (_.includes(mentionedUserIds, to))
+    return next();
+  //skipping notification to creator as we are already sending mentioned notification
   let notification: PushMessageJob = {
     to: to,
     title: `You have a comment!`,
