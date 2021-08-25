@@ -262,19 +262,40 @@ export async function postCreateUpdateAuthorKarmaComment(req, res, next) {
   await updatePostKarma(post?.author._id, 1);
   next();
 }
-export async function postCreateNotifyMods(req, res, next) {
+export async function postCreateNotifyFollowers(req, res, next) {
   let post = req.erm.result;
-  let admin = await CommunityMembership.findOne({
+  let admins = await CommunityMembership.find({
     isAdmin: true,
+    isBanned: false,
     "community._id": post.community._id,
   });
-  if (admin && !req.user._id.equals(admin.member._id)) {
-    await createNotification({
-      title: `New post in ${admin.community.name}!`,
-      to: admin.member._id,
-      message: `${req.user.displayname} posted in ${admin.community.name}`,
-      data: { link: `/post/${post._id}`, type: "post" },
-    });
+
+  for (let admin of admins) {
+    if (admin && !req.user._id.equals(admin.member._id)) {
+       createNotification({
+        title: `New post in ${admin.community.name}!`,
+        to: admin.member._id,
+        message: `${req.user.displayname} posted in ${admin.community.name}`,
+        data: { link: `/post/${post._id}`, type: "post" },
+      });
+    }
+  }
+
+  let subs = await CommunityMembership.find({
+    isAdmin: false,
+    isBanned: false,
+    "community._id": post.community._id,
+  });
+
+  for (let sub of subs) {
+    if (sub && !req.user._id.equals(sub.member._id)) {
+       createNotification({
+        title: ` ${post.author.displayname} @ ${sub.community.name}!`,
+        to: sub.member._id,
+        message: `${truncateWithEllipses(post.title, 30)}`,
+        data: { link: `/post/${post._id}`, type: "post" },
+      });
+    }
   }
   next();
 }

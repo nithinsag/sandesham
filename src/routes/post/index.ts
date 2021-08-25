@@ -23,7 +23,7 @@ import {
   postCreateUpdateParentCommentCount,
   postCreateUpdateAuthorKarmaComment,
   postCreateUpdateAuthorKarmaPost,
-  postCreateNotifyMods,
+  postCreateNotifyFollowers,
   preCreateCommentBlockBannedUsers,
   preCreatePostBlockBannedUser,
   getUserVote,
@@ -63,7 +63,7 @@ export function registerRoutes(router: Router) {
     preDelete: doSoftDelete,
     postRead: postReadPost,
     preUpdate: authorizeWrites,
-    postCreate: [postCreateUpdateAuthorKarmaPost, postCreateGenerateDynamicLink, postCreateNotifyMods],
+    postCreate: [postCreateUpdateAuthorKarmaPost, postCreateGenerateDynamicLink, postCreateNotifyFollowers],
   });
   router.post(
     `${postUri}/:id/vote/:type`,
