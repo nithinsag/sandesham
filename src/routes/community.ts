@@ -572,7 +572,7 @@ export function registerRoutes(router) {
         if (communityMembership) {
           communityMembership.disablePostNotification = false
           await communityMembership.save();
-          return res.json({ disablePostNotification: communityMembership.disablePostNotification});
+          return res.json({ disablePostNotification: communityMembership.disablePostNotification });
         } else {
           return res.boom.badRequest("user is not subscribed to the community");
         }
@@ -601,7 +601,7 @@ export function registerRoutes(router) {
         if (communityMembership) {
           communityMembership.disablePostNotification = true
           await communityMembership.save();
-          return res.json({ disablePostNotification: communityMembership.disablePostNotification});
+          return res.json({ disablePostNotification: communityMembership.disablePostNotification });
         } else {
           return res.boom.badRequest("user is not subscribed to the community");
         }

@@ -272,7 +272,7 @@ export async function postCreateNotifyFollowers(req, res, next) {
 
   for (let admin of admins) {
     if (admin && !req.user._id.equals(admin.member._id)) {
-       createNotification({
+      createNotification({
         title: `New post in ${admin.community.name}!`,
         to: admin.member._id,
         message: `${req.user.displayname} posted in ${admin.community.name}`,
@@ -284,12 +284,13 @@ export async function postCreateNotifyFollowers(req, res, next) {
   let subs = await CommunityMembership.find({
     isAdmin: false,
     isBanned: false,
+    disablePostNotification: false,
     "community._id": post.community._id,
   });
 
   for (let sub of subs) {
     if (sub && !req.user._id.equals(sub.member._id)) {
-       createNotification({
+      createNotification({
         title: ` ${post.author.displayname} @ ${sub.community.name}!`,
         to: sub.member._id,
         message: `${truncateWithEllipses(post.title, 30)}`,
