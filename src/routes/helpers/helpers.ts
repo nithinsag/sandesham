@@ -346,7 +346,7 @@ export async function sendCommentNotification(req, res, next) {
     let mentionNotification: PushMessageJob = {
       to: mentionedUser._id,
       title: `${author.displayname} mentioned you in a comment`,
-      message: `${truncateWithEllipses(commentText, 30)}`,
+      message: `${author.displayname} mentioned you in a comment - ${truncateWithEllipses(commentText, 30)}`,
       data: {
         type: type,
         link: postLink,
