@@ -335,7 +335,7 @@ export async function sendCommentNotification(req, res, next) {
   // check if there is a tag
   const commentBody = req.erm.result.text;
   let users: any = []
-  let matches = commentBody.match(/@\w+/g);
+  let matches = commentBody.match(/@[\u00BF-\u1FFF\u2C00-\uD7FF\w]+/g);
   if (matches) {
     users = matches.map(u => u.replace('@', ''))
   }
