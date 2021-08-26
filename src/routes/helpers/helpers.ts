@@ -334,8 +334,11 @@ export async function sendCommentNotification(req, res, next) {
 
   // check if there is a tag
   const commentBody = req.erm.result.text;
-  let users = commentBody.match(/@\w+/g) || [];
-  users = users.map(u => u.replace('@', ''))
+  let users: any = []
+  let matches = commentBody.match(/@\w+/g);
+  if (matches) {
+    users = matches.map(u => u.replace('@', ''))
+  }
   const mentionedUsers = await User.find({ displayname: { $in: users } })
   let mentionedUserIds: any = []
   for (let mentionedUser of mentionedUsers) {
