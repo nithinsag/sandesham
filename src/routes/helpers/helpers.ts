@@ -334,7 +334,7 @@ export async function sendCommentNotification(req, res, next) {
 
   // check if there is a tag
   const commentBody = req.erm.result.text;
-  let users = commentBody.match(/@\w+/g);
+  let users = commentBody.match(/@\w+/g) || [];
   users = users.map(u => u.replace('@', ''))
   const mentionedUsers = await User.find({ displayname: { $in: users } })
   let mentionedUserIds: any = []
@@ -343,8 +343,7 @@ export async function sendCommentNotification(req, res, next) {
     let mentionNotification: PushMessageJob = {
       to: mentionedUser._id,
       title: `You were mentioned in a  comment by @${author.diplayname}`,
-      message: `${author.displayname
-        } mentioned you ${type} - "${truncateWithEllipses(message, 30)}" `,
+      message: `@${author.displayname} mentioned you in ${post.community.name} - "${truncateWithEllipses(message, 30)}" `,
       data: {
         type: type,
         link: postLink,
@@ -362,8 +361,7 @@ export async function sendCommentNotification(req, res, next) {
   let notification: PushMessageJob = {
     to: to,
     title: `You have a comment!`,
-    message: `${author.displayname
-      } replied to your ${type} - "${truncateWithEllipses(message, 30)}" `,
+    message: `${author.displayname} replied to your ${type} - "${truncateWithEllipses(message, 30)}" `,
     data: {
       type: type,
       link: postLink,
