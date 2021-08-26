@@ -291,7 +291,7 @@ export async function postCreateNotifyFollowers(req, res, next) {
   for (let sub of subs) {
     if (sub && !req.user._id.equals(sub.member._id)) {
       createNotification({
-        title: ` ${post.author.displayname} @ ${sub.community.name}!`,
+        title: `${post.author.displayname} @ ${sub.community.name}!`,
         to: sub.member._id,
         message: `${truncateWithEllipses(post.title, 30)}`,
         data: { link: `/post/${post._id}`, type: "post" },
@@ -318,7 +318,7 @@ export async function sendCommentNotification(req, res, next) {
   let type;
   let message;
   let author = req.erm.result.author;
-
+  let commentText = req.erm.result.text;
   if (parent) {
     let parentComment = await Comment.findById(parent);
     to = parentComment?.author._id;
@@ -345,8 +345,8 @@ export async function sendCommentNotification(req, res, next) {
     mentionedUserIds.push(mentionedUser._id.toString())
     let mentionNotification: PushMessageJob = {
       to: mentionedUser._id,
-      title: `You were mentioned in a  comment by @${author.diplayname}`,
-      message: `@${author.displayname} mentioned  you - "${truncateWithEllipses(message, 50)}" `,
+      title: `${author.diplayname} mentioned you in a comment`,
+      message: `${truncateWithEllipses(commentText, 30)}`,
       data: {
         type: type,
         link: postLink,
