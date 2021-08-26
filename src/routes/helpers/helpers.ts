@@ -295,7 +295,7 @@ export async function postCreateNotifyFollowers(req, res, next) {
         to: sub.member._id,
         message: `${truncateWithEllipses(post.title, 30)}`,
         data: { link: `/post/${post._id}`, type: "post" },
-      });
+      }, false);
     }
   }
   next();
