@@ -17,6 +17,7 @@ const job1 = cron.schedule(
     timezone: "Asia/Kolkata",
   }
 )
+
 function cronMonitorWrapper(f, url) {
   return async () => {
     await f();
@@ -31,13 +32,12 @@ export async function generateSitemap() {
   let users = await User.find()
   let siteUrls: any = []
 
-  siteUrls.push({ url: '/', changeFrequency: 'hourly' })
-  siteUrls.push({ url: '/popular', changeFrequency: 'hourly' })
-  siteUrls.push({ url: '/terms.html', changeFrequency: 'daily' })
-  siteUrls.push({ url: '/privacy-policy.html', changeFrequency: 'daily' })
-  siteUrls.push(...communities.map(p => ({ url: `/community/${p._id}`, changeFrequency: 'hourly' })))
-  siteUrls.push(...posts.map(p => ({ url: `/post/${p._id}`, changeFrequency: 'hourly' })))
-  siteUrls.push(...users.map(p => ({ url: `/user/${p._id}`, changeFrequency: 'hourly' })))
+  siteUrls.push({ url: '/', changefreq: 'always', priority: 1, lastmod: new Date().toISOString() })
+  siteUrls.push({ url: '/popular', changefreq: 'always', priority: 1, lastmod: new Date().toISOString() })
+  siteUrls.push({ url: '/terms.html', changefreq: 'daily', priority: 0.3 })
+  siteUrls.push(...communities.map(p => ({ url: `/community/${p._id}`, changefreq: 'always', priority: 1, lastmod: new Date().toISOString() })))
+  siteUrls.push(...posts.map(p => ({ url: `/post/${p._id}`, changefreq: 'hourly', priority: 0.7, lastmod: p.updated_at?.toISOString() })))
+  siteUrls.push(...users.map(p => ({ url: `/user/${p._id}`, changefreq: 'hourly', priority: 0.3 })))
 
   try {
     console.log(`generating sitemap for ${siteUrls.length}`)
@@ -86,7 +86,7 @@ export async function generateSitemap() {
     archive.directory('./sitemap/source/', false);
     archive.finalize();
     console.log(sitemap)
-    axios.get('https://api.vercel.com/v1/integrations/deploy/prj_afRw1573zc9bGn49pQbwK7avC4az/ASPLo8F8QL')
+    // axios.get('https://api.vercel.com/v1/integrations/deploy/prj_afRw1573zc9bGn49pQbwK7avC4az/ASPLo8F8QL')
   }
   catch (e) {
     console.log(e)
