@@ -56,7 +56,7 @@ export async function upVote() {
       { _id: p._id },
       getVoteQuery(user_id, type) // upvote
     );
-    sendVoteNotificationPost(preUpdate, type, user_id);
+    await sendVoteNotificationPost(preUpdate, type, user_id);
     let post: any = await Post.findOne({ _id: p._id }).lean();
     // using lean to convert to pure js object that we can manipulate
     post.userVote = getUserVote(post, user_id);
