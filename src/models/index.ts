@@ -14,6 +14,7 @@ let UserSchema: Schema = new Schema({
   commentKarma: { type: Schema.Types.Number, default: 0 },
   picture: { type: String },
   bio: { type: String, default: "" },
+  isSuperAdmin: { type: Boolean, default: false },
   blockedUsers: [Schema.Types.ObjectId],
   created_at: { type: Date, default: Date.now },
   updated_at: { type: Date, default: Date.now },
@@ -29,6 +30,7 @@ export interface IUser extends Document {
   commentKarma: number;
   picture: string;
   bio: string;
+  isSupeAdmin: boolean;
   blockedUsers: string[];
   created_at: Date;
   updated_at: Date;

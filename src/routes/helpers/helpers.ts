@@ -25,6 +25,26 @@ export async function preCreateAddOGData(req, res, next) {
     }
   } else next();
 }
+export async function preCreateGenerateRandomUser(req, res, next) {
+  if (req.user.isSuperAdmin && req.body.username) {
+    let username = req.body.username
+    let user;
+    user = await User.findOne({ displayname: username })
+    if (!user) {
+      user = new User({
+        email: `${username}@ulkka.in`,
+        created_at: Date.now(),
+        displayname: username,
+      })
+      await user.save();
+    }
+    req.user = user
+    next();
+
+  } else {
+    next();
+  }
+}
 
 export async function preCreateDefaultCommunity(req, res, next) {
   if (!req.body?.community?._id) {

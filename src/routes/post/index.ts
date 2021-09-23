@@ -34,6 +34,7 @@ import {
   doSoftDelete,
   redactDeletedPost,
   authorizeWrites,
+  preCreateGenerateRandomUser,
   postCreateGenerateDynamicLink
 } from "../helpers/helpers";
 import Joi from "joi";
@@ -54,6 +55,7 @@ export function registerRoutes(router: Router) {
     findOneAndUpdate: false,
     preMiddleware: authenticateFromHeader,
     preCreate: [
+      preCreateGenerateRandomUser,
       addCreatedBy,
       preCreateAddOGData,
       preCreateAutoUpvote,
@@ -219,6 +221,7 @@ export function registerRoutes(router: Router) {
     findOneAndUpdate: false,
     preMiddleware: authenticateFromHeader,
     preCreate: [
+      preCreateGenerateRandomUser,
       addCreatedBy,
       preCreateCommentBlockBannedUsers,
       preCreateAddCommentMeta,
