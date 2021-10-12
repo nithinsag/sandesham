@@ -33,7 +33,8 @@ export async function preCreateGenerateRandomUser(req, res, next) {
     if (!user) {
       user = new User({
         email: `${username}@ulkka.in`,
-        created_at: Date.now(),
+        created_at: new Date(Date.now() - Math.random()* 7*24*60*60*1000),
+        
         displayname: username,
       })
       await user.save();
