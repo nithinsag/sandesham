@@ -151,6 +151,72 @@ export function registerRoutes(router) {
       return res.json(communities[0]);
     }
   );
+  router.get(`${API_BASE_URL}topGroupByType`, authenticateFromHeader, async (req, res) => {
+    let memberCommunities: any = [];
+    if (req.user) {
+      memberCommunities = (
+        await CommunityMembership.find({ "member._id": req.user._id })
+      ).map((m) => m.community._id);
+    }
+    let page = parseInt(req.query.page) || 1;
+    let limit = parseInt(req.query.limit) || 10;
+
+    let aggregateQuery =
+      [{
+        $lookup: {
+          from: "communitymemberships",
+          localField: "_id",
+          foreignField: "community._id",
+          as: "memberCount"
+        }
+      },
+      {
+        $lookup: {
+          from: "posts",
+          let: { communityId: "$_id" },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $and: [
+                    {
+                      $eq: ["$community._id", "$$communityId"],
+                    },
+                  ],
+                },
+              },
+            },
+          ],
+          as: "postCount",
+        },
+      },
+      {
+        $addFields: {
+          memberCount: { $size: "$memberCount" },
+          postCount: { $size: "$postCount" },
+        },
+      },
+      {
+        $match: {
+          memberCount: { $gte: 10 },
+          postCount: { $gte: 5 }
+        }
+      },
+      { $group: { _id: "$type", doc: { $push: "$$ROOT" } } },
+      {
+        $facet: {
+          metadata: [
+            { $count: "total" },
+            { $addFields: { page: page, limit: limit } },
+          ],
+          data: [{ $skip: (page - 1) * limit }, { $limit: limit }],
+        },
+      },
+      ];
+    let communities = await Community.aggregate(aggregateQuery);
+    return res.json(communities[0]);
+  });
+  
   router.get(`${API_BASE_URL}top`, authenticateFromHeader, async (req, res) => {
     let memberCommunities: any = [];
     if (req.user) {

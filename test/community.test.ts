@@ -547,6 +547,12 @@ describe("Community routes", () => {
       .set("Authorization", "Bearer " + token1);
     expect(response.status).toBe(200);
   });
+  test("community recommendations grouped by type can be fetched", async () => {
+    let response = await request
+      .get(`/api/v1/community/topGroupByType`)
+      .set("Authorization", "Bearer " + token1);
+    expect(response.status).toBe(200);
+  });
   test("community filter can be fetched", async () => {
     let response = await request
       .get(`/api/v1/community/filter`)
