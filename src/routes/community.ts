@@ -202,7 +202,16 @@ export function registerRoutes(router) {
           postCount: { $gte: 5 }
         }
       },
-      { $group: { _id: "$type", doc: { $push: "$$ROOT" } } },
+      { $group: { _id: "$type", communities: { $push: "$$ROOT" } } },
+
+      {
+        $addFields: {
+          communityCount: { $size: "$communities" },
+        },
+      },
+      {
+        $sort: { communityCount: -1 }
+      },
       {
         $facet: {
           metadata: [
@@ -216,7 +225,7 @@ export function registerRoutes(router) {
     let communities = await Community.aggregate(aggregateQuery);
     return res.json(communities[0]);
   });
-  
+
   router.get(`${API_BASE_URL}top`, authenticateFromHeader, async (req, res) => {
     let memberCommunities: any = [];
     if (req.user) {
