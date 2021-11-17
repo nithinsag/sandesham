@@ -151,7 +151,7 @@ export function registerRoutes(router) {
       return res.json(communities[0]);
     }
   );
-  router.get(`${API_BASE_URL}topGroupByType`, authenticateFromHeader, async (req, res) => {
+  router.get(`${API_BASE_URL}groupByTopic`, authenticateFromHeader, async (req, res) => {
     let memberCommunities: any = [];
     if (req.user) {
       memberCommunities = (
@@ -211,6 +211,71 @@ export function registerRoutes(router) {
       },
       {
         $sort: { communityCount: -1 }
+      },
+      {
+        $facet: {
+          metadata: [
+            { $count: "total" },
+            { $addFields: { page: page, limit: limit } },
+          ],
+          data: [{ $skip: (page - 1) * limit }, { $limit: limit }],
+        },
+      },
+      ];
+    let communities = await Community.aggregate(aggregateQuery);
+    return res.json(communities[0]);
+  });
+
+  router.get(`${API_BASE_URL}byTopic/:topic`, authenticateFromHeader, async (req, res) => {
+    let page = parseInt(req.query.page) || 1;
+    let limit = parseInt(req.query.limit) || 10;
+
+    let aggregateQuery =
+      [{
+        $match: { type: req.params.topic }
+      },
+      {
+        $lookup: {
+          from: "communitymemberships",
+          localField: "_id",
+          foreignField: "community._id",
+          as: "memberCount"
+        }
+      },
+      {
+        $lookup: {
+          from: "posts",
+          let: { communityId: "$_id" },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $and: [
+                    {
+                      $eq: ["$community._id", "$$communityId"],
+                    },
+                  ],
+                },
+              },
+            },
+          ],
+          as: "postCount",
+        },
+      },
+      {
+        $addFields: {
+          memberCount: { $size: "$memberCount" },
+          postCount: { $size: "$postCount" },
+        },
+      },
+      {
+        $match: {
+          memberCount: { $gte: 10 },
+          postCount: { $gte: 5 }
+        }
+      },
+      {
+        $sort: { memberCount: -1 }
       },
       {
         $facet: {
