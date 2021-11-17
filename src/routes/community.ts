@@ -151,7 +151,7 @@ export function registerRoutes(router) {
       return res.json(communities[0]);
     }
   );
-  router.get(`${API_BASE_URL}groupByTopic`, authenticateFromHeader, async (req, res) => {
+  router.get(`${API_BASE_URL}topByTopic`, authenticateFromHeader, async (req, res) => {
     let memberCommunities: any = [];
     if (req.user) {
       memberCommunities = (

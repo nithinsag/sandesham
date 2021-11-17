@@ -549,7 +549,7 @@ describe("Community routes", () => {
   });
   test("community recommendations grouped by type can be fetched", async () => {
     let response = await request
-      .get(`/api/v1/community/topGroupByType`)
+      .get(`/api/v1/community/topByTopic`)
       .set("Authorization", "Bearer " + token1);
     expect(response.status).toBe(200);
   });
