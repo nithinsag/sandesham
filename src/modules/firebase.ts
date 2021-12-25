@@ -1,14 +1,13 @@
 import * as admin from "firebase-admin";
 import { logger } from "../helpers/logger";
 
-let serviceAccount = require("../../config/google-services.json");
+let serviceAccount = require("../../config/" + process.env.GOOGLE_APPLICATION_CREDENTIALS);
 
 interface DecodedToken extends admin.auth.DecodedIdToken {
   name?: string;
 }
 export const firebaseAdmin = admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
-  databaseURL: "https://vellarikka-pattanam.firebaseio.com",
 });
 
 export async function validateToken(
