@@ -10,6 +10,7 @@ import { router as bullBoard } from "bull-board";
 import { connectToMongo } from "./models";
 import "./tracer";
 import cors from 'cors'
+import { t } from "./modules/i18n";
 const { setQueues, BullMQAdapter } = require("bull-board");
 
 export class Server {
@@ -43,7 +44,7 @@ export class Server {
 
   public api() {
     this.app.get("/", function (req: any, res: any) {
-      res.send("API is working!");
+      res.send(`API is working, ${t("Hello")}!`);
     });
     let router = express.Router();
     registerRoutes(router);
