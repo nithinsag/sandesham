@@ -37,17 +37,17 @@ export async function createDynamicLinkFromPost(post) {
         dynamicLinkInfo: {
             link: link,
             androidInfo: {
-                androidPackageName: "in.ulkka",
+                androidPackageName: process.env.ANDROID_PACKAGE_NAME,
                 androidFallbackLink: link
 
             },
             iosInfo: {
-                iosBundleId: "in.ulkka",
-                iosAppStoreId: "1563474580",
+                iosBundleId: process.env.IOS_BUNDLE_ID,
+                iosAppStoreId: process.env.IOS_APPSTORE_ID,
                 iosFallbackLink: link
             },
             // domainUriPrefix is created in your Firebase console
-            domainUriPrefix: "https://link.ulkka.in",
+            domainUriPrefix: process.env.SHORTURI_PREFIX,
             // optional setup which updates Firebase analytics campaign
             socialMetaTagInfo: {
                 socialTitle: socialTitle,
