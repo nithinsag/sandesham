@@ -29,6 +29,11 @@ function getImageLinkFromPost(post) {
 export async function createDynamicLinkFromPost(post) {
 
     let link = `https://ulkka.in/post/${post._id}`
+        console.log("shortlingk", process.env.ENABLE_SHORTLINK)
+    if (!process.env.ENABLE_SHORTLINK) {
+        return link
+    }
+
     const shareTitle = post.title.substring(0, 150)
 
     const socialTitle = `Posted by ${post.author.displayname} on ${post.community.name} : "${shareTitle}"`

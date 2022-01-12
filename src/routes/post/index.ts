@@ -104,32 +104,36 @@ export function registerRoutes(router: Router) {
     `${postUri}/:id/report`,
     authenticateFromHeader,
     async (req, res) => {
+      let user_id
       if (req.user) {
-        const user_id = req.user._id;
-        const reason = req.body.reason;
-
-        if (reason.length > 0) {
-          let status = await Post.updateOne(
-            { _id: req.params.id },
-            {
-              $push: {
-                reports: {
-                  _id: user_id,
-                  reason: reason,
-                },
-              },
-            }
-          );
-          // using lean to convert to pure js object that we can manipulate
-          return res.json({ success: true });
-        } else {
-          return res.json({ error: true, message: "Missing reporting reason" });
-        }
-      } else {
-        res.boom.unauthorized("User needs to be authenticated to vote!");
+        user_id = req.user._id;
       }
-    }
-  );
+      else if (req.is_anonymous) {
+        user_id = 'anonymous'
+      }
+      else {
+        return res.boom.unauthorized("User needs to be authenticated to vote!");
+      }
+      const reason = req.body.reason;
+
+      if (reason.length > 0) {
+        let status = await Post.updateOne(
+          { _id: req.params.id },
+          {
+            $push: {
+              reports: {
+                _id: user_id,
+                reason: reason,
+              },
+            },
+          }
+        );
+        // using lean to convert to pure js object that we can manipulate
+        return res.json({ success: true });
+      } else {
+        return res.json({ error: true, message: "Missing reporting reason" });
+      }
+    });
 
   router.post(
     `${postUri}/:id/remove`,
@@ -291,29 +295,34 @@ export function registerRoutes(router: Router) {
     `${commentUri}/:id/report`,
     authenticateFromHeader,
     async (req, res) => {
+      let user_id
       if (req.user) {
-        const user_id = req.user._id;
-        const reason = req.body.reason;
+        user_id = req.user._id;
+      }
+      else if (req.is_anonymous) {
+        user_id = 'anonymous'
+      }
+      else {
+        return res.boom.unauthorized("User needs to be authenticated to vote!");
+      }
+      const reason = req.body.reason;
 
-        if (reason.length > 0) {
-          let status = await Comment.updateOne(
-            { _id: req.params.id },
-            {
-              $push: {
-                reports: {
-                  _id: user_id,
-                  reason: reason,
-                },
+      if (reason.length > 0) {
+        let status = await Comment.updateOne(
+          { _id: req.params.id },
+          {
+            $push: {
+              reports: {
+                _id: user_id,
+                reason: reason,
               },
-            }
-          );
-          // using lean to convert to pure js object that we can manipulate
-          return res.json({ success: true });
-        } else {
-          return res.json({ error: true, message: "Missing reporting reason" });
-        }
+            },
+          }
+        );
+        // using lean to convert to pure js object that we can manipulate
+        return res.json({ success: true });
       } else {
-        res.boom.unauthorized("User needs to be authenticated to vote!");
+        return res.json({ error: true, message: "Missing reporting reason" });
       }
     }
   );
