@@ -104,12 +104,12 @@ export function registerRoutes(router: Router) {
     `${postUri}/:id/report`,
     authenticateFromHeader,
     async (req, res) => {
-      let user_id
+      let user_id, type='normal'
       if (req.user) {
         user_id = req.user._id;
       }
       else if (req.is_anonymous) {
-        user_id = 'anonymous'
+        type = 'anonymous'
       }
       else {
         return res.boom.unauthorized("User needs to be authenticated to vote!");
@@ -123,6 +123,7 @@ export function registerRoutes(router: Router) {
             $push: {
               reports: {
                 _id: user_id,
+                type: type,
                 reason: reason,
               },
             },
