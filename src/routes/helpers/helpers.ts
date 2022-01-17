@@ -26,7 +26,7 @@ export async function preCreateAddOGData(req, res, next) {
   } else next();
 }
 export async function preCreateGenerateRandomUser(req, res, next) {
-  if (req.user.isSuperAdmin && req.body.username) {
+  if (req.user?.isSuperAdmin && req.body.username) {
     let username = req.body.username
     let user;
     user = await User.findOne({ displayname: username })
