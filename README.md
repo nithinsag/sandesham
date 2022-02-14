@@ -8,16 +8,11 @@ running ulkka
 Install docker for your development environment and add the user to docker
 group to run docker command without sudo.
 
-Requires mongodb, you can start one by running `./start-mongo.sh`
-Requires redis, you can start one by running `./start-redis.sh`
+Requires mongodb & redis, you can create by running `./start-db.sh` (You will need `docker` command accessible without root)
+
 
 Update `.env` with the mongo url, if you are using the 
 docker mongodb, you don't need to update this
 
 Run `yarn install`
 Run `yarn dev` to bring up the development server
-
-
-## TODO
-- integrate authentication and authorization
-- impliment graphql for better querying
