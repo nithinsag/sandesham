@@ -36,7 +36,7 @@ export async function generateSitemap() {
   siteUrls.push({ url: '/popular', changefreq: 'always', priority: 1, lastmod: new Date().toISOString() })
   siteUrls.push({ url: '/terms.html', changefreq: 'daily', priority: 0.3 })
   siteUrls.push(...communities.map(p => ({ url: `/community/${p._id}`, changefreq: 'always', priority: 1, lastmod: new Date().toISOString() })))
-  siteUrls.push(...posts.map(p => ({ url: `/post/${p._id}`, changefreq: 'hourly', priority: 0.7, lastmod: p.updated_at?.toISOString() })))
+  siteUrls.push(...posts.map(p => ({ url: `/post/${p.slug}`, changefreq: 'hourly', priority: 0.7, lastmod: p.updated_at?.toISOString() })))
   siteUrls.push(...users.map(p => ({ url: `/user/${p._id}`, changefreq: 'hourly', priority: 0.3 })))
 
   try {
