@@ -324,4 +324,33 @@ describe("Post routes", () => {
     expect(users).toContain(user2._id);
     expect(users).toContain(user1._id);
   });
+
+  test("posts can be fetched by slug", async () => {
+    let response = await request
+      .post("/api/v1/post")
+      .send(sample_post_1)
+      .set("Authorization", "Bearer " + token1);
+    expect(response.status).toBe(201);
+    post1 = response.body;
+    expect(post1.voteCount).toBe(1);
+
+    response = await request.get(`/api/v1/post/bySlug/${post1.slug}`)
+      .set("Authorization", "Bearer " + token1);
+    let post1_byslug = response.body
+
+
+    expect(post1_byslug._id).toBe(post1._id)
+    response = await request
+      .post("/api/v1/post")
+      .send(sample_post_2)
+      .set("Authorization", "Bearer " + token2);
+    expect(response.status).toBe(201);
+    post2 = response.body;
+
+    response = await request.get(`/api/v1/post/bySlug/${post2.slug}`)
+      .set("Authorization", "Bearer " + token_anon);
+    let post2_byslug = response.body
+    expect(post2_byslug._id).toBe(post2._id)
+
+  });
 });

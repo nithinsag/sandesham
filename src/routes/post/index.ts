@@ -99,12 +99,33 @@ export function registerRoutes(router: Router) {
       }
     }
   );
+  router.get(
+    `${postUri}/bySlug/:slug`,
+    authenticateFromHeader,
+    async (req, res) => {
+      let matchQuery;
+      if (!req.is_anonymous) {
+        let blockedUsers = [...req.user.blockedUsers];
+        matchQuery = {
+          "author._id": { $nin: req.user.blockedUsers },
+          reports: { $not: { $elemMatch: { _id: req.user._id } } },
+        };
+      }
+      let post = await Post.findOne({ slug: req.params.slug, ...matchQuery })
+      if (!post) {
+        return res.boom.notfound()
+      }
+      if (req.user) post.userVote = getUserVote(post, req.user);
+      post = redactDeletedPost(post);
+      return res.json(post)
+    }
+  );
 
   router.post(
     `${postUri}/:id/report`,
     authenticateFromHeader,
     async (req, res) => {
-      let user_id, type='normal'
+      let user_id, type = 'normal'
       if (req.user) {
         user_id = req.user._id;
       }
