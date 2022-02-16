@@ -16,3 +16,8 @@ docker mongodb, you don't need to update this
 
 Run `yarn install`
 Run `yarn dev` to bring up the development server
+
+
+For running tests
+
+`yarn test`
