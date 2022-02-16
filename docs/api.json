@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "7fb4f193-7329-42da-af57-bfb46d26bcbc",
+		"_postman_id": "3c05457e-98d8-499c-a2d0-6e47cb9c3746",
 		"name": "sphadikam Copy",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
@@ -133,6 +133,14 @@
 						}
 					},
 					"response": []
+				},
+				{
+					"name": "New Request",
+					"request": {
+						"method": "GET",
+						"header": []
+					},
+					"response": []
 				}
 			]
 		},
@@ -255,12 +263,22 @@
 				{
 					"name": "get  posts",
 					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
 						"method": "GET",
 						"header": [
 							{
 								"key": "Authorization",
 								"type": "text",
-								"value": "Bearer eyJhbGciOiJSUzI1NiIsImtpZCI6IjBlM2FlZWUyYjVjMDhjMGMyODFhNGZmN2RjMmRmOGIyMzgyOGQ1YzYiLCJ0eXAiOiJKV1QifQ.eyJuYW1lIjoiQXJqdW4gUyBXYXJyaWVyIiwicGljdHVyZSI6Imh0dHBzOi8vbGgzLmdvb2dsZXVzZXJjb250ZW50LmNvbS9hLS9BT2gxNEdneUlnUnNEblJ3UHdtVnpIQ0VPd2oyN2Z2bFg2SWZXOGhrbWFZRXN3PXM5Ni1jIiwiaXNzIjoiaHR0cHM6Ly9zZWN1cmV0b2tlbi5nb29nbGUuY29tL3ZlbGxhcmlra2EtcGF0dGFuYW0iLCJhdWQiOiJ2ZWxsYXJpa2thLXBhdHRhbmFtIiwiYXV0aF90aW1lIjoxNjAyODM4ODk4LCJ1c2VyX2lkIjoiVjJ0UHhrdnFTTWcwODEyMHFlb1pzNmVrYlUwMyIsInN1YiI6IlYydFB4a3ZxU01nMDgxMjBxZW9aczZla2JVMDMiLCJpYXQiOjE2MDI4NDMyNzQsImV4cCI6MTYwMjg0Njg3NCwiZW1haWwiOiJhcmp1bnN3YXJyaWVyQGdtYWlsLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJmaXJlYmFzZSI6eyJpZGVudGl0aWVzIjp7Imdvb2dsZS5jb20iOlsiMTEzOTkxODE5NDEzMzkyOTIxOTg5Il0sImVtYWlsIjpbImFyanVuc3dhcnJpZXJAZ21haWwuY29tIl19LCJzaWduX2luX3Byb3ZpZGVyIjoiZ29vZ2xlLmNvbSJ9fQ.edYqiBs5cz19bTcIDTvIH6343Ni1NNxTgNiBlFXGJmnVUac9c4LKBX7D29EPnsVD36oFkvi0CWVOJD4dk-mYh0kU24wAqgThCzJq6Qk9FjuaVMYAYyqFuLAyMPmaDz50JTmrjo8XocJ19g77lU-K6pSKU8npVpRaxqnF2Mu64jCsr7rv2GTTQGNW1YJ49tqXTORX5dzGQykCjSPnDhmI7DFH0XO_CzzdMJIo9AvgN5M7Tsm8rnnJCClNCctGi9GdrF0NLGT_s89c4UZg5EWD5GKS-40RNOu_gNmcWXUjOV7bNht_6xSvjCIDmj4Cwz2F-JyDGySV8DLqAIKsf3u9ZQ"
+								"value": "Bearer {{token}}"
 							}
 						],
 						"url": {
@@ -605,7 +623,7 @@
 							}
 						},
 						"url": {
-							"raw": "http://{{host}}/api/v1/post/6036a3135a9f1e2ee36b5fb6/report",
+							"raw": "http://{{host}}/api/v1/post/61e55f19c74dba7d83914d6f/report",
 							"protocol": "http",
 							"host": [
 								"{{host}}"
@@ -614,7 +632,7 @@
 								"api",
 								"v1",
 								"post",
-								"6036a3135a9f1e2ee36b5fb6",
+								"61e55f19c74dba7d83914d6f",
 								"report"
 							],
 							"query": [
