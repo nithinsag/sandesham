@@ -109,7 +109,7 @@ func (c *Client) writePump() {
 	}
 }
 
-func Chat() {
+func NewChatServer() {
 	fmt.Println("this is a chat app")
 
 	flag.Parse()
