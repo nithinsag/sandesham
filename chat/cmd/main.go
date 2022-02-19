@@ -1,16 +1,14 @@
 package main
 
 import (
-	"fmt"
-
 	"github.com/diadara/sandesham/chat/internal/app"
 	"github.com/diadara/sandesham/chat/internal/cache"
-	"github.com/go-redis/redis/v8"
+	"github.com/diadara/sandesham/chat/internal/db"
 	"go.uber.org/fx"
 )
 
-func Register(rc *redis.Client) {
-	fmt.Printf("got redis client", rc)
+func Register(server *app.ChatServer) {
+	server.Run()
 }
 
 func main() {
@@ -19,6 +17,8 @@ func main() {
 	//fmt.Println("redis connected", rc)
 	fxapp := fx.New(
 		fx.Provide(cache.NewRedisClient),
+		fx.Provide(db.NewMongoClient),
+		fx.Provide(app.NewChatServer),
 		fx.Provide(app.NewHub),
 		fx.Invoke(Register))
 

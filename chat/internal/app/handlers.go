@@ -1,9 +1,11 @@
 package app
 
 import (
-	"github.com/gorilla/websocket"
+	"fmt"
 	"log"
 	"net/http"
+
+	"github.com/gorilla/websocket"
 )
 
 var upgrader = websocket.Upgrader{
@@ -26,6 +28,9 @@ func serveHome(w http.ResponseWriter, r *http.Request) {
 
 // serveWs handles websocket requests from the peer.
 func serveWs(hub *Hub, w http.ResponseWriter, r *http.Request) {
+	params := r.URL.Query()
+	token := params["token"]
+	fmt.Println(token)
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		log.Println(err)

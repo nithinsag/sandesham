@@ -13,12 +13,14 @@ type ChatServer struct {
 	hub *Hub
 }
 
-func (s *ChatServer) run() {
+func (s *ChatServer) Run() {
 	go s.hub.run()
 	err := http.ListenAndServe(*addr, nil)
 	if err != nil {
 		log.Fatal("ListenAndServe: ", err)
 	}
+
+	log.Default().Println("statted server")
 }
 func NewChatServer(hub *Hub) *ChatServer {
 	fmt.Println("this is a chat app")
