@@ -2,7 +2,9 @@ package main
 
 import (
 	"fmt"
+
 	"github.com/diadara/sandesham/chat/internal/app"
+	"github.com/diadara/sandesham/chat/internal/cache"
 	"github.com/go-redis/redis/v8"
 	"go.uber.org/fx"
 )
@@ -16,7 +18,8 @@ func main() {
 	//rc := app.NewRedisClient()
 	//fmt.Println("redis connected", rc)
 	fxapp := fx.New(
-		fx.Provide(app.NewRedisClient),
+		fx.Provide(cache.NewRedisClient),
+		fx.Provide(app.NewHub),
 		fx.Invoke(Register))
 
 	fxapp.Run()
