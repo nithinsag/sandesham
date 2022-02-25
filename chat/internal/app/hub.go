@@ -2,11 +2,13 @@ package app
 
 import (
 	"bytes"
+	"context"
 	"fmt"
 	"log"
 	"time"
 
 	"encoding/json"
+
 	"github.com/go-redis/redis/v8"
 	"github.com/gorilla/websocket"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -15,6 +17,7 @@ import (
 type Message struct {
 	From    string `json:"from"`
 	To      string `json:"to"`
+	Type    uint16 `json:"type"` // 0 -> message,
 	Message string `json:"message"`
 }
 
@@ -92,7 +95,13 @@ func (c *Client) readPump() {
 		var msg Message
 		json.Unmarshal(message, &msg)
 		fmt.Println("message", msg)
-		c.hub.broadcast <- message
+		ctx := context.TODO()
+		//c.hub.broadcast <- message
+		// Push to appropriate redis topic
+		//
+		jsonMsg, err := json.Marshal(msg)
+		c.hub.rc.Publish(ctx, "chat", string(jsonMsg))
+		fmt.Println("publishing message into redis", string(jsonMsg))
 	}
 }
 
@@ -107,21 +116,25 @@ func (c *Client) writePump() {
 		ticker.Stop()
 		c.conn.Close()
 	}()
+
+	// listens to the redis and pumps the messages
+	ctx := context.TODO()
+	pubsub := c.hub.rc.Subscribe(ctx, "chat")
+	fmt.Println("sub to chat")
+	ch := pubsub.Channel()
+	fmt.Println("channel created to listen")
 	for {
 		select {
-		case message, ok := <-c.send:
+		case message := <-ch:
+			fmt.Println("recieved message")
 			c.conn.SetWriteDeadline(time.Now().Add(writeWait))
-			if !ok {
-				// The hub closed the channel.
-				c.conn.WriteMessage(websocket.CloseMessage, []byte{})
-				return
-			}
 
 			w, err := c.conn.NextWriter(websocket.TextMessage)
 			if err != nil {
 				return
 			}
-			w.Write(message)
+			fmt.Println("recivied message from redis")
+			w.Write([]byte(message.Payload))
 
 			// Add queued chat messages to the current websocket message.
 			n := len(c.send)
