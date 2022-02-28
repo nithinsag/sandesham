@@ -5,29 +5,32 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+
+	"github.com/gorilla/mux"
 )
 
 var addr = flag.String("addr", ":8080", "http service address")
 
 type ChatServer struct {
-	hub *Hub
+	router *mux.Router
+	hub    *Hub
 }
 
 func (s *ChatServer) Run() {
 	go s.hub.run()
-	err := http.ListenAndServe(*addr, nil)
+	err := http.ListenAndServe(*addr, s.router)
 	if err != nil {
 		log.Fatal("ListenAndServe: ", err)
 	}
 
 	log.Default().Println("statted server")
 }
-func NewChatServer(hub *Hub) *ChatServer {
+func NewChatServer(hub *Hub, apiRouter *mux.Router) *ChatServer {
 	fmt.Println("this is a chat app")
-	s := &ChatServer{hub: hub}
+	s := &ChatServer{hub: hub, router: apiRouter}
 	flag.Parse()
-	http.HandleFunc("/", serveHome)
-	http.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
+	apiRouter.HandleFunc("/", serveHome)
+	apiRouter.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
 		serveWs(hub, w, r)
 	})
 

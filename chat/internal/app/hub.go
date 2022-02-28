@@ -9,17 +9,11 @@ import (
 
 	"encoding/json"
 
+	"github.com/diadara/sandesham/chat/internal/db"
 	"github.com/go-redis/redis/v8"
 	"github.com/gorilla/websocket"
-	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
-
-type Message struct {
-	From    string `json:"from"`
-	To      string `json:"to"`
-	Type    uint16 `json:"type"` // 0 -> message,
-	Message string `json:"message"`
-}
 
 type Hub struct {
 	// Registered clients.
@@ -36,7 +30,7 @@ type Hub struct {
 
 	rc *redis.Client
 
-	mc *mongo.Client
+	mr *db.MessageRepository
 }
 
 // Client is a middleman between the websocket connection and the hub.
@@ -92,13 +86,20 @@ func (c *Client) readPump() {
 		}
 		message = bytes.TrimSpace(bytes.Replace(message, newline, space, -1))
 
-		var msg Message
+		var msg db.Message
 		json.Unmarshal(message, &msg)
 		fmt.Println("message", msg)
+
+		//Save to DB
+		//
 		ctx := context.TODO()
 		//c.hub.broadcast <- message
 		// Push to appropriate redis topic
 		//
+
+		result, err := c.hub.mr.SaveMessage(ctx, msg)
+		fmt.Println(result, err)
+		msg.Id = result.InsertedID.(primitive.ObjectID).Hex()
 		jsonMsg, err := json.Marshal(msg)
 		c.hub.rc.Publish(ctx, "chat", string(jsonMsg))
 		fmt.Println("publishing message into redis", string(jsonMsg))
@@ -154,14 +155,14 @@ func (c *Client) writePump() {
 		}
 	}
 }
-func NewHub(rc *redis.Client, mc *mongo.Client) *Hub {
+func NewHub(rc *redis.Client, mr *db.MessageRepository) *Hub {
 	return &Hub{
 		broadcast:  make(chan []byte),
 		register:   make(chan *Client),
 		unregister: make(chan *Client),
 		clients:    make(map[*Client]bool),
 		rc:         rc,
-		mc:         mc,
+		mr:         mr,
 	}
 }
 

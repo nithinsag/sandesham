@@ -2,14 +2,29 @@ package db
 
 import (
 	"context"
+	"errors"
+	"fmt"
+	"log"
+
+	"os"
+	"time"
+
 	"github.com/joho/godotenv"
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
-	"log"
-	"os"
-	"time"
 )
+
+type Message struct {
+	From      string    `json:"from"`
+	Id        string    `json:"_id" bson:"_id,omitempty"`
+	To        string    `json:"to"`
+	Type      uint16    `json:"type"` // 0 -> message,
+	Message   string    `json:"message"`
+	Read      bool      `json:"read"`
+	CreatedAt time.Time `json:"created_at" bson:"created_at,omitempty"`
+}
 
 type User struct {
 	Picture      string             `bson:"picture,omitempty"`
@@ -42,6 +57,10 @@ type CommunityMembership struct {
 	Community Community `bson:"member,omitempty"`
 }
 
+type MessageRepository struct {
+	mc *mongo.Collection
+}
+
 func NewMongoClient() *mongo.Client {
 	if err := godotenv.Load(); err != nil {
 		log.Println("No .env file found")
@@ -56,20 +75,35 @@ func NewMongoClient() *mongo.Client {
 	}
 	// coll := client.Database("myapp").Collection("users")
 	// title := "Back to the Future"
-	// var result User
-	// err = coll.FindOne(context.TODO(), bson.D{}).Decode(&result)
-	// if err == mongo.ErrNoDocuments {
-	// fmt.Printf("No document was found with the title %s\n", title)
-	// return
-	// }
-	// if err != nil {
-	// panic(err)
-	// }
-	// fmt.Println(result)
-	// jsonData, err := json.MarshalIndent(result, "", "    ")
-	// if err != nil {
-	// panic(err)
-	// }
-	// fmt.Printf("%s\n", jsonData)
+
 	return client
+}
+
+func NewMessageRepository(mc *mongo.Client) *MessageRepository {
+	return &MessageRepository{mc: mc.Database("myapp").Collection("messages")}
+}
+
+func (mr *MessageRepository) SaveMessage(ctx context.Context, msg Message) (*mongo.InsertOneResult, error) {
+	msg.CreatedAt = time.Now()
+	return mr.mc.InsertOne(ctx, msg)
+}
+
+func (mr *MessageRepository) GetMessages(ctx context.Context, filter bson.D) ([]Message, error) {
+
+	fmt.Println("in repository", filter)
+	cursor, err := mr.mc.Find(ctx, bson.D{{}})
+
+	fmt.Println(cursor, err)
+	defer cursor.Close(ctx)
+	var result []Message
+	if err != nil {
+		fmt.Println("in repository got error")
+		return result, errors.New("couldn't fetch messages")
+	}
+
+	err = cursor.All(ctx, &result)
+
+	fmt.Println(err)
+	return result, err
+
 }

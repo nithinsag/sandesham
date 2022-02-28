@@ -17,8 +17,8 @@ func main() {
 	//fmt.Println("redis connected", rc)
 	fxapp := fx.New(
 		fx.Provide(cache.NewRedisClient),
-		fx.Provide(db.NewMongoClient),
-		fx.Provide(app.NewChatServer),
+		fx.Provide(db.NewMongoClient, db.NewMessageRepository),
+		fx.Provide(app.NewChatServer, app.NewApiRouter, app.NewMessageController),
 		fx.Provide(app.NewHub),
 		fx.Invoke(Register))
 
