@@ -8,6 +8,7 @@ import (
 	"net/http"
 
 	"github.com/diadara/sandesham/chat/internal/db"
+	fb "github.com/diadara/sandesham/chat/internal/firebase"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/websocket"
 	"go.mongodb.org/mongo-driver/bson"
@@ -18,19 +19,12 @@ var upgrader = websocket.Upgrader{
 	WriteBufferSize: 1024,
 }
 
-func NewApiRouter(mc *MessageController) *mux.Router {
+func NewApiRouter(mc *MessageController, fbapp *fb.Authenticator) *mux.Router {
 	router := mux.NewRouter()
-
 	router.HandleFunc("/api/messages", mc.MessageList).Methods("GET")
-
-	router.HandleFunc("/api/messages", func(rw http.ResponseWriter, r *http.Request) {
-		rw.Header().Set("Content-Type", "application/json")
-
-		json.NewEncoder(rw).Encode(map[string]string{"data": "Hello POST from Mux & mongoDB"})
-	}).Methods("POST")
-
 	return router
 }
+
 func serveHome(w http.ResponseWriter, r *http.Request) {
 	log.Println(r.URL)
 	if r.URL.Path != "/" {
@@ -45,9 +39,10 @@ func serveHome(w http.ResponseWriter, r *http.Request) {
 }
 
 // serveWs handles websocket requests from the peer.
-func serveWs(hub *Hub, w http.ResponseWriter, r *http.Request) {
+func serveWs(hub *Hub, auth *fb.Authenticator, w http.ResponseWriter, r *http.Request) {
 	params := r.URL.Query()
-	token := params["token"]
+	token := params.Get("token")
+
 	fmt.Println(token)
 	// TODO impliment firebase
 	conn, err := upgrader.Upgrade(w, r, nil)
@@ -55,7 +50,17 @@ func serveWs(hub *Hub, w http.ResponseWriter, r *http.Request) {
 		log.Println(err)
 		return
 	}
-	client := &Client{hub: hub, conn: conn, send: make(chan []byte, 256)}
+
+	ctx := context.Background()
+	decodedToken, err := auth.VerifyToken(ctx, token)
+
+	if err != nil {
+		json.NewEncoder(w).Encode(map[string]bool{"error": true})
+		return
+	}
+	email := fmt.Sprint(decodedToken.Claims["email"])
+	user, err := hub.ur.GetUserByEmail(ctx, email)
+	client := &Client{hub: hub, conn: conn, user: user, token: decodedToken, send: make(chan []byte, 256)}
 	client.hub.register <- client
 
 	// Allow collection of memory referenced by the caller by doing all work in
