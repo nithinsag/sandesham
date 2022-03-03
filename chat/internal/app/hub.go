@@ -9,6 +9,7 @@ import (
 
 	"encoding/json"
 
+	"firebase.google.com/go/v4/auth"
 	"github.com/diadara/sandesham/chat/internal/db"
 	"github.com/go-redis/redis/v8"
 	"github.com/gorilla/websocket"
@@ -30,12 +31,17 @@ type Hub struct {
 
 	rc *redis.Client
 
-	mr *db.MessageRepository
+	mr            *db.MessageRepository
+	ur            *db.UserRepository
+	messageRouter *MessageRouter
 }
 
 // Client is a middleman between the websocket connection and the hub.
 type Client struct {
 	hub *Hub
+
+	token *auth.Token
+	user  *db.User
 
 	// The websocket connection.
 	conn *websocket.Conn
@@ -88,7 +94,9 @@ func (c *Client) readPump() {
 
 		var msg db.Message
 		json.Unmarshal(message, &msg)
-		fmt.Println("message", msg)
+
+		msg.From = *c.user
+		fmt.Println("message", msg, c.user)
 
 		//Save to DB
 		//
@@ -102,6 +110,7 @@ func (c *Client) readPump() {
 		msg.Id = result.InsertedID.(primitive.ObjectID).Hex()
 		jsonMsg, err := json.Marshal(msg)
 		c.hub.rc.Publish(ctx, "chat", string(jsonMsg))
+
 		fmt.Println("publishing message into redis", string(jsonMsg))
 	}
 }
@@ -155,14 +164,16 @@ func (c *Client) writePump() {
 		}
 	}
 }
-func NewHub(rc *redis.Client, mr *db.MessageRepository) *Hub {
+func NewHub(rc *redis.Client, mr *db.MessageRepository, ur *db.UserRepository, messageRouter *MessageRouter) *Hub {
 	return &Hub{
-		broadcast:  make(chan []byte),
-		register:   make(chan *Client),
-		unregister: make(chan *Client),
-		clients:    make(map[*Client]bool),
-		rc:         rc,
-		mr:         mr,
+		broadcast:     make(chan []byte),
+		register:      make(chan *Client),
+		unregister:    make(chan *Client),
+		clients:       make(map[*Client]bool),
+		rc:            rc,
+		mr:            mr,
+		ur:            ur,
+		messageRouter: messageRouter,
 	}
 }
 

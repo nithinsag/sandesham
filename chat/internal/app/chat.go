@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/diadara/sandesham/chat/internal/firebase"
 	"github.com/gorilla/mux"
 )
 
@@ -25,13 +26,13 @@ func (s *ChatServer) Run() {
 
 	log.Default().Println("statted server")
 }
-func NewChatServer(hub *Hub, apiRouter *mux.Router) *ChatServer {
+func NewChatServer(hub *Hub, auth *firebase.Authenticator, apiRouter *mux.Router) *ChatServer {
 	fmt.Println("this is a chat app")
 	s := &ChatServer{hub: hub, router: apiRouter}
 	flag.Parse()
 	apiRouter.HandleFunc("/", serveHome)
 	apiRouter.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
-		serveWs(hub, w, r)
+		serveWs(hub, auth, w, r)
 	})
 
 	return s

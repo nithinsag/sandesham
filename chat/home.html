@@ -6,7 +6,6 @@
 window.onload = function () {
     var conn;
     var msg = document.getElementById("msg");
-    var from = document.getElementById("from");
     var to = document.getElementById("to");
     var log = document.getElementById("log");
 
@@ -18,24 +17,10 @@ window.onload = function () {
         }
     }
 
-    document.getElementById("form").onsubmit = function () {
-        if (!conn) {
-            return false;
-        }
-        if (!msg.value) {
-            return false;
-        }
 
-        let message =  {from: from.value, to: to.value, message: msg.value}
-        let jsonMessage = JSON.stringify(message)
-        console.log(jsonMessage)
-        conn.send(jsonMessage);
-        msg.value = "";
-        return false;
-    };
-
-    if (window["WebSocket"]) {
-        conn = new WebSocket("ws://" + document.location.host + "/ws?token=aasdasdf");
+     function connect(){
+        var token ="nithin@hack.com"
+        conn = new WebSocket("ws://" + document.location.host + `/ws?token=${token}`);
         conn.onclose = function (evt) {
             var item = document.createElement("div");
             item.innerHTML = "<b>Connection closed.</b>";
@@ -48,7 +33,31 @@ window.onload = function () {
                 item.innerText = messages[i];
                 appendLog(item);
             }
-        };
+            conn.onclose = function(e) {
+                  console.log('Socket is closed. Reconnect will be attempted in 1 second.', e.reason);
+                setTimeout(function() {
+                    connect();
+                }, 1000);
+              };
+        }
+     }
+    document.getElementById("form").onsubmit = function () {
+        if (!conn) {
+            return false;
+        }
+        if (!msg.value) {
+            return false;
+        }
+
+        let message =  {to: to.value, message: msg.value}
+        let jsonMessage = JSON.stringify(message)
+        console.log(jsonMessage)
+        conn.send(jsonMessage);
+        msg.value = "";
+        return false;
+    };
+    if (window["WebSocket"]) {
+         connect()
     } else {
         var item = document.createElement("div");
         item.innerHTML = "<b>Your browser does not support WebSockets.</b>";
@@ -97,7 +106,6 @@ body {
 <body>
 <div id="log"></div>
 <form id="form">
-    from: <input type="text" id="from" size="64" />
    to:  <input type="text" id="to" size="64"  />
     <br/>
     <input type="text" id="msg" size="64" autofocus />

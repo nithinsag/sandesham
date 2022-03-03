@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/diadara/sandesham/chat/internal/db"
 	fb "github.com/diadara/sandesham/chat/internal/firebase"
@@ -53,12 +54,19 @@ func serveWs(hub *Hub, auth *fb.Authenticator, w http.ResponseWriter, r *http.Re
 
 	ctx := context.Background()
 	decodedToken, err := auth.VerifyToken(ctx, token)
-
+	var email string
 	if err != nil {
-		json.NewEncoder(w).Encode(map[string]bool{"error": true})
-		return
+
+		if os.Getenv("DEPLOY_ENV") != "TEST" {
+			json.NewEncoder(w).Encode(map[string]bool{"error": true})
+			return
+		}
+		// if test env, we set the email directly as token
+		email = token
+
+	} else {
+		email = fmt.Sprint(decodedToken.Claims["email"])
 	}
-	email := fmt.Sprint(decodedToken.Claims["email"])
 	user, err := hub.ur.GetUserByEmail(ctx, email)
 	client := &Client{hub: hub, conn: conn, user: user, token: decodedToken, send: make(chan []byte, 256)}
 	client.hub.register <- client
