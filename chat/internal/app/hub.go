@@ -93,6 +93,7 @@ func (c *Client) readPump() {
 		message = bytes.TrimSpace(bytes.Replace(message, newline, space, -1))
 
 		var msg db.Message
+		msg.Type = 0
 		json.Unmarshal(message, &msg)
 
 		msg.From = *c.user
@@ -109,8 +110,8 @@ func (c *Client) readPump() {
 		fmt.Println(result, err)
 		msg.Id = result.InsertedID.(primitive.ObjectID).Hex()
 		jsonMsg, err := json.Marshal(msg)
-		c.hub.rc.Publish(ctx, "chat", string(jsonMsg))
-
+		//c.hub.rc.Publish(ctx, "chat", string(jsonMsg))
+		c.hub.messageRouter.RouteMessage(ctx, &msg)
 		fmt.Println("publishing message into redis", string(jsonMsg))
 	}
 }
