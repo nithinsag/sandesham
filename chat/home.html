@@ -19,13 +19,9 @@ window.onload = function () {
 
 
      function connect(){
-        var token ="nithin@hack.com"
-        conn = new WebSocket("ws://" + document.location.host + `/ws?token=${token}`);
-        conn.onclose = function (evt) {
-            var item = document.createElement("div");
-            item.innerHTML = "<b>Connection closed.</b>";
-            appendLog(item);
-        };
+         // var token ="nithin@hack.com"
+         var token = window.location.search.split('?')[1].split('=')[1]
+         conn = new WebSocket("ws://" + document.location.host + `/ws?token=${token}`);
         conn.onmessage = function (evt) {
             var messages = evt.data.split('\n');
             for (var i = 0; i < messages.length; i++) {
@@ -33,13 +29,13 @@ window.onload = function () {
                 item.innerText = messages[i];
                 appendLog(item);
             }
+        }
             conn.onclose = function(e) {
                   console.log('Socket is closed. Reconnect will be attempted in 1 second.', e.reason);
                 setTimeout(function() {
                     connect();
                 }, 1000);
               };
-        }
      }
     document.getElementById("form").onsubmit = function () {
         if (!conn) {

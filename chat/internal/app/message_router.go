@@ -2,6 +2,8 @@ package app
 
 import (
 	"context"
+	"encoding/json"
+	"fmt"
 	"log"
 
 	"github.com/diadara/sandesham/chat/internal/db"
@@ -14,8 +16,8 @@ type MessageRouter struct {
 	mr *db.MembershipRepository
 }
 
-func NewMessageRouter(rc *redis.Client, ur *db.UserRepository) *MessageRouter {
-	return &MessageRouter{rc: rc}
+func NewMessageRouter(rc *redis.Client, ur *db.UserRepository, mr *db.MembershipRepository) *MessageRouter {
+	return &MessageRouter{rc: rc, ur: ur, mr: mr}
 }
 
 // Message router recieves the message and publishes the message to
@@ -30,8 +32,10 @@ func (mr *MessageRouter) RouteMessage(ctx context.Context, msg *db.Message) {
 		}
 		if toUser != nil {
 			// publishing message to both users
-			mr.rc.Publish(ctx, msg.From.ID.Hex(), msg)
-			mr.rc.Publish(ctx, toUser.ID.Hex(), msg)
+			stMsg, _ := json.Marshal(msg)
+			fmt.Println("publishing ", string(stMsg))
+			mr.rc.Publish(ctx, msg.From.ID.Hex(), string(stMsg))
+			mr.rc.Publish(ctx, toUser.ID.Hex(), string(stMsg))
 		}
 	} else {
 		toCommunityMembers, err := mr.mr.GetMembers(ctx, msg.To)

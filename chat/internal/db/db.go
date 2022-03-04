@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"log"
-
 	"os"
 	"time"
 
@@ -143,7 +142,11 @@ func (ur *UserRepository) GetUserByEmail(ctx context.Context, email string) (*Us
 func (ur *UserRepository) GetUserById(ctx context.Context, id string) (*User, error) {
 
 	var user User
-	err := ur.mc.FindOne(ctx, bson.M{"_id": id}).Decode(&user)
+	objId, _ := primitive.ObjectIDFromHex(id)
+	fmt.Println("fetching user with", id, objId, ur)
+	result := ur.mc.FindOne(ctx, bson.M{"_id": objId})
+	fmt.Println("got resutl")
+	err := result.Decode(&user)
 	if err != nil {
 		log.Println("failed to get user")
 	}

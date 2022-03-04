@@ -111,8 +111,8 @@ func (c *Client) readPump() {
 		msg.Id = result.InsertedID.(primitive.ObjectID).Hex()
 		jsonMsg, err := json.Marshal(msg)
 		//c.hub.rc.Publish(ctx, "chat", string(jsonMsg))
-		c.hub.messageRouter.RouteMessage(ctx, &msg)
 		fmt.Println("publishing message into redis", string(jsonMsg))
+		c.hub.messageRouter.RouteMessage(ctx, &msg)
 	}
 }
 
@@ -130,7 +130,8 @@ func (c *Client) writePump() {
 
 	// listens to the redis and pumps the messages
 	ctx := context.TODO()
-	pubsub := c.hub.rc.Subscribe(ctx, "chat")
+	// subscribe to the userid
+	pubsub := c.hub.rc.Subscribe(ctx, c.user.ID.Hex())
 	fmt.Println("sub to chat")
 	ch := pubsub.Channel()
 	fmt.Println("channel created to listen")
