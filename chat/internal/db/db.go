@@ -21,7 +21,9 @@ type Message struct {
 	To        string    `json:"to"`
 	Type      uint16    `json:"type"` // 0 -> message, 1 community message,
 	Message   string    `json:"message"`
-	Read      bool      `json:"read"`
+	Sent      bool      `json:"sent"`
+	Recieved  bool      `json:"recieved"`
+	Pending   bool      `json:"pending"`
 	CreatedAt time.Time `json:"created_at" bson:"created_at,omitempty"`
 }
 

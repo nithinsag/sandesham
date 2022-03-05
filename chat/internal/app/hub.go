@@ -31,9 +31,10 @@ type Hub struct {
 
 	rc *redis.Client
 
-	mr            *db.MessageRepository
-	ur            *db.UserRepository
-	messageRouter *MessageRouter
+	mr             *db.MessageRepository
+	ur             *db.UserRepository
+	messageRouter  *MessageRouter
+	membershipRepo *db.MembershipRepository
 }
 
 // Client is a middleman between the websocket connection and the hub.
@@ -131,7 +132,16 @@ func (c *Client) writePump() {
 	// listens to the redis and pumps the messages
 	ctx := context.TODO()
 	// subscribe to the userid
-	pubsub := c.hub.rc.Subscribe(ctx, c.user.ID.Hex())
+	//
+	memberships, err := c.hub.membershipRepo.GetCommunities(ctx, c.user)
+	var communityIds []string
+	if err != nil {
+		for _, membership := range memberships {
+			communityIds = append(communityIds, membership.Community.ID.Hex())
+		}
+	}
+	communityIds = append(communityIds, c.user.ID.Hex())
+	pubsub := c.hub.rc.Subscribe(ctx, communityIds...)
 	fmt.Println("sub to chat")
 	ch := pubsub.Channel()
 	fmt.Println("channel created to listen")
@@ -166,16 +176,17 @@ func (c *Client) writePump() {
 		}
 	}
 }
-func NewHub(rc *redis.Client, mr *db.MessageRepository, ur *db.UserRepository, messageRouter *MessageRouter) *Hub {
+func NewHub(rc *redis.Client, mr *db.MessageRepository, ur *db.UserRepository, memberRepo *db.MembershipRepository, messageRouter *MessageRouter) *Hub {
 	return &Hub{
-		broadcast:     make(chan []byte),
-		register:      make(chan *Client),
-		unregister:    make(chan *Client),
-		clients:       make(map[*Client]bool),
-		rc:            rc,
-		mr:            mr,
-		ur:            ur,
-		messageRouter: messageRouter,
+		broadcast:      make(chan []byte),
+		register:       make(chan *Client),
+		unregister:     make(chan *Client),
+		clients:        make(map[*Client]bool),
+		rc:             rc,
+		mr:             mr,
+		ur:             ur,
+		membershipRepo: memberRepo,
+		messageRouter:  messageRouter,
 	}
 }
 

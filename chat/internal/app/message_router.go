@@ -38,12 +38,12 @@ func (mr *MessageRouter) RouteMessage(ctx context.Context, msg *db.Message) {
 			mr.rc.Publish(ctx, toUser.ID.Hex(), string(stMsg))
 		}
 	} else {
-		toCommunityMembers, err := mr.mr.GetMembers(ctx, msg.To)
-		if err != nil {
-			for _, member := range toCommunityMembers {
-				mr.rc.Publish(ctx, member.Member.ID.Hex(), msg)
-			}
-		}
+		// toCommunityMembers, err := mr.mr.GetMembers(ctx, msg.To)
+		// verify membership and publish
+		// TODO: verify membership
+		//if err != nil {
+		mr.rc.Publish(ctx, msg.To, msg)
+		//}
 	}
 	// Handle Group, to use multiplexing ?
 }
