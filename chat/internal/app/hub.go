@@ -13,7 +13,6 @@ import (
 	"github.com/diadara/sandesham/chat/internal/db"
 	"github.com/go-redis/redis/v8"
 	"github.com/gorilla/websocket"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type Hub struct {
@@ -107,9 +106,8 @@ func (c *Client) readPump() {
 		// Push to appropriate redis topic
 		//
 
-		result, err := c.hub.mr.SaveMessage(ctx, msg)
+		result, err := c.hub.mr.SaveMessage(ctx, &msg)
 		fmt.Println(result, err)
-		msg.Id = result.InsertedID.(primitive.ObjectID).Hex()
 		jsonMsg, err := json.Marshal(msg)
 		//c.hub.rc.Publish(ctx, "chat", string(jsonMsg))
 		fmt.Println("publishing message into redis", string(jsonMsg))

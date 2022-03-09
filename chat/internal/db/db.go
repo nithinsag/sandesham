@@ -104,9 +104,15 @@ func NewMembershipRepository(mc *mongo.Client) *MembershipRepository {
 	return &MembershipRepository{mc: mc.Database("myapp").Collection("communitymemberships")}
 }
 
-func (mr *MessageRepository) SaveMessage(ctx context.Context, msg Message) (*mongo.InsertOneResult, error) {
+func (mr *MessageRepository) SaveMessage(ctx context.Context, msg *Message) (*Message, error) {
 	msg.CreatedAt = time.Now()
-	return mr.mc.InsertOne(ctx, msg)
+	result, err := mr.mc.InsertOne(ctx, msg)
+	if err != nil {
+		return nil, err
+	}
+	msg.Id = result.InsertedID.(primitive.ObjectID).Hex()
+
+	return msg, err
 }
 
 func (mr *MessageRepository) GetMessages(ctx context.Context, filter bson.D) ([]Message, error) {
