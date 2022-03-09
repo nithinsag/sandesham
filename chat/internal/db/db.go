@@ -16,15 +16,16 @@ import (
 )
 
 type Message struct {
-	From      User      `json:"from"`
-	Id        string    `json:"_id" bson:"_id,omitempty"`
-	To        string    `json:"to"`
-	Type      uint16    `json:"type"` // 0 -> message, 1 community message,
-	Message   string    `json:"message"`
-	Sent      bool      `json:"sent"`
-	Recieved  bool      `json:"recieved"`
-	Pending   bool      `json:"pending"`
-	CreatedAt time.Time `json:"created_at" bson:"created_at,omitempty"`
+	From      User               `json:"from"`
+	Id        primitive.ObjectID `json:"_id" bson:"_id,omitempty"`
+	CId       string             `json:"c_id" bson:"c_id,omitempty"`
+	To        string             `json:"to"`
+	Type      uint16             `json:"type"` // 0 -> message, 1 community message,
+	Message   string             `json:"message"`
+	Sent      bool               `json:"sent"`
+	Recieved  bool               `json:"recieved"`
+	Pending   bool               `json:"pending"`
+	CreatedAt time.Time          `json:"created_at" bson:"created_at,omitempty"`
 }
 
 func (msg *Message) IsDM() bool {
@@ -110,7 +111,7 @@ func (mr *MessageRepository) SaveMessage(ctx context.Context, msg *Message) (*Me
 	if err != nil {
 		return nil, err
 	}
-	msg.Id = result.InsertedID.(primitive.ObjectID).Hex()
+	msg.Id = result.InsertedID.(primitive.ObjectID)
 
 	return msg, err
 }
