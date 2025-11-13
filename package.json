@@ -44,7 +44,7 @@
     "bull-board": "^1.5.1",
     "bullmq": "^1.15.1",
     "chai": "^4.3.0",
-    "cloudinary": "^1.23.0",
+    "cloudinary": "^2.7.0",
     "cors": "^2.8.5",
     "csv-parser": "^3.0.0",
     "datadog-metrics": "^0.9.3",
